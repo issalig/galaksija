@@ -38,7 +38,7 @@ $normal_key_color = [ 0.95, 0.95, 0.95 ];
 $text_enabled = true; // characters on keys
 $key_space = 19;      // space between keys in pcb
 
-$fn_keys = 30; // 60;
+$fn_keys = 60;
 $fn_text = 60;
 $fn = $fn_keys;
 
@@ -311,8 +311,8 @@ module key_space_galaksija(u = 8)
 module text_galaksija(text = "A", deep = 10.5, font_size = $font_size, font_name = "GreenMountain3",
                       font_height = $text_height)
 {
-
-	if ($text_enabled)
+  
+	if (($text_enabled))
 	{
 
 		y_offset = 0.5;
@@ -417,7 +417,7 @@ module galaksija_row1()
 
 module galaksija_row2()
 {
-	text_galaksija(text = "↑", font_name = "", font_size = "");
+	text_galaksija(text = "↑", font_name = "", font_size = 10);
 	color($special_key_color) key_galaksija();
 
 	letters_2r = "QWERTYUIOP";
@@ -435,7 +435,7 @@ module galaksija_row2()
 	{
 		translate([ 19 * (i + len(letters_2r) + 1), 0, 0 ])
 		{
-			text_galaksija(text = arrows[i], font_name = "", font_size = "");
+			text_galaksija(text = arrows[i], font_name = "", font_size = 10);
 			color($special_key_color) key_galaksija();
 		}
 	}
@@ -449,7 +449,7 @@ module galaksija_row2()
 
 module galaksija_row3()
 {
-	text_galaksija(text = "↓", font_name = "", font_size = "");
+	text_galaksija(text = "↓", font_name = "", font_size = 10);
 	color($special_key_color) key_galaksija();
 
 	letters_3r = "ASDFGHJKL";
@@ -601,7 +601,7 @@ module galaksija_special_keys()
 	{
 		translate([ 110 + 19 * i, 0, 0 ])
 		{
-			text_galaksija(text = arrows[i], font_name = "", font_size = "");
+			text_galaksija(text = arrows[i], font_name = "", font_size = 10);
 			color($special_key_color) key_galaksija();
 			// echo("letter",i, arrows[i]);
 		}
@@ -781,16 +781,19 @@ module labels_dxf()
 	galaksija_keyboard();
 }
 
-// full keyboard
-galaksija_keyboard();
+module keyboard_all(){
+    // full keyboard
+    galaksija_keyboard();
 
+    // space stabilizer
+    translate([ 118.5, -100, 18 ])
+    color($normal_key_color) galaksija_space_stabilizer();
 
-// space stabilizer
-translate([ 118.5, -100, 18 ])
-color($normal_key_color) galaksija_space_stabilizer();
+    // retainer rings
+    translate([ 118.5, -100, 0 ])
+    color($normal_key_color) retainer_ring();
+    translate([ 118.5 + 10, -100, 0 ])
+    color($normal_key_color) retainer_ring();
+}
 
-// retainer rings
-translate([ 118.5, -100, 0 ])
-color($normal_key_color) retainer_ring();
-translate([ 118.5 + 10, -100, 0 ])
-color($normal_key_color) retainer_ring();
+keyboard_all();
