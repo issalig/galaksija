@@ -1,10 +1,10 @@
 /*
  Decription: Galaksija case
  Author: issalig
- Date: 04/04/24
+ Date: 06/02/25
  */
 
-// include </home/issalig/Descargas/ghaire/hb10_keys/galaksija_keys.scad>;
+use("galaksija_keys.scad");
 
 // measures taken from the pcb
 $pcb_width = 310.24;
@@ -43,11 +43,14 @@ $fn = 50; //$fn_case;
 $colortop = "gold";  //[0.15, 0.15, 0.15];
 $colortop2 = "gold"; //[0.15, 0.15, 0.15];
 $colorbase = "gold"; // [0.15, 0.15, 0.15];
+$special_color = "#deb887";
+$normal_color = [ 0.15, 0.15, 0.15 ];
+$font_name = "GreenMountain3";
 
 $top_nerves = 1;
 $base_nerves = 1;
 
-//position of the nerves and screw holes to make the sandwich
+// position of the nerves and screw holes to make the sandwich
 $base_nerve_x = 0.6; // relative nerve positions
 $base_nerve_x2 = 0.35;
 $base_nerve_y = 0.5;
@@ -60,17 +63,17 @@ $top_nerve_x2 = 0.5; // for the back part
 
 $top_nerve_y = 2 / 3;
 
-//logo
-$logo_enabled = 1; // show logo
-$logo_text_enabled = false; //show font logo or galakisja original logo
+// logo
+$logo_enabled = 1;          // show logo
+$logo_text_enabled = false; // show font logo or galakisja original logo
 
 // origin is pcb left bottom
 
-//pcb from kicad export
+// pcb from kicad export
 module pcb()
 {
 	translate([ -532.5, -182.7, 0 ])
-	import("/home/issalig/Descargas/galaksija/galaksija_pcb.stl");
+	import("galaksija_pcb.stl");
 
 	// cube([$pcb_width, $pcb_height, $pcb_thickness]);
 	translate([ $pcb_holes_x_off, $pcb_holes_y_off, -50 ])
@@ -91,7 +94,7 @@ module pcb()
 	% cylinder(h = 100, d = $pcb_hole_diam);
 }
 
-//simple pcb mockup
+// simple pcb mockup
 module pcb_rectangle()
 {
 	cl = 0.3; // clearance
@@ -99,7 +102,7 @@ module pcb_rectangle()
 	cube([ $pcb_width + cl * 2, $pcb_height + cl * 2, $pcb_thickness + cl / 2 ]);
 }
 
-//for slanted back top
+// for slanted back top
 module chamfer_profile(width = 20, h = $case_height2 - $case_height, angle = 10)
 {
 	// h = r * cos(a);
@@ -113,13 +116,13 @@ module chamfer_profile(width = 20, h = $case_height2 - $case_height, angle = 10)
 #polygon(points = [ [ 0, 0 ], [ -x, 0 ], /*[-x/4, y/2],*/[ 0, y ] ]);
 }
 
-//holes for back connections
+// holes for back connections
 module back_connections()
 {
 	// data
 	conn_deep = 14.5;
 	translate([ -65.81 + $pcb_width / 2, $case_height / 2, $case_top_deep - conn_deep / 2 ])
-#cube([ 90, 10, conn_deep ], center = true);
+	cube([ 90, 10, conn_deep ], center = true);
 	// dc switch
 
 	translate([ -$case_width / 2 + 22, $case_height / 2, $case_top_deep - 8 ])
@@ -161,16 +164,15 @@ module back_connections()
 	cylinder(h = 100, d = $pcb_hole_diam);
 }
 
-//text legends for back connections
+// text legends for back connections
 module back_legends()
 {
 
 	// data legend
 	translate([ 220 - $pcb_width / 2, $case_height / 2 + $fillet_radius, $case_top_deep - 14.5 - 0.5 - 1 ])
 	rotate([ 270, 0, 0 ])
-// color([1,1,1])
-#linear_extrude(0.5)
-	text("Expansion", size = 3, font = $font_name, halign = "center", $fn = 50);
+	// color([1,1,1])
+	linear_extrude(0.5) text("Expansion", size = 3, font = $font_name, halign = "center", $fn = 50);
 
 	// break legend
 	translate([ -132 + $pcb_width / 2, $case_height / 2 + $fillet_radius, $case_top_deep / 2 - 7 - 1.5 ])
@@ -211,7 +213,7 @@ module back_legends()
 	linear_extrude(0.5) text("I/O", size = 3, font = $font_name, halign = "center", $fn = 50);
 }
 
-//logo using font from keyboard
+// logo using font from keyboard
 module logo()
 {
 	if ($logo_text_enabled)
@@ -233,10 +235,13 @@ module top_front()
 	// logo
 	if ($logo_enabled)
 	{
-		translate([ -$case_width / 2 + 65, $case_height / 2 - 30, -$case_top_deep2 / 2 - $fillet_radius + 2 ])
+		color($normal_color) translate(
+		    [ -$case_width / 2 + 65 + 200, $case_height / 2 - 30, -$case_top_deep2 / 2 - $fillet_radius + 2 - 3 ])
 		rotate([ 0, 180, 0 ])
 		// scale([1,1,2])
-		import("/home/issalig/Descargas/galaksija/ImageToStl.com_logo3.stl");
+		// ImageToStl.com
+		import("galaksija_logo.stl");
+		// import("galaksija_logo_plate.stl");
 		/*
 		scale([1, 1, 0.1])
 	  surface(file = "smiley.png", center = true, invert = true);
@@ -339,7 +344,7 @@ module top_back()
 			cube([ $case_width, $case_height2, $case_top_deep2 + $fillet_radius ], center = true);
 
 			translate([ -$case_width / 2, -$case_height2 / 2, -$case_top_deep2 / 2 + 10 ])
-#chamfer_profile(width = $case_width, h = $case_top_deep2 - $case_top_deep, angle = angle);
+			chamfer_profile(width = $case_width, h = $case_top_deep2 - $case_top_deep, angle = angle);
 			/*
 			%translate([0,-$case_height2*0.8,0])
 			rotate([-angle,0,0])
@@ -425,14 +430,14 @@ module base_mounting_holes()
 				-$screws_width / 2 + mh_w * $screws_width,
 				-$screws_height / 2 + mh_off_y + $screws_height * $side_central_hole, -3
 			])
-#cylinder(h = $case_base_deep + 4, d = $screws_metric + 0.3, $fn = $fn_case);
+			cylinder(h = $case_base_deep + 4, d = $screws_metric + 0.3, $fn = $fn_case);
 
 			// middle2
 			translate([
 				-$screws_width / 2 + mh_w * $screws_width,
 				-$screws_height / 2 + mh_off_y + $screws_height * (1 - $case_height2 / $case_height + 0.1), -3
 			])
-#cylinder(h = $case_base_deep + 4, d = $screws_metric + 0.3, $fn = $fn_case);
+			cylinder(h = $case_base_deep + 4, d = $screws_metric + 0.3, $fn = $fn_case);
 		}
 	}
 
@@ -469,11 +474,11 @@ module base_mounting_holes()
 		// nerves for partition
 		// y-axis nerve
 		translate([ -$nerve_width / 2 + ($base_nerve_x - 0.5) * $case_width, -$case_height / 2, 0 ])
-#cube([ $nerve_width, $case_height * $base_nerve_y, 2 ]);
+		cube([ $nerve_width, $case_height * $base_nerve_y, 2 ]);
 		// y-axis nerve2
 		translate(
 		    [ -$nerve_width / 2 + ($base_nerve_x2 - 0.5) * $case_width, -$case_height * ($base_nerve_y - 0.5), 0 ])
-#cube([ $nerve_width, $base_nerve_y * $case_height, 2 ]);
+		cube([ $nerve_width, $base_nerve_y * $case_height, 2 ]);
 
 		// x-axis nerve
 		translate([ -$case_width / 2, -$nerve_width / 2 + ($base_nerve_y - 0.5) * $case_height, 0 ])
@@ -496,7 +501,7 @@ module case_top_mounting_holes()
 		{
 			// front holes
 			translate([ -$screws_width / 2 + mh_w * $screws_width, -$screws_height / 2 + mh_off_y, 0 ])
-#cylinder(h = $case_top_deep, d1 = $screws_metric + 3, d2 = $screws_metric + 6.5, $fn = $fn_case);
+			cylinder(h = $case_top_deep, d1 = $screws_metric + 3, d2 = $screws_metric + 6.5, $fn = $fn_case);
 			translate([ -0.5 - $screws_width / 2 + mh_w * $screws_width, -$screws_height / 2 + mh_off_y - 6, 3 ])
 			cube([ 1, 3, $case_top_deep - 2 ]);
 
@@ -513,26 +518,26 @@ module case_top_mounting_holes()
 				-$screws_width / 2 + mh_w * $screws_width,
 				-$screws_height / 2 + mh_off_y + $screws_height * (1 - $case_height2 / $case_height + 0.1), 0
 			])
-#cylinder(h = $case_top_deep2, d1 = $screws_metric + 3, d2 = $screws_metric + 6.5, $fn = $fn_case);
+			cylinder(h = $case_top_deep2, d1 = $screws_metric + 3, d2 = $screws_metric + 6.5, $fn = $fn_case);
 			translate([
 				-3 - $screws_width / 2 + mh_w * ($screws_width + 9),
 				-$screws_height / 2 + mh_off_y - 0.5 + $screws_height * (1 - $case_height2 / $case_height + 0.1), 3
 			])
 			rotate([ 0, 0, 90 ])
-#cube([ 1, 3, $case_top_deep2 - 2 ]);
+			cube([ 1, 3, $case_top_deep2 - 2 ]);
 
 			// middle holes
 			translate([
 				-$screws_width / 2 + mh_w * $screws_width,
 				-$screws_height / 2 + mh_off_y + $screws_height * $side_central_hole, 0
 			])
-#cylinder(h = $case_top_deep, d1 = $screws_metric + 3, d2 = $screws_metric + 6.5, $fn = $fn_case);
+			cylinder(h = $case_top_deep, d1 = $screws_metric + 3, d2 = $screws_metric + 6.5, $fn = $fn_case);
 			translate([
 				-3 - $screws_width / 2 + mh_w * ($screws_width + 9),
 				-$screws_height / 2 + mh_off_y - 0.5 + $screws_height * $side_central_hole, 3
 			])
 			rotate([ 0, 0, 90 ])
-#cube([ 1, 3, $case_top_deep - 2 ]);
+			cube([ 1, 3, $case_top_deep - 2 ]);
 		}
 
 		// hollow mounting holes
@@ -540,7 +545,7 @@ module case_top_mounting_holes()
 		{
 			// front
 			translate([ -$screws_width / 2 + mh_w * $screws_width, -$screws_height / 2 + mh_off_y, -3 ])
-#cylinder(h = $case_base_deep + 4, d = $screws_metric - 0.3, $fn = $fn_case);
+			cylinder(h = $case_base_deep + 4, d = $screws_metric - 0.3, $fn = $fn_case);
 
 			// back
 			translate(
@@ -588,7 +593,7 @@ module case_top_mounting_holes()
 		}
 
 		translate([ -$screws_width / 2 + $case_width * $front_central_hole_x, -$screws_height / 2 + mh_off_y, -3 - 80 ])
-#cylinder(h = $case_base_deep + 4 + 100, d = $screws_metric - 0.3, $fn = $fn_case);
+		cylinder(h = $case_base_deep + 4 + 100, d = $screws_metric - 0.3, $fn = $fn_case);
 	}
 
 	// front central hole2
@@ -608,7 +613,7 @@ module case_top_mounting_holes()
 
 		translate(
 		    [ -$screws_width / 2 + $case_width * $front_central_hole_x - 12, -$screws_height / 2 + mh_off_y, -3 - 80 ])
-#cylinder(h = $case_base_deep + 4 + 100, d = $screws_metric - 0.3, $fn = $fn_case);
+		cylinder(h = $case_base_deep + 4 + 100, d = $screws_metric - 0.3, $fn = $fn_case);
 	}
 
 	// expansion connector
@@ -642,7 +647,7 @@ module case_top_mounting_holes()
 			translate([
 				-$nerve_width / 2 + ($top_nerve_x - 0.5) * $case_width, -$case_height / 2, height + 2 - 0.7 - 10 + 2
 			])
-#cube([ $nerve_width, 5, $case_top_deep - 2 ]);
+			cube([ $nerve_width, 5, $case_top_deep - 2 ]);
 
 			// middle front back
 			translate([
@@ -665,14 +670,14 @@ module case_top_mounting_holes()
 				$case_height - $case_height2 - $case_height / 2 + 3,
 				height + 2 - 0.7 - 10 + $case_top_deep2 - ($case_top_deep2 - $case_top_deep)
 			])
-#cube([ $nerve_width, 5, $case_top_deep2 - $case_top_deep ]);
+			cube([ $nerve_width, 5, $case_top_deep2 - $case_top_deep ]);
 
 			// middle back back
 			translate([
 				-$nerve_width / 2 + ($top_nerve_x2 - 0.5) * $case_width, $case_height / 2 - 5,
 				height + 2 - 0.7 - 10 + $case_top_deep2 - ($case_top_deep2 - $case_top_deep + 4)
 			])
-#cube([ $nerve_width, 5, $case_top_deep2 - $case_top_deep + 4 ]);
+			cube([ $nerve_width, 5, $case_top_deep2 - $case_top_deep + 4 ]);
 		}
 	} // endif nerves
 }
@@ -739,22 +744,26 @@ module case_base()
 			hhole2 = 90;
 			for (i2 = [0:1:nholes2])
 			{
-// front left
-#translate([ -nholes2 * dholes2 / 2 + i2 * dholes2 - $case_width / 4, -$case_height / 4 + 22, -$case_base_deep ])
+				// front left
+				translate([
+					-nholes2 * dholes2 / 2 + i2 * dholes2 - $case_width / 4, -$case_height / 4 + 22, -$case_base_deep
+				])
 				cube([ whole2, hhole2, $case_base_deep * 2 ], center = true);
 				// front right
 				translate([
 					-nholes2 * dholes2 / 2 + i2 * dholes2 + $case_width / 4, -$case_height / 4 + 22, -$case_base_deep
 				])
-#cube([ whole2, hhole2, $case_base_deep * 2 ], center = true);
+				cube([ whole2, hhole2, $case_base_deep * 2 ], center = true);
 
-#translate([ -nholes2 * dholes2 / 2 + i2 * dholes2 - $case_width / 4, -$case_height / 4 + 117, -$case_base_deep ])
+				translate([
+					-nholes2 * dholes2 / 2 + i2 * dholes2 - $case_width / 4, -$case_height / 4 + 117, -$case_base_deep
+				])
 				cube([ whole2, hhole2 - 30, $case_base_deep * 2 ], center = true);
 				// front right
 				translate([
 					-nholes2 * dholes2 / 2 + i2 * dholes2 + $case_width / 4, -$case_height / 4 + 117, -$case_base_deep
 				])
-#cube([ whole2, hhole2 - 30, $case_base_deep * 2 ], center = true);
+				cube([ whole2, hhole2 - 30, $case_base_deep * 2 ], center = true);
 			}
 		}
 
@@ -786,11 +795,11 @@ module case_base()
 		}
 		// middle front
 		translate([ -$screws_width / 2 + $front_central_hole_x * $case_width, -$screws_height / 2 + mh_off_y, -3 ])
-#cylinder(h = $case_base_deep + 4, d = $screws_metric + 4, $fn = $fn_case);
+		cylinder(h = $case_base_deep + 4, d = $screws_metric + 4, $fn = $fn_case);
 
 		// middle front2
 		translate([ -$screws_width / 2 + $front_central_hole_x * $case_width - 12, -$screws_height / 2 + mh_off_y, -3 ])
-#cylinder(h = $case_base_deep + 4, d = $screws_metric + 4, $fn = $fn_case);
+		cylinder(h = $case_base_deep + 4, d = $screws_metric + 4, $fn = $fn_case);
 
 		//
 		// pass-through holes for keyb and expansion
@@ -798,9 +807,9 @@ module case_base()
 		{
 			// keyboard front
 			translate([ $pcb_holes_x_off, $pcb_holes_y_off, -10 ])
-#cylinder(h = 50, d = 2.7);
+			cylinder(h = 50, d = 2.7);
 			translate([ $pcb_holes_x_off + $pcb_holes_dist, $pcb_holes_y_off, -10 ])
-#cylinder(h = 50, d = 2.7);
+			cylinder(h = 50, d = 2.7);
 
 			// expansion connector
 			translate([ 23.5, 204.92, -10 ])
@@ -887,7 +896,7 @@ module pcb_mounting_holes()
 		}
 		// keyboard front
 		translate([ $pcb_holes_x_off, $pcb_holes_y_off, -10 ])
-#cylinder(h = 50, d = 2.7);
+		cylinder(h = 50, d = 2.7);
 		translate([ $pcb_holes_x_off + $pcb_holes_dist, $pcb_holes_y_off, -10 ])
 		cylinder(h = 50, d = 2.7);
 
@@ -959,7 +968,7 @@ module tzxduino()
 	}
 
 	translate([ -107.65, 88.85, 1.4 / 2 ])
-	import("/home/issalig/Descargas/galaksija/maxduino/yatzxduino/yatzxduino.stl");
+	import("yatzxduino.stl");
 
 	translate([ 80 - 18 - 3.5, 59, 8 ])
 	cube([ 10, 10, 4.8 ]);
@@ -995,7 +1004,7 @@ module case_top()
 	top_position = 20;
 
 	// top front
-	difference()
+	color($normal_color) difference()
 	{
 		translate([ ($pcb_width) / 2, $pcb_height / 2, top_position ])
 		rotate([ 0, 180, 0 ])
@@ -1019,7 +1028,7 @@ module case_top()
 	}
 
 	// top back
-	difference()
+	color($special_color) difference()
 	{
 		translate([
 			($pcb_width) / 2, $pcb_height / 2 + ($case_height - $case_height2) / 2, top_position + $case_top_deep2 -
@@ -1036,8 +1045,8 @@ module case_top()
 		])
 		cube([ $case_width + 2 * $fillet_radius, $case_height2 + 2 * $fillet_radius, $case_top_deep ], center = true);
 
-	#translate([ ($pcb_width)-80, $pcb_height - 55, top_position + 0 ])
-		tzxduino();
+		//#translate([ ($pcb_width) -80, $pcb_height -55, top_position +0 ])
+		// tzxduino();
 	}
 
 	// add mounting holes
@@ -1045,7 +1054,7 @@ module case_top()
 	case_top_mounting_holes();
 
 	// add mounting for tzxduino
-	tzxduino_mounting_holes();
+	// tzxduino_mounting_holes();
 }
 
 // translate([0,-$case_pcb_off_y/2, 0])
@@ -1056,8 +1065,13 @@ module case_top()
 
 // pcb_holes();
 
+// 0 means all case
+// 1, 2, 3, 4 are the different subparts
 module case_top_parts(part = 0)
 {
+
+	echo("Top part:", part);
+
 	intersection()
 	{
 		translate([ 0, -$case_pcb_off_y / 2, 0 ])
@@ -1104,7 +1118,7 @@ module case_top_parts(part = 0)
 		i_cube = [ 0, 1, 2, 3, 4 ]; // dirty array to select intersection cube
 		translate(translation[part])
 		{
-#cube(inter_cube[i_cube[part]]);
+			cube(inter_cube[i_cube[part]]);
 		}
 	}
 }
@@ -1170,7 +1184,7 @@ module case_base_parts(part = 0)
 		difference()
 		{
 			translate([ ($pcb_width) / 2, $pcb_height / 2 - $case_pcb_off_y / 2, 0 ])
-			case_base();
+			color($normal_color) case_base();
 
 			translate([ 0, 0, $case_base_deep - $pcb_thickness ])
 			// pcb();
@@ -1180,7 +1194,6 @@ module case_base_parts(part = 0)
 		//$case_pcb_off_y en x ??? check it!!
 
 		echo("Part:", part);
-		echo(trans[part]);
 
 		// all,front left, front right, back left, back right
 		trans = [
@@ -1222,39 +1235,34 @@ module case_base_parts(part = 0)
 	}
 }
 
-// base and top
-//{
-//	case_base_parts(part = 0);
-//	translate([ 0, 0, 10 ])
-//	case_top_parts(part = 0);
-// }
+module show_base_and_top()
+{
+	translate([ 0, 0, -40 ])
+	case_base_parts(part = 0);
+	translate([ 0, 0, 10 ])
+	case_top_parts(part = 0);
+}
 
+// show_base_and_top();
+
+// case_base_parts(part=0);
 // case_base_parts(part=1);
 // case_base_parts(part=2);
 // case_base_parts(part=3);
 // case_base_parts(part=4);
 
-// offset to pcb origin
-// translate([30.23+19/2,88.72+$case_pcb_off_y,7])
-// galaksija_keyboard();
-// translate([80,80,7])
-// mykeys();
-
-// translate([0,0,60])
-// case_top_parts(part=0);
-//     translate([0,-$case_pcb_off_y/2, 0])
-// case_top();
-
-// top_back();
-
-// translate([0,0,7])
-// pcb();
-
-// keyboard_frame();
-
+case_top_parts(part = 0);
 // case_top_parts(part=1);
 // case_top_parts(part=2);
 // case_top_parts(part=3);
-case_top_parts(part = 4);
+// case_top_parts(part=4);
+
+// offset to pcb origin
+// translate([ 0, 0, 20 ])
+// translate([30.23+19/2,88.72+$case_pcb_off_y,7])
+// galaksija_keyboard();
 
 // tzxduino();
+// translate([0,0,7])
+// pcb();
+// keyboard_frame();

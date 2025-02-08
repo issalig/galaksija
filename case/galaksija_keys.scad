@@ -1,7 +1,7 @@
 /*
  Decription: Keycaps for galaksija keyboard using cherry switches
  Author: issalig
- Date: 02/04/24
+ Date: 06/02/25
 
  Keytop is flat (rounded surfaces are not nice for FDM printers)
  Print it without any support.
