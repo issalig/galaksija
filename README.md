@@ -10,8 +10,9 @@ My recontrstrucion of Galaksija computer
   ![galaksija front](case/photos/galaksija_front.jpg)
   
 - HW (TO-DO)
+  - In order to build it follow instructions from https://github.com/mejs/galaksija
   - I have used 27C512 for the ROMs in a Manhattan style.
-  - Source a real 74LS04 or you will have problems.
+  - Source authentic ICs or you will have problems and a lot of "fun".  
   
 - SW (TO-DO)
   - To load SW I got best results with a laptop. Mobile phone seem to have lower signal voltage and did not work.
