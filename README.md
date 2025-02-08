@@ -1,7 +1,7 @@
 # galaksija
 My recontrstrucion of Galaksija computer
 
-- Case
+- Case [(link)](https://github.com/issalig/galaksija/main/case)
   - It contains scad files for the enclosure and the keys.
   - The enclosure can be printed in 4 parts in order to fit in normal printers (aka Ender3)
   - Keys include also an stabilizer for space bar.
@@ -9,9 +9,13 @@ My recontrstrucion of Galaksija computer
   ![galaksija scad](case/galaksija_keys.png)
   ![galaksija front](case/photos/galaksija_front.jpg)
   
-- HW (TO-DO)
+- HW  [(link)](https://github.com/issalig/galaksija/main/hw)
   - In order to build it follow instructions from https://github.com/mejs/galaksija
   - I have used 27C512 for the ROMs in a Manhattan style.
+    - You just need add some wires like in the diagram
+    ![adapter](hw/2732_to_27c512.png)
+    ![pcb](case/photos/galaksija_pcb.jpg)
+    - Plan b: Get an adapter such as https://www.ukvac.com/forum/threads/2708-2716-2732-adapter-to-27512-eeprom.67258/
   - Source authentic ICs or you will have problems and a lot of "fun".  
   
 - SW (TO-DO)
