@@ -1,6 +1,8 @@
 # galaksija
 My recontrstrucion of Galaksija computer
 
-- HW
-- SW
 - Case
+  ![galaksija case](case/galaksija_case.png)
+
+- HW (TO-DO)
+- SW (TO-DO)
