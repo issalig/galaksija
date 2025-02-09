@@ -72,12 +72,12 @@ As an illustration of the reliability/speed problem, let a quote from the instru
 The basic memory of the Galaksija computer is not large, so recording on a cassette does not take too long, and the verification of the recording eliminates all other potential problems.
 
 
-### 
+
+### WIP!!!!
 You can use GALe emulator to write your own programs and save them as GTP
 00A5 362C 4C2C 3A2C 4C2C 0A00 5052494E5420225A445241564F21220D A3 FF
 
-## GTP Format
-# Galaksija Computer Tape File Format
+# Galaksija Computer Tape File Format (GTP)
 
 ## Overview
 
@@ -102,11 +102,11 @@ A typical Galaksija tape file consists of one or more blocks (name, standard or 
 | ------------ | ------------------------ |
 | 1            | `00`                     |
 | 2            | Data Length              |
-| Variable     | Padding                  |
-| 1            | Magic Byte (`A5`) |
-| 2            | Start Address            |
-| 2            | End Address (Start address + Data Length)|
-| 2            | BASIC (Start address + len + 4)|
+| 2            | `0000`                   |
+| 1            | `A5` Magic Byte          |
+| 2            | Start Address (2C36)     |
+| 2            | End Address (Start + Data Length)|
+| 2            | BASIC (Star + len + 4)|
 | 2            | End Address (Start + Data Length)    |
 | Variable     | Program Data             |
 | 1            | Checksum (CRC)           |
@@ -136,18 +136,18 @@ The following bytes correspond to this HELLO WORLD! program.
 
 First block contain name (this block is optional)
 - `10` -  Name Block
-- `06 00` - Length (6)
+- `06 00` - Length (6 bytes)
 - `00 00` - Separator
 - `48 45 4c 4c 4f 00` - String terminated with \0 (HELLO)
 
 - `00` - Standard Block
-- `21 00` - Length (33)
+- `21 00` - Length (33 bytes)
 - `00 00` - Separator
 - `a5` - Magic byte
-- `36 2c` - //
-- `51 2c` - 
-- `3a 2c` - 
-- `51 2c` - 
+- `36 2c` - Start address 0x2c36
+- `51 2c` - End address 0x2c36 + 0x21
+- `3a 2c` - 0x2c36 + 0x21
+- `51 2c` - End address 0x2c36 + 
 - `0a` - Line number in decimal (10)
 - `00 50 52 49 4e 54 20 22 48 45 4c 4c 4f 20 57 4f 52 4c 44 21 22 0d` - String (begin with \0 and ends with CR)  ```P  R  I  N  T     "  H  E  L  L  O  "```
 - `53` - CRC
@@ -182,6 +182,12 @@ SAVE
 ---
 TO-DO: Load from TZX (rcmolina maxduino, etc, ...
 
+other sw
+a5
+00 38  0x3800
+00 40  0x4000
+3e c3  0xc33e
+32 a9  0xa932
 
 
 
