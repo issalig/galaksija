@@ -153,15 +153,15 @@ First block contain name (this block is optional)
 - `00 50 52 49 4e 54 20 22 48 45 4c 4c 4f 20 57 4f 52 4c 44 21 22 0d` - String (begin with \0 and ends with CR)  ```P  R  I  N  T     "  H  E  L  L  O  "```
 - `53` - CRC
 
-Load it with OLD and type DUMP &2C36,4. This will dump 4*8 bytes starting at the given address.
+Load it with OLD and type DUMP &2C36,4. This will dump 4*8 bytes starting at the given address and we can check if everything is correct.
 ```basic
-DUMP &2C36,5
+DUMP &2C36,4
 &2C36:  3A 2C 51 2C 0A 00 50 52
 &2C3E:  49 4E 54 20 22 48 45 4C
 &2C46:  4C 4F 20 57 4F 52 4C 44
 &2C4E:  21 22 00 00 00 00 00 00
-&2C56:  00 00 00 00 00 00 00 00
 ```
+The previous dump confirms that BASIC start and end pointers are correctly set.
 
 |offset | content |
 |-------|------|
@@ -171,55 +171,11 @@ DUMP &2C36,5
 
 2c51-2c3a 0x17 --> 23 bytes is program length
 
-(see table below)
+(see system address for ROM 2 below)
 
 2C51 points to the next byte
 
-
-
-other sw
-0x807 ->  2055 
-a5
-00 38  0x3800  
-00 40  0x4000   3800 + 0800
-3e c3  0xc33e     
-32 a9  0xa932
-|offset | content |
-|-------|------|
-|3800   | c33e |
-|3802   | a932 |
-|3804 .. 3FFE | 2B .. C9 |
-
-
-A5
-2C36 //ORG address
-2C36 + datalen //block end location
-2C36 + 4+len //basic start
-2C36 + datalen //block end location
-
-
-## Example Breakdown
-
-### BASIC Program Explanation
-
-The program contained in this example block is a simple **Galaksija BASIC** program:
-
-
-## Additional Notes
-
-- Some files may include an initial block containing metadata, such as a program name.
-- The checksum (CRC) verification method follows a known pattern and can be computed manually for validation.
-- Blocks may vary in size depending on the content.
-
-## COMMANDS
-
-OLD
-SAVE
-
-
 ---
-TO-DO: Load from TZX (rcmolina maxduino, etc, ...
-https://galaksija.net/
 
 ### System Addresses of ROM 2
 
@@ -267,7 +223,10 @@ The following table presents a map of system variables for the "Galaksija" opera
 | 2C38    | 2    | 2C3A      | End of BASIC pointer |
 | 2C3A    | ??   | 00        | Program |
 
-This translation keeps the original meaning intact while making it clear for English readers. Let me know if you need any refinements! 😊
+---
+
+TO-DO: Load from TZX (rcmolina maxduino, etc, ...
+https://galaksija.net/
 
 
 
