@@ -101,17 +101,21 @@ A typical Galaksija tape file consists of one or more blocks (name, standard or 
 | Size (Bytes) | Description              |
 | ------------ | ------------------------ |
 | 1            | `00`                     |
-| 2            | Data Length              |
+| 2            | Data Length from (A5 to CRC)* |
 | 2            | `0000`                   |
 | 1            | `A5` Magic Byte          |
-| 2            | Start Address (2C36)     |
+| 2            | Start Address (typically 2C36)     |
 | 2            | End Address (Start + Data Length)|
 | 2            | BASIC (Star + len + 4)|
 | 2            | End Address (Start + Data Length)    |
 | Variable     | Program Data             |
 | 1            | Checksum (CRC)           |
 
+*Data length field is the number of bytes of the program in memory plus 6 bytes corresponding to A5, start address (2), end address (2), 
+
 (see https://github.com/z88dk/z88dk/blob/master/src/appmake/galaksija.c)
+(see https://github.com/mamedev/mame/blob/master/src/lib/formats/gtp_cas.cpp)
+(see https://oldcomputer.info/8bit/galaksija/buildlog.htm)
 
 ### Checksum Calculation (CRC)
 
@@ -122,7 +126,6 @@ The CRC is computed as follows:
 ### Turbo mode
 
 Uses 0x01 value but I do not have more info.
-
 
 ## Example Breakdown
 The following bytes correspond to this HELLO WORLD! program.
@@ -141,16 +144,44 @@ First block contain name (this block is optional)
 - `48 45 4c 4c 4f 00` - String terminated with \0 (HELLO)
 
 - `00` - Standard Block
-- `21 00` - Length (33 bytes)
+- `21 00` - Length (33 bytes from a5 to CRC)
 - `00 00` - Separator
 - `a5` - Magic byte
-- `36 2c` - Start address 0x2c36
-- `51 2c` - End address 0x2c36 + 0x21
-- `3a 2c` - 0x2c36 + 0x21
-- `51 2c` - End address 0x2c36 + 
+- `36 2c` - Start data address 0x2c36 for BASIC
+- `51 2c` - End data address 0x2c36 (points next byte)
+- `3a 2c` - Start of code (0x2c36 + 0x04)
+- `51 2c` - End of code 0x2c36 + (0x21 - 0x06)
 - `0a` - Line number in decimal (10)
 - `00 50 52 49 4e 54 20 22 48 45 4c 4c 4f 20 57 4f 52 4c 44 21 22 0d` - String (begin with \0 and ends with CR)  ```P  R  I  N  T     "  H  E  L  L  O  "```
 - `53` - CRC
+
+Load it with OLD and type DUMP &2C36,4. This will dump 4*8 bytes starting at the given address.
+|offset | content |
+|-------|------|
+|2C36   | 2C3A | BASIC start pointer
+|2C38   | 2C51 | BASIC ending pointer
+|2C3A .. 2C50 | 0A 00 .. 0D |
+
+2c51-2c3a 0x17 --> 23 bytes is program length
+
+(see table below)
+
+2C51 points to the next byte
+
+
+
+other sw
+0x807 ->  2055 
+a5
+00 38  0x3800  
+00 40  0x4000   3800 + 0800
+3e c3  0xc33e     
+32 a9  0xa932
+|offset | content |
+|-------|------|
+|3800   | c33e |
+|3802   | a932 |
+|3804 .. 3FFE | 2B .. C9 |
 
 
 A5
@@ -181,13 +212,55 @@ SAVE
 
 ---
 TO-DO: Load from TZX (rcmolina maxduino, etc, ...
+https://galaksija.net/
 
-other sw
-a5
-00 38  0x3800
-00 40  0x4000
-3e c3  0xc33e
-32 a9  0xa932
+### System Addresses of ROM 2
+
+The following table presents a map of system variables for the "Galaksija" operating system, BASIC interpreter, and ROM 2. 
+
+(see https://dejanristanovic.com/refer/galrom2.htm)
+
+| Address | Bytes | Initially | Contents |
+|---------|------|-----------|----------|
+| 2800    | 512  | 20        | Video memory |
+| 2A00    | 104  | 00        | Numeric variables A-Z |
+| 2A68    | 2    | 2800      | Cursor position in memory |
+| 2A6A    | 2    | 3800      | End of memory |
+| 2A6C    | 2    | 00        | Number of HOME-protected bytes of video memory |
+| 2A6E    | 2    | 00        | Exit criteria for FOR-NEXT |
+| 2A70    | 16   | 00        | X$ |
+| 2A80    | 16   | 00        | Y$ |
+| 2A91    | 2    | 00        | Stack for the current loop |
+| 2A93    | 2    | 00        | Current line position (during FOR-NEXT) |
+| 2A95    | 2    | 00        | BASIC pointer (during CALL and FOR-NEXT) |
+| 2A97    | 2    | 00        | Location to DUMP from |
+| 2A99    | 2    | 00        | 16*ARR$+16 |
+| 2A9B    | 2    | 00        | Address of NEXT variable |
+| 2A9D    | 2    | 2C3C      | TAKE pointer |
+| 2A9F    | 2    | 00        | Current line position |
+| 2AA1    | 2    | 00        | Register for active FOR-NEXT |
+| 2AA3    | 2    | 00        | Temporary SP, during CALL |
+| 2AA5    | 2    | 00        | Keyboard differentiator |
+| 2AA7    | 3    | 00        | Seed for RND |
+| 2AAA    | 1    | 00        | Which pass through assembler (1 or 2) |
+| 2AAC    | 1    | 00        | ČĆŠŽ become CCSZ in print code for bit7=0 |
+| 2AAC    | 124  | 00        | Arithmetic accumulators (IX) |
+| 2BA8    | 1    | 0C        | Horizontal text position |
+| 2BA9    | 3    | C9        | Command link |
+| 2BAC    | 3    | C9        | Video link |
+| 2BAF    | 1    | 00        | If bit 7=1, the clock is running |
+| 2BB0    | 1    | 00        | Image scroll counter |
+| 2BB1    | 1    | 00        | Image scroll flag |
+| 2BB2    | 1    | 00        | How many rows to DUMP |
+| 2BB3    | 1    | 00        | OPT during assembly |
+| 2BB4    | 1    | 00        | REPT register |
+| 2BB5    | 1    | 00        | Printer flag |
+| 2BB6    | 125  | 00        | Buffer |
+| 2C36    | 2    | 2C3A      | BASIC start pointer |
+| 2C38    | 2    | 2C3A      | End of BASIC pointer |
+| 2C3A    | ??   | 00        | Program |
+
+This translation keeps the original meaning intact while making it clear for English readers. Let me know if you need any refinements! 😊
 
 
 
