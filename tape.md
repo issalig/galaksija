@@ -180,12 +180,7 @@ SAVE
 
 
 ---
-
-This document provides a foundation for understanding the Galaksija tape format. Further analysis is needed for full documentation.
-
-
-
-
+TO-DO: Load from TZX (rcmolina maxduino, etc, ...
 
 
 
