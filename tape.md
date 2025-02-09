@@ -101,7 +101,7 @@ A typical Galaksija tape file consists of one or more blocks (name, standard or 
 | Size (Bytes) | Description              |
 | ------------ | ------------------------ |
 | 1            | `00`                     |
-| 2            | Data Length from (A5 to CRC)* |
+| 2            | Data Length from (A5 to CRC) |
 | 2            | `0000`                   |
 | 1            | `A5` Magic Byte          |
 | 2            | Start Address (typically 2C36)     |
@@ -111,7 +111,6 @@ A typical Galaksija tape file consists of one or more blocks (name, standard or 
 | Variable     | Program Data             |
 | 1            | Checksum (CRC)           |
 
-*Data length field is the number of bytes of the program in memory plus 6 bytes corresponding to A5, start address (2), end address (2), 
 
 (see https://github.com/z88dk/z88dk/blob/master/src/appmake/galaksija.c)
 (see https://github.com/mamedev/mame/blob/master/src/lib/formats/gtp_cas.cpp)
