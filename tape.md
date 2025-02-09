@@ -106,7 +106,7 @@ A typical Galaksija tape file consists of one or more blocks (name, standard or 
 | 1            | `A5` Magic Byte          |
 | 2            | Start Address (typically 2C36)     |
 | 2            | End Address (Start + Data Length)|
-| 2            | BASIC (Star + len + 4)|
+| 2            | BASIC (Start + 4)|
 | 2            | End Address (Start + Data Length)    |
 | Variable     | Program Data             |
 | 1            | Checksum (CRC)           |
@@ -131,7 +131,6 @@ The following bytes correspond to this HELLO WORLD! program.
 ```basic
 10 PRINT "HELLO WORLD!"
 ```
-
 ```
 10 06 00 00 00 48 45 4c 4c 4f 00 00 21 00 00 00 a5 36 2c 51 2c 3a 2c 51 2c 0a 00 50 52 49 4e 54 20 22 48 45 4c 4c 4f 20 57 4f 52 4c 44 21 22 0d 53
 ```
@@ -155,6 +154,15 @@ First block contain name (this block is optional)
 - `53` - CRC
 
 Load it with OLD and type DUMP &2C36,4. This will dump 4*8 bytes starting at the given address.
+```basic
+DUMP &2C36,5
+&2C36:  3A 2C 51 2C 0A 00 50 52
+&2C3E:  49 4E 54 20 22 48 45 4C
+&2C46:  4C 4F 20 57 4F 52 4C 44
+&2C4E:  21 22 00 00 00 00 00 00
+&2C56:  00 00 00 00 00 00 00 00
+```
+
 |offset | content |
 |-------|------|
 |2C36   | 2C3A | BASIC start pointer
