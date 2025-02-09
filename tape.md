@@ -161,6 +161,7 @@ First block contain name (this block is optional)
 
 Load it with OLD and type DUMP &2C36,4. This will dump 4*8 bytes starting at the given address and we can check if everything is correct.
 ```basic
+OLD
 DUMP &2C36,4
 &2C36:  3A 2C 51 2C 0A 00 50 52
 &2C3E:  49 4E 54 20 22 48 45 4C
