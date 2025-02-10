@@ -11,14 +11,14 @@ My building of Galaksija computer (thanks a lot Vlado Vince!)
   
 - HW  [(link)](https://github.com/issalig/galaksija/tree/main/hw)
   - In order to build it follow instructions from https://github.com/mejs/galaksija
-  - I have used v2 pcb which supports cherry switches (https://cdn.hackaday.io/files/6059259228256/Galaksija%20Outputs.zip)
+  - I have used v2 pcb which supports cherry switches (https://cdn.hackaday.io/files/6059259228256/Galaksija%20Outputs.zip) and you can get switches (70 pcs) from here (https://aliexpress.com/item/1005006396423418.html)
   - I use a Z80 that supports 20Mhz (not needed of course) Z84C0020PEC
   - I have used 27C512 for the ROMs instead of 2732 in a Manhattan style.
     - You just need add some wires like in the diagram and replicate the rom file.
     ![adapter](hw/2732_to_27c512.png)
     ![pcb](case/photos/galaksija_pcb.jpg)
     - Plan b: Get an adapter such as https://www.ukvac.com/forum/threads/2708-2716-2732-adapter-to-27512-eeprom.67258/
-  - Source authentic ICs or you will have problems and a lot of "fun".
+  - Get authentic ICs or you will have problems and a lot of "fun".
   - I have wired BRK, NMI and Reset and connected to buttons on the back side.
     ![pcb2](case/photos/galaksija_pcb2.jpg)
   - Audio connections go to KI and KM
