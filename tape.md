@@ -235,5 +235,6 @@ The following table presents a map of system variables for the "Galaksija" opera
 TO-DO: Load from TZX (rcmolina maxduino, etc, ...
 https://galaksija.net/
 
+https://web.archive.org/web/20221228104534/https://www.tablix.org/~avian/galaksija/rom/rom1.html
 
 
