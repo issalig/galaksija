@@ -1,0 +1,339 @@
+;OCRed and translated from https://www.voja.rs/galaksija/ROM%20B%20Listing%20Scans/ROM_B_listing.htm
+;NOT TESTED NOT COMPLETED
+
+             00010 ;********************************************************
+             00020 ;*                                                      *
+             00030 ;*         "GALAKSIJA" ROM B                            *
+             00040 ;*                                                      *
+             00050 ;*                             VOJA ANTONIĆ 12.07.84.   *
+             00060 ;*                                                      *
+             00070 ;********************************************************
+             00080
+             00090
+005A         00100 SPACE    EQU     90
+2A97         00110 SHOMEM   EQU     2A97H
+2BB2         00120 SHOFOR   EQU     2BB2H
+2BB3         00130 OPTION   EQU     2BB3H
+2BD0         00140 FIELD    EQU     2BB6H+34
+2BDD         00150 INS1     EQU     FIELD+5
+2BDE         00160 INS2     EQU     INS1+1
+2BE1         00170 INS3     EQU     INS2+3
+2BE4         00180 IXIY     EQU     INS3+3
+2BE5         00190 CODE     EQU     IXIY+1
+2BEA         00200 ADDR     EQU     CODE+5
+2BEC         00210 TEXTBR   EQU     ADDR+2
+2BED         00220 TEMP1    EQU     TEXTBR+1
+2BEF         00230 TEMP2    EQU     TEMP1+2
+2AAA         00240 KRUG     EQU     2AAAH
+2AAB         00250 FLAG2    EQU     2AABH
+2BF2         00260 FREE     EQU     TEMP2+3
+2BF4         00270 IXPOS2   EQU     FREE+2
+2BF6         00280 DISPL    EQU     IXPOS2+2
+2BB5         00290 FLAG     EQU     2BB5H
+             00300
+0B32         00310 PLUS     EQU     0B32H
+0B1E         00320 MINUS    EQU     0B1EH
+0AE6         00330 PUTA     EQU     0AE6H
+0AF7         00340 KROZ     EQU     0AF7H
+0B10         00350 CPIXIX   EQU     0B10H
+             00360
+1000         00370          ORG     1000H
+             00380
+1000 2A6A2A  00390          LD      HL,(2A6AH)    ; IF (ENDMEM)=0 THEN (ENDMEM)=0FFFFH
+1003 7C      00400          LD      A,H
+1004 B5      00410          OR      L
+1005 2004    00420          JR      NZ,NOT56K     ; ENDMEM > 0
+1007 2B      00430          DEC     HL            ; CORRECTED ENDMEM
+1008 226A2A  00440          LD      (2A6AH),HL
+100B 3E0C    00450 NOT56K   LD      A,0CH
+100D 1813    00451          JR      GOINI
+             00540
+             00550
+100F E3      00560 ZALINK   EX      (SP),HL
+1010 D5      00570          PUSH    DE
+1011 115B07  00580          LD      DE,75BH       ; THIS IS THE POSITION WHERE IT WOULD JUMP IF NOT...
+1014 D7      00590          RST     10H           ; ...RECOGNIZED WORD IN BASIC PROGRAM
+1015 201D    00600          JR      NZ,DRUGIP
+1017 21F01D  00610          LD      HL,TEXT1-1    ; TABLE OF NEW WORDS
+101A D1      00620          POP     DE
+101B F1      00630 CASE1    POP     AF
+101C C39A03  00640          JP      39AH          ; RECOGNIZE NEW WORD; IF IT DOESN'T EXIST IN TABLE...
+101F C35B07  00650 KAO75B   JP      75BH          ; ...JUMP TO 10FH, THEN TO 75BH (SEE Z100)
+             00651
+1022 E7      00652 GOINI    RST     20H
+1023 3E0C    00653          LD      A,0CH         ; NEW HORIZONTAL POSITION
+1025 32AB2B  00654          LD      (2BABH),A
+1028 21A110  00655          LD      HL,LINKS      ; INSERT JP INSTEAD OF RET IN LINKS
+102B 11A92B  00656          LD      DE,2BA9H
+102E 010600  00657          LD      BC,6
+1031 EDB0    00658          LDIR                  ; INITIALIZATION OF ROM-A 2
+
+1033 C9     00659         RET
+            00660
+1034 118E04 00670 DRUGIP  LD      DE,48EH         ; SECOND ATTEMPT: CHECK IF IT'S CORRECTLY RECOGNIZED...
+1037 D7     00680         RST     10H             ; WORD 'PRINT', IF IT IS, CHECK WHAT FOLLOWS
+1038 2013   00690         JR      NZ,TRECIP
+103A D1     00700         POP     DE
+103B E3     00710         EX      (SP),HL
+103C F1     00720         POP     AF
+103D DF     00730         RST     18H
+103E 25     00740         DEFB    '%'
+103F 0A     00750         DEFB    KAO48E-$-1
+1040 CF     00760         RST     8
+1041 3E20   00770         LD      A,' '        ; WRITE BLANK
+1043 E7     00780         RST     20H
+1044 CD4C13 00790         CALL    HEX16B      ; WRITE NUMBER IN HEX FORMAT
+1047 C3AD04 00800         JP      4ADH
+104A C38E04 00810 KAO48E JP      48EH        ; CONTINUES WHERE IT STARTED IF '%' DOESN'T FOLLOW
+            00820
+104D 117707 00830 TRECIP  LD      DE,777H     ; THIRD ATTEMPT: CHECK IF IT TRIED TO RECOGNIZE...
+1050 D7     00840         RST     10H         ;  ...FUNCTION, BUT FAILED (777H IS ADDRESS...
+1051 D1     00850         POP     DE          ;  ...TO WHICH IT WOULD JUMP IN THAT CASE)
+1052 E3     00860         EX      (SP),HL
+1053 C0     00870         RET     NZ
+1054 21231E 00880         LD      HL,TEXT3-1  ; TABLE OF NEW FUNCTIONS
+1057 18C2   00890         JR      CASE1       ; END IS SAME AS IN FIRST ATTEMPT
+1059 C37707 00900 KAO777 JP      777H
+            00910
+105C 018004 00920 LPRINT  LD      BC,480H     ; 'LPRINT' ENTRY POINT: RET ADDRESS TO 'PRINT'
+105F C5     00930         PUSH    BC          ; GOES TO STACK
+1060 3EFF   00940 COPY    LD      A,0FFH      ; SETS LPRINT FLAG
+1062 32B52B 00950         LD      (FLAG),A
+1065 C9     00960         RET
+            00970
+1066 CD6010 00980 LLIST   CALL    COPY        ; 'LLIST' ENTRY POINT: SET FLAG
+1069 CDD30C 00990         CALL    0CD3H       ; CONTINUE AS LLIST
+106C C36404 01000         JP      464H
+            01010
+106F F5     01020 VIDEO   PUSH    AF          ; ADDITION TO SUBPROGRAM THAT WRITES CHARACTER TO...
+1070 2AB52B 01030         LD      HL,(FLAG)   ; ...VIDEO MEM (958H, BUT HERE IS CHECKING...
+1073 2C     01040         INC     L           ; IS THE FLAG FOR PRINTER SET?
+1074 2021   01050         JR      NZ,NCOPY    ; IF NOT, EXIT
+1076 21AB2A 01060         LD      HL,2AABH    ; CHECK IF FLAG IS SET TO NOT WRITE...
+1079 CB46   01070         BIT     0,(HL)      ; ...CONTROL CHARS?
+107B 200E   01080         JR      NZ,STAND    ; IF YES, SKIP CHARACTER CHANGE
+107D 219910 01090         LD      HL,TABCZS   ; IF NOT, POINTER TO TABLE
+1080 0604   01100         LD      B,4         ; TOTAL 4 CHARS FOR COMPARISON
+1082 BE       01110 TEST4   CP      (HL)        ; IS THIS THE SEARCHED WORD?
+1083 23       01120         INC     HL
+1084 2804     01130         JR      Z,FOUND4    ; YES, JUMP
+1086 23       01140         INC     HL
+1087 10F9     01150         DJNZ    TEST4       ; TRY NEXT
+1089 26       01160         DEFB    26H         ; AS 'LD H,ZEH' - TO SAVE MEMORY...
+108A 7E       01170 FOUND4  LD      A,(HL)      ; ...SKIP NEXT WORD
+108B F5       01180 STAND   PUSH    AF          ; ...SAVE NEW WORD
+108C CDFF02   01190 RDY     CALL    2FFH        ; 'BREAK' TEST
+108F DBFF     01200         IN      A,(255)
+1091 17       01210         RLA
+1092 38F8     01220         JR      C,RDY       ; JUMP IF PRINTER IS BUSY
+1094 F1       01230         POP     AF
+1095 D3FF     01240         OUT     (255),A     ; PRINTER FREE - SEND CHARACTER
+1097 F1       01250 NCOPY   POP     AF
+1098 C9       01260         RET
+              01270
+1099 5B       01280 TABCZS  DEFB    91         ; = C caron
+109A 43       01290         DEFB    'C'
+109B 5C       01300         DEFB    92          
+
+109C 43       01310        DEFB    'C'         ; = C acute
+109D 5D       01320        DEFB    93          
+109E 5A       01330        DEFB    'Z'         ; = Z caron
+109F 5E       01340        DEFB    94
+10A0 53       01350        DEFB    'S'         ; = S caron
+              01360
+              01370
+10A1 C3       01380 LINK   DEFB    0C3H
+10A2 0F10     01390        DEFW    ZALINK      ; CHECK LINE 655 (C3H=JP)
+10A4 C3       01400        DEFB    0C3H
+10A5 6F10     0141         DEFW    VIDEO
+              01420
+10A7 2A9F2A   01430 GO4SS  LD      HL,(2A9FH)  ; ********** ASSEMBLER **********
+10AA 7C       01440        LD      A,H         ; IS IT COMMAND MODE?
+10AB B5       01450        OR      L
+10AC CA5A06   01460        JP      Z,1626D     ; IF YES
+10AF EB       01470        EX      DE,HL       ; MAIN POINTER WILL BE HL
+10B0 3E01     01480        LD      A,1         ; SET OPT 1
+10B2 32B32B   01490        LD      (OPTION),A
+10B5 CDB610   01500        CALL    START1      ; CALL PROGRAM FOR ASSEMBLY
+10B8 DD21AC2A 01510        LD      IX,2AACH    ; RETURN CORRECT VALUE IX REGISTER
+10BC 2B       01520        DEC     HL
+10BD EB       01530        EX      DE,HL       ; RETURN POINTER DE
+10BE F7       01540        RST     30H         ; GO BACK TO BASIC
+              01550
+10BF AF       01560 START1 XOR     A
+10C0 32AA2A   01570        LD      (KRUG),A    ; FIRST ASSEMBLY PASS
+10C3 32DD2B   01580        LD      (INS1),A    ; EXECUTE OPCODE TOKEN
+10C6 EB       01590        EX      DE,HL       ; SAVE HL IN DE
+10C7 EF       01600        RST     28H         ; THIS IS LD HL,0
+10C8 22F62B   01610        LD      (DISPL),HL
+10CB 22972A   01620        LD      (SHOMEM),HL ; FOR 'REG'; SHOWS 0 BYTES OF MEMORY
+10CE 2A6A2A   01630        LD      HL,(2A6AH)  ; = ENDMEM
+10D1 2B       01640        DEC     HL
+10D2 77       01650        LD      (HL),A      ; 0 = TERMINATOR TABLE FOR LABELS
+10D3 2B       01660        DEC     HL
+10D4 77       01670        LD      (HL),A
+10D5 EB       01680        EX      DE,HL       ; RETURN HL
+10D6 CD5217   01690        CALL    FINDCR      ; FIND END OF LINE WHERE IS '<'
+10D9 E5       01700        PUSH    HL          ; SAVE POINTER FOR SECOND PASS
+10DA CDE610   01710        CALL    ASS         ; FIRST ASSEMBLY PASS
+10DD 21AA2A   01720        LD      HL,KRUG
+10E0 34       01730        INC     (HL)        ; SET SECOND PASS
+10E1 AF       01740        XOR     A
+10E2 32DD2B   01750        LD      (INS1),A    ; EXECUTE OPCODES
+10E5 E1       01760        POP     HL          ; RETURN POINTER TO START 1...
+10E6 AF       01770 ASS    XOR     A           ; ...ENTER IN SECOND PASS
+10E7 32EC2B   01780        LD      (TEXTBR),A  ; 0 WORDS IN TEXT
+10EA 32EA2B   01790        LD      (ADDR),A    ; ERASE LABEL ADDRESS IN PROGRAM
+10ED 32EB2B   01800        LD      (ADDR+1),A
+10F0          01810 LOOP   EQU     $           ; FOLLOWING 13 LINES ARE MAIN LOOP
+10F0 229F2A   01820        LD      (2A9FH),HL  ; POSITION OF CURRENT LINE(FOR ERROR CASE)
+10F3 ED5B382C 01830        LD      DE,(2C38H)  ; END OF BASIC
+10F7 D7       01840        RST     10H         
+10F8 D0       01850        RET     NC          ; RETURN IF IT'S END AND NO '>'
+10F9 3ADD2B   01860        LD      A,(INS1)
+10FC FE08     01870        CP      8
+10FE C8       01880        RET     Z           ; RETURN IF IT'S '>'
+10FF CDFF02   01890        CALL    2FFH        ; 'BREAK' TEST
+1102 CD3317   01900        CALL    PROG1       ; FIRST PART: PUTTING TOKEN IN TABLE
+1105 E5       01910        PUSH    HL
+1106 CD0C11   01920        CALL    PROG2       ; SECOND PART: CODE FORMING
+1109 E1       01930        POP     HL
+110A 18E4     01940        JR      LOOP        ; BACK TO MAIN LOOP
+              01950
+              01960
+
+110C 214D12   01970 PROG2  LD      HL,GOON     ; THIS IS RET ADDRESS FOR END OF SUBROUTINE
+110F E5       01980        PUSH    HL
+1110 21DE2B   01990        LD      HL,INS2
+1113 DD21DB2B 02000        LD      IX,FIELD+3
+1117 3ADD2B   02010        LD      A,(INS1)
+111A B7       02020        OR      A
+111B C8       02030        RET     Z           ; NOTHING IN THIS LINE - GO TO GOON
+111C FE09     02040        CP      9           ; IS IT SPECIAL WORD (TOKEN=9)
+111E D22413   02050        JP      NC,NCOMM    ; NO - NEXT WORD FOR ASSEMBLY
+1121 3D       02060        DEC     A
+1122 2027     02070        JR      NZ,NSTAT    ; NOT TOKEN 1
+1124 217819   02080        LD      HL,BRKPT    ; TOKEN 1: 'REG' (BREAKPOINT)
+1127 22E62B   02090        LD      (CODE+1),HL ; BREAKPOINT ADDRESS
+112A 3ECD     02100        LD      A,0CDH      ; CODE FOR 'CALL'
+112C 32E52B   02110        LD      (CODE),A
+112F 3E03     02120        LD      A,3
+1131 32E92B   02130        LD      (CODE+4),A  ; 3 BYTES CODED LENGTH
+1134 2ADF2B   02140        LD      HL,(INS2+1) ; IS THERE MEMORY DISPLAY?
+1137 7C       02150        LD      A,H
+1138 B5       02160        OR      L
+1139 C8       02170        RET     Z           ; NO - GO TO GOON
+113A CD1813   02180        CALL    IFNUM2      ; IS IT NUMERIC VALUE (IF NOT-WHAT?)
+113D 22972A   02190        LD      (SHOMEM),HL ; SHOW HL MEMORY
+1140 3AE22B   02200        LD      A,(INS3+1)  ; HOW MANY ROWS?
+1143 B7       02210        OR      A
+1144 2001     02220        JR      NZ,IMA      ; NUMBER OF ROWS SPECIFIED
+1146 3C       02230        INC     A           ; NOT SPECIFIED - THEN 1 ROW
+1147 32B22B   02240 IMA    LD      (SHOFOR),A  ; = SHOW FORMAT
+114A C9       02250        RET
+              02260
+114B 3D       02270 NSTAT  DEC     A
+114C 2021     02280        JR      NZ,NTEXT    ; NOT TOKEN 2
+114E 7E       02290        LD      A,(HL)      ; TOKEN 2: 'TEXT'
+114F 32EC2B   02300        LD      (TEXTBR),A  ; NUMBER OF TEXT WORDS
+1152 11E52B   02310        LD      DE,CODE
+1155 0603     02320 TEXTIT LD      B,3         ; 3 BYTES IN ONE ROW
+1157 3AEC2B   02330 TXT4   LD      A,(TEXTBR)  ; HOW MANY WORDS LEFT?
+115A B7       02340        OR      A
+115B C8       02350        RET     Z           ; NONE - GO TO GOON
+115C DD3511   02360        DEC     (IX+17)     ; DECREASE WORD COUNT
+115F 2ADF2B   02370        LD      HL,(INS2+1) ; TEXT ADDRESS IN PROGRAM
+1162 7E       02380        LD      A,(HL)      ; TAKE WORD OR CHARACTER
+1163 23       02390        INC     HL          ; INCREASE POINTER
+1164 22DF2B   02400        LD      (INS2+1),HL ; AND RETURN IT
+1167 12       02410        LD      (DE),A      ; PUT CHARACTER IN CODE
+1168 13       02420        INC     DE          ; INCREASE CODE POINTER
+1169 DD348E   02430        INC     (IX+14)     ; INCREASE BYTE COUNT
+116C 10E9     02440        DJNZ    TXT4        ; DO THIS 3 TIMES IN EACH ROW
+116E C9       02450        RET                 ; GO TO GOON
+116F 3D       02460 NTEXT  DEC     A
+1170 2004     02470        JR      NZ,NWORD    ; NOT TOKEN 3
+1172 3C       02480        INC     A           ; TOKEN 3: 'WORD'
+1173 DD770E   02490        LD      (IX+14),A   ; BYTE COUNT=1 (AND ON 5120 WILL BE +1)
+1176 3D       02500 NWORD  DEC     A
+1177 200C     02510        JR      NZ,NBYTE    ; NOT TOKEN 4 OR 3
+1179 CD1813   02520        CALL    IFNUM1      ; TOKEN 4: 'BYTE'
+117C 2ADF2B   02530        LD      HL,(INS2+1) ; TAKE CODE
+117F 22E52B   02540        LD      (CODE),HL   ; PUT IT IN ITS PLACE
+1182 C34813   02550        JP      IXGOON      ; SEE 5120
+              02560
+1185 3D       02570 NBYTE  DEC     A
+1186 2023     02580        JR      NZ,NOPT     ; NOT TOKEN 5
+1188 CD1813   02590        CALL    IFNUM2      ; TOKEN 5: 'OPT' (IF >255, WHAT)
+118B 2ADF2B   02600        LD      HL,(INS2+1) ; TAKE NUMBER OPTION
+118E 7D       02610        LD      A,L         ; U A REG
+118F E604     02620        AND     4           ; IF BIT 2 IS SET (4-5-6-7)
+;new page
+1191 C46810   02630       CALL NZ,COPY      ; SET FLAG FOR PRINTER
+1194 7D       02640       LD A,L
+1195 E603     02650       AND 3
+1197 32B32B   02660       LD (OPTION),A   ; MASK TO BE LESS THAN 4
+119A 3AE12B   02670       LD A,(INS3)
+119D B7       02680       OR A            ; IS RELOCATION REQUESTED ON WRITE?
+119E C8       02690       RET Z           ; NO - GO TO GOON
+119F FE40     02700       CP 40H
+11A1 C22D19   02710       JP NZ,WHATHL    ; NOT NUMERIC - ERROR
+11A4 2AE22B   02720       LD HL,(INS3+1)  ; RELOCATION SIZE...
+11A7 22F62B   02730       LD (DISPL),HL   ; ...TO ITS PLACE
+11AA C9       02740       RET
+
+11AB 3D       02760 NOPT  DEC A
+11AC 2000     02770       JR NZ,NORG      ; NOT TOKEN 6
+11AE CD1813   02780       CALL IFNUM1     ; TOKEN 6: 'ORG'
+11B1 2ADF2B   02790       LD HL,(INS2+1)
+11B4 22ED2B   02800       LD (TEMP1),HL   ; TEMPORARY ADDRESS
+11B7 22EA2B   02810       SKR4 LD (ADDR),HL ; MAIN POINTER OF PC ADDRESS
+11BA C9       02820       RET
+
+11BB 3D       02850 NORG DEC A
+11BC C0       02860       RET NZ          ; END = TOKEN 8 '>'
+11BD CD1813   02870       CALL IFNUM1     ; TOKEN 7: 'EQU'
+11C0 ED4BDF2B 02880       LD BC,(INS2+1)
+11C4 ED43ED2B 02890       LD (TEMP1),BC  ; LABEL ADDRESS
+11C8 CDD211   02900       CALL CREATE     ; FORM LABEL
+11CB CA2D19   02910       JP Z,WHATHL     ; IF NOT PROVIDED - WHAT
+11CE F1       02920       POP AF          ; RESTORE STACK - WON'T GO TO GOON
+11CF C35412   02930       JP GOON1        ; BUT TO GOON1
+
+11D2 3AAA2A   02960 CREATE LD A,(KRUG) ; ---- LABEL FORMATION ----
+11D5 B7       02970       OR A
+11D6 C0       02980       RET NZ          ; CANNOT BE FORMED IN SECOND PASS
+11D7 2ADA2B   02990       LD HL,(FIELD+2)
+11DA 7C       03000       LD A,H
+11DB B5       03010       OR L
+11DC C8       03020       RET Z           ; RETURN IF LABEL ADDRESS DOESN'T EXIST
+11DD CD1512   03030       CALL LOCAT2     ; CHECK IF IT'S ALREADY FORMED
+11E0 CA4F16   03040       JP Z,HOWHL      ; IF IT EXISTS - CANNOT BE FORMED TWICE (HOW?)
+
+11E3 E5       03050 TRANSF PUSH HL
+11E4 2A382C   03060 LD HL,(2C38H)   ; END OF BASIC PROGRAM
+11E7 D7       03070 RST 10H
+11E9 E1       03080 POP HL
+11E9 D25301   03090 JP NC,339D      ; SORRY - NO MEMORY
+11EC 7E       03100 LD A,(HL)
+11ED 12       03110 LD (DE),A       ; TRANSFER LETTER BY LETTER TO TABLE
+11EE 23       03120 INC HL
+11EF 1B       03130 DEC DE
+11F0 CD5818   03140 CALL NCSLBR     ; IF LETTER OR NUMBER
+11F3 30EE     03150 JR NC,TRANSF    ; ...CONTINUE WITH TRANSFER
+
+11F5 EB       03160 NOTRAN EX DE,HL
+11F6 23       03170 INC HL
+11F7 CBFE     03180 SET 7,(HL)      ; WORD TERMINATOR = BIT 7 SET
+11F9 2B       03190 DEC HL
+11FA 72       03200 LD (HL),B       ; BC = LABEL VALUE
+11FB 2B       03210 DEC HL
+11FC 71       03220 LD (HL),C
+11FD 2B       03230 DEC HL
+11FE 3600     03240 LD (HL),0       ; TABLE TERMINATOR
+1200 EB       03250 EX DE,HL        ; HL = POINTER NOW BEHIND NAME
+1201 AF       03260 XOR A           ; RESET Z FLAG (SIGN THAT EVERYTHING IS OK)
+1202 3C       03270 INC A           ; NEW POSITION IN TABLE
+1203 C9       03280 RET
+
+; more pages to be added
