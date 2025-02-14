@@ -2,11 +2,11 @@
 My building of Galaksija computer (thanks a lot Vlado Vince!)
 
 - Case [(link)](https://github.com/issalig/galaksija/tree/main/case)
-  - It contains scad files for the enclosure and the keys.
+  - It contains scad files for the enclosure and the keys. [(base)](https://github.com/issalig/galaksija/blob/main/case/galaksija_case_base.stl) [(top)](https://github.com/issalig/galaksija/blob/main/case/galaksija_case_top.stl) [(keys)](https://github.com/issalig/galaksija/blob/main/case/galaksija_keys.stl)
   - The enclosure can be printed in 4 parts in order to fit in normal printers (aka Ender3)
-  - Keys include also an stabilizer for space bar.
-  ![galaksija scad](case/galaksija_case.png)
-  ![galaksija scad](case/galaksija_keys.png)
+  - Keys include also an stabilizer for space bar, you can print keys with letters on it or whithout it ans use stickers [(link)](https://github.com/issalig/galaksija/blob/main/case/galaksija_letters.pdf). Of course the script to generate it is available [(link)](https://github.com/issalig/galaksija/blob/main/case/galaksija_letters.py)
+  ![galaksija case](case/galaksija_case.png)
+  ![galaksija keys](case/galaksija_keys.png)
   ![galaksija front](case/photos/galaksija_front.jpg)
   
 - HW  [(link)](https://github.com/issalig/galaksija/tree/main/hw)
