@@ -28,7 +28,7 @@ My building of Galaksija computer (thanks a lot Vlado Vince!)
 - ROMS [(link)](https://github.com/issalig/galaksija/tree/main/roms)
   - Assembly files for ROM A, B and C !!!!!
   - For my building I am using [(version 29 with B autostart)](roms/original/ROM_A_with_ROM_B_init_ver_29.bin)
-    - You can check it from the computer with
+    - You can check it from your Galaksija with
       ```basic
       DUMP &0037,1
       1D (for version 29)
