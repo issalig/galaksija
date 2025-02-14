@@ -36,13 +36,11 @@ My building of Galaksija computer (thanks a lot Vlado Vince!)
       CD 00 10 (for version 29)
       ```
   - For ROM B, I use normal [(ROM_B)](roms/original/ROM_B.bin)
-    - Check your with
+    - Check yours with
       ```basic
       DUMP &1024,1
       0C (for ROM B normal)
-      ```
-    
-          
+      ```          
   
 - SW (TO-DO)
   - Document GTP format (WIP)
