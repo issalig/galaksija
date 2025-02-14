@@ -27,13 +27,13 @@ My building of Galaksija computer (thanks a lot Vlado Vince!)
 
 - ROMS [(link)](https://github.com/issalig/galaksija/tree/main/roms)
   - **Assembly** files for ROM A, B and C !!!!!
-  - For my building I am using [(version 29 with B autostart)](roms/original/ROM_A_with_ROM_B_init_ver_29.bin)
+  - I am using ROM A [(v29 B autostart)](roms/original/ROM_A_with_ROM_B_init_ver_29.bin)
     - You can check it from your Galaksija with
       ```basic
       DUMP &0037,1
       1D (for version 29)
       DUMP &03F9,1
-      CD 00 10 (for version 29)
+      CD 00 10 (call $1000 for version 29)
       ```
   - For ROM B, I use normal [(ROM_B)](roms/original/ROM_B.bin)
     - Check yours with
