@@ -1,8 +1,9 @@
 # ROM listings
-There a 4 for ROMS, from A to B or 1 to 4, i. e., A corresponds to 1 and so on.
+There a 4 for ROMS, from A to D or 1 to 4, i. e., A corresponds to 1 and so on.
 
 Here I provide asm files for roms A, B, and C. For D only some info from a magazine is included.
-Please check https://github.com/mejs/galaksija/blob/master/roms/ for more details.
+I have used the rom files available at https://github.com/mejs/galaksija/blob/master/roms/ and they are located in the folder original.
+local folder is used to assemble the .asm files
 
 Using make_roms.sh will assemble roms A, B and C.
 
