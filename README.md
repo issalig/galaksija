@@ -2,11 +2,11 @@
 My building of Galaksija computer (thanks a lot Vlado Vince!)
 
 - Case [(link)](https://github.com/issalig/galaksija/tree/main/case)
-  - It contains scad files for the enclosure and the keys.
+  - It contains scad files for the enclosure and the keys. [(base)](https://github.com/issalig/galaksija/blob/main/case/galaksija_case_base.stl) [(top)](https://github.com/issalig/galaksija/blob/main/case/galaksija_case_top.stl) [(keys)](https://github.com/issalig/galaksija/blob/main/case/galaksija_keys.stl)
   - The enclosure can be printed in 4 parts in order to fit in normal printers (aka Ender3)
-  - Keys include also an stabilizer for space bar.
-  ![galaksija scad](case/galaksija_case.png)
-  ![galaksija scad](case/galaksija_keys.png)
+  - Keys include also an stabilizer for space bar, you can print keys with letters on it or whithout it ans use stickers [(link)](https://github.com/issalig/galaksija/blob/main/case/galaksija_letters.pdf). Of course the script to generate it is available [(link)](https://github.com/issalig/galaksija/blob/main/case/galaksija_letters.py)
+  ![galaksija case](case/galaksija_case.png)
+  ![galaksija keys](case/galaksija_keys.png)
   ![galaksija front](case/photos/galaksija_front.jpg)
   
 - HW  [(link)](https://github.com/issalig/galaksija/tree/main/hw)
@@ -24,6 +24,10 @@ My building of Galaksija computer (thanks a lot Vlado Vince!)
   - Audio connections go to KI and KM
   - C2 is 1 uF (105)
   - Capacitor next to Z80 is 3.3 nF (332)
+
+- ROMS [(link)](https://github.com/issalig/galaksija/tree/main/roms)
+  - Assembly files for ROM A, B and C !!!!!
   
 - SW (TO-DO)
+  - Document GTP format (WIP)
   - To load SW I got best results with a laptop. Mobile phone seem to have lower signal voltage and did not work.
