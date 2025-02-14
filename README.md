@@ -24,6 +24,10 @@ My building of Galaksija computer (thanks a lot Vlado Vince!)
   - Audio connections go to KI and KM
   - C2 is 1 uF (105)
   - Capacitor next to Z80 is 3.3 nF (332)
+
+- ROMS [(link)](https://github.com/issalig/galaksija/tree/main/roms)
+  - Assembly files for ROM A, B and C !!!!!
   
 - SW (TO-DO)
+  - Document GTP format (WIP)
   - To load SW I got best results with a laptop. Mobile phone seem to have lower signal voltage and did not work.
