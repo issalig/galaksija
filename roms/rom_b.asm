@@ -5,7 +5,7 @@
 ;  Thanks Voja!
 ;
 ; * About this version;
-;  author: issalig 13/02/2025
+;  author: issalig 14/02/2025
 ;  Converted to txt and translated with an LLM from the listing images
 ;  The prompt used was:
 ;     'I have a listing of z80 assembler. The typical line contains the address, the code of the instruction
@@ -19,12 +19,14 @@
 ;
 ;  Some labels are renamed not to be in confllict with instrucions or directives: ABS_, CPI_, SUB_
 ;  <- has been converted to >> in order to work with pasmo and sjasmplus
-;
+;  MONITOR has been included to provide different versions of the ROM
 ; * Assembler
 ;  To assemble it you can use
 ;  - sjasmplus --raw=file.bin file.asm
 ;  - pasmo -v  file.asm file.bin
-;
+
+; 011078
+
 ;********************************************************
 ;*                                                      *
 ;*         "GALAKSIJA" ROM B                            *
@@ -58,8 +60,8 @@ PUTA     EQU     0AE6H
 KROZ     EQU     0AF7H
 CPIXIX   EQU     0B10H
 
-MONITOR  EQU     0CH  ; ROM_B_monitor_value_13.bin 0D  
-                      ; ROM_B.bin is 0C
+MONITOR  EQU     0CH  ; ROM_B.bin is 0C
+                      ; ROM_B_monitor_value_13.bin 0D                        
                       ; ROM_B_monitor_fix.bin 0B
 
         ORG     1000H
@@ -1743,7 +1745,7 @@ OVER1:   LD    HL,C1 ; greater than 0.5?
 OVER2:   CALL  DUBLIX ; double arith
         LD    HL,C2 ; arith = arith - 0.707107
         CALL  MINHL
-        CALL  ISPOD2 ; compare arith
+        CALL  ISPOD2
         LD    HL,C2 ; arith = arith + 0.707107
         CALL  PLUSHL
         CALL  KROZ ; division pregled(ix)
@@ -1754,7 +1756,7 @@ OVER2:   CALL  DUBLIX ; double arith
         CALL  PUTAHL
         LD    HL,C4 ; arith = arith + 0.961471
         CALL  PLUSHL
-        CALL  ISPOD2 ; compare arith
+        CALL  ISPOD2
         CALL  DUBLIX
         CALL  PUTA ; *
         CALL  PUTA ; *
@@ -1766,7 +1768,7 @@ OVER2:   CALL  DUBLIX ; double arith
         BIT   7,L ; negative
         JR    Z,POZL
         DEC   H
-POZL:    CALL  0ABCH ; (ix)->HL
+POZL:    CALL  0ABCH ; (ix)<-HL
         CALL  PLUS ; +
         LD    HL,C1
         CALL  MINHL ; arith = arith - 0.5
@@ -2346,4 +2348,3 @@ EXTRA:   LD      A,(INS1)
         ORG     1FFFH
         DEFB    5 ; VERSION 5
         END
-TOTAL:   ERRORS
