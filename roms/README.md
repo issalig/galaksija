@@ -30,6 +30,12 @@ Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_ini
 > 	call 01000h		;03f9
 ```
 
+Byte #0037 1D
+Byte #03f9 CD 00 10
+           CD D3 0C
+
+
+
 # ROM B
 ROM B has been downloaded from https://www.voja.rs/galaksija/ROM%20B%20Listing%20Scans/ROM_B_listing.htm, then it has been converted to text using and LLM. Of course an intense manual work has been necessary to polish ocr results.
 
@@ -42,7 +48,7 @@ I have used this prompt in order to avoid short or uncomplete answers:
    full listing and do not miss any column'
 ```
 
-There are some differences in byte #1023 
+There are some differences in byte #1024 
 ROM_B_monitor_value_13.bin byte is 13(D)  
 ROM_B.bin is 12(C)
 ROM_B_monitor_fix.bin 11 (B)
