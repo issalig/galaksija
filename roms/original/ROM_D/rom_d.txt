@@ -1,0 +1,71 @@
+https://github.com/mejs/galaksija/blob/master/roms/ROM%20D/ROM_D_article.pdf
+
+COMPUTER WORLD / JANUARY '88
+----------------------------
+SERVICE
+GALAKSIJA
+
+Fourth ROM
+
+Galaksija is one of the computers that can continuously expand. This time we will talk about the new, fourth ROM for this computer.
+
+New ROM D has 4 kilobytes and is located from address F000 to the end of memory. Regardless of whether you expanded the Galaksija yourself or according to our project (see "Computer World" 1-4/86) this space in the memory map is unused.
+
+If you built it yourself then you will probably know how to add another 2732 chip. And if you expanded the Galaksija according to our project, then you should do the following: first get one EPROM 2764 and place it in the same place where the current EPROM 2732 is, where you have to add another small base of only 4 pins. Apply +5V to pins 1, 27 and 28 and signal A12 to pin 2. In a similar way, EPROM 27128 could be inserted instead of EPROM 2732.
+
+But back to the software.
+
+Variables
+
+A few variables have been added to Galaksija's basic that should make it easier to work with. They are: RT - RAMTOP (Top of memory), BB - BASIC BEGIN, BE BASIC END, CH - CHARACTER GENERATOR, and HR - HIGH RESOLUTION. Each of these variables can stand either to the left or to the right of the equals sign, as well as in expressions. No checks are performed and these variables should be used with caution. The variable KU - CURSOR (Cursor position on the screen) can only be on the left side of the equal sign. Typing any variable (except KU) by itself (for example, BE and ENTER) will execute the PRINT%BE command.
+
+Basic extension
+
+The standard Galaksija Basic is extended with several commands: PAUSE S will pause for s seconds. The biggest break is when S=&FFFF is set and is 18 hours, 12 minutes and 15 seconds. If we set s = 0, the break will be 21 minutes and 50 seconds. This command can only be terminated with the NMI (RESET) key. Do not use it in FAST mode. The FREE functions will give the amount of free memory, and the bug with negative memory has been fixed. The functions # and $ introduce working with binary numbers. # will give a binary number as a result, while $ will convert the number from binary to decimal form.
+
+Fine graphics
+
+Working with fine graphics is expanded with the following commands: CIRCLE x,y,r and ELIPSE x,y,a,b, which will draw a circle and an ellipse. Point testing with IF PLOT x,y is enabled. The INVERSE command will turn the contents of the screen negative.
+
+Alphanumeric functions and commands
+
+Standard commands of the type LEN X$, RIGHT$ X$,n,Y$, LEFT$ X$,n,Y$ and MID$ X$,n,m,Y$ have been added to the rather poor set of commands for working with alphanumerics. The function of these commands is well known, so the only thing to note is that instead of X$ and Y$, the sequence X$(I) can be used.
+
+Turbo
+
+Fast loading and recording is extended with two commands: MERGE will load the BASIC program and continue it to the existing one without mixing lines. If the program being loaded is not basic or has a machine in front, the SORRY message appears. The second command is HEADER. It will load the HEADER and display it in the following form:
+
+START a1
+
+The beginning of the program being read.
+
+END a2
+
+- End of loading program.
+
+AUTOSTART n
+
+- Data on automatic start.
+
+NAME Name of the program
+
+- Information about the name of the program.
+
+Operating system
+
+There are several commands that should make life easier for Galaksija owners. These are: LABS (and LLABS) after translating the machine program, the assembler labels are listed; RENUM n,m,s will renumber the basic program starting from line n, which will carry the number m, with step s; JOIN n,m will join line- ni m with deletion of line m; OFF turns off only the screen editor, while ON turns it on again; REG will display the current status of all registers, while IY will display the state of this register only.
+
+NMI
+
+The unmasked interapt has been changed so that if, in addition to the NMI key, the I key is held down, then all system variables (for all four ROMs), as well as RAMTOP (at &C000), cursor position, TAKE pointer, command and video links, interapt mode, interapt register register and stack pointer will be restored, while the pointers to the start and end of the BASIC will not be touched.
+
+Monitor
+
+In ROM D, in addition to all this, the Monitor program of Voja Antonić (see "World computers" 4 and 5/85) expanded with two commands. These are P mm, nn- the memory from mm to nn is complemented, and *O mm, nn the bits (D7D0, D6D1...) in the memory starting from mm to nn are turned.
+
+Conclusion
+
+ROM D is certainly not the last ROM made for the Galaksija. This computer is designed to be easily expandable and that trend is sure to continue. And finally, let's say who are the authors of the software. Voja Antonić (monitor program), Voja Mihailović (binary numbers and work with alphanumerics) and Nenad Balint (everything else). We hope that we won't have to wait long for ROM E.
+
+V. Mihailović
+

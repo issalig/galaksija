@@ -1,0 +1,2324 @@
+# file opened: .//rom_c.asm
+   1  0000              ; Listing of ROM C for the "Galaxy Plus" computer
+   2  0000              ; "ROM C - Version 36, ??.??.8?"
+   3  0000              ;
+   4  0000              ; Authors: Nenad Balint and Milan Tadić, comments: Hindicki Ferenc
+   5  0000              ;
+   6  0000              ; This is a disassembled listing of ROM C from Galaksija Plus. The listing was created using the Monitor command *LD&E000,
+   7  0000              ; and later, sections with raw data, tables, and various tricks were corrected into a form acceptable for Galaksija.
+   8  0000              ; The comments are not original from the authors: I added them myself, and they are probably not entirely accurate.
+   9  0000              ; "Hacking" ROM C is not yet complete, as it still requires a lot of time and patience on my part,
+  10  0000              ; but there are already many valuable sections with explanations that will surely be useful to some.
+  11  0000              ;
+  12  0000              ; Conversion from pdf to text by issalig 14/02/25
+  13  0000              ;
+  14  0000              ; Translated comments to english and adapted to pasmo/sjasmplus
+  15  0000              ; Uses $ for numbers
+  16  0000              ; BYTE, TEXT, WORD have been replaced by DEFB, DEFW
+  17  0000              ; A portion of code was added to match original ROM C (ROM_C_PATCH)
+  18  0000              ; Some other typos have been fixed
+  19  0000              ;
+  20  0000              ; sjasmplus --raw=$file.bin file.asm
+  21  0000              ; pasmo -v file.asm file.bin
+  22  0000
+  23  0000              ROM_C_PATCH EQU 1 ; generates portion of code to match original ROM_C.bin
+  24  0000
+  25  0000              DRAW    EQU $D8
+  26  0000              UNDRAW  EQU $D5
+  27  0000              PLOT    EQU $C6
+  28  0000              UNPLOT  EQU $C3
+  29  0000              GRAPH   EQU $45
+  30  0000              TEKST   EQU $BA
+  31  0000              SOUND   EQU $AE
+  32  0000              QSAVE   EQU $18
+  33  0000              QLOAD   EQU $1B
+  34  0000              VERIFY  EQU $1E
+  35  0000              FAST    EQU $BC
+  36  0000              SLOW    EQU $BF
+  37  0000              LINE    EQU $C5
+  38  0000              KILL    EQU $D9
+  39  0000              DESTROY EQU $F8
+  40  0000              CLEAR   EQU $DB
+  41  0000              HLOAD   EQU $21
+  42  0000              HDUMP   EQU $24
+  43  0000              HLDUMP  EQU $27
+  44  0000              AUTO    EQU $2A
+  45  0000              UP      EQU $30
+  46  0000              DOWN    EQU $33
+  47  0000              FILL    EQU $2D
+  48  0000              R2D2    EQU $36
+  49  0000
+  50  0000                      ORG  $E000
+  51  E000 11 A9 2B             LD   DE,$2BA9
+  52  E003 21 3E E0             LD   HL,$E03E
+  53  E006 01 06 00             LD   BC,$0006
+  54  E009 ED B0                LDIR                ;writes new command and video links
+  55  E00B 2A 6A 2A             LD   HL,($2A6A)
+  56  E00E 11 20 00             LD   DE,$0020
+  57  E011 7D                   LD   A,L
+  58  E012 E6 E0                AND  $E0
+  59  E014 6F                   LD   L,A            ;RAMTOP address must be divisible by 16
+  60  E015 3E 0C                LD   A,$0C
+  61  E017 32 A8 2B             LD   ($2BA8),A      ;centers the image
+  62  E01A ED 52                SBC  HL, DE
+  63  E01C 22 6A 2A             LD   ($2A6A),HL     ;installs a new RAMTOP (old - 32)
+  64  E01F 11 D8 E7             LD   DE,$E7D8       ;address of splash screen text
+  65  E022 CD 37 09             CALL $0937          ;print introductory text
+  66  E025 FD 21 96 E4          LD   IY,$E496       ;new interapt link
+  67  E029 06 17                LD   B,$17          ;system variables from RAMTOP to RAMTOP+23
+  68  E02B 36 00                LD   (HL),$0        ;...are reset
+  69  E02D 23                   INC  HL
+  70  E02E 10 FB                DJNZ $E02B
+  71  E030 11 98 E5             LD   DE,$E598       ;address of character table
+  72  E033 72                   LD   (HL),D         ;higher byte in RAMTOP+23
+  73  E034 2B                   DEC  HL
+  74  E035 73                   LD   (HL),E         ;low byte in RAMTOP+22
+  75  E036 2B                   DEC  HL
+  76  E037 2B                   DEC  HL
+  77  E038 2B                   DEC  HL
+  78  E039 2B                   DEC  HL
+  79  E03A 2B                   DEC  HL
+  80  E03B 36 BF                LD   (HL),$BF       ;at cursor in RAMTOP+17
+  81  E03D C9                   RET
+  82  E03E C3 F8 E7             JP   $E7F8          ;new command link
+  83  E041 C3 95 E1             JP   $E195          ;new video link
+  84  E044 24                   DEFB 36             ; ROM version 3.6 ?
+  85  E045              GRAPH_CMD:
+  86  E045 F1                   POP  AF             ;GRAPH command
+  87  E046 D5                   PUSH DE             ;save basic pointer
+  88  E047 CD 57 E0             CALL $E057          ; check and/or reserve graphics memory
+  89  E04A 3E FF                LD   A,$FF
+  90  E04C 32 A8 2B             LD   ($2BA8),A      ;indicator for graphic image = 255
+  91  E04F 3E 0C                LD   A,$0C
+  92  E051 E7                   RST  $20            ;clears the TEXT (and thus the GRAPH) screen
+  93  E052 76                   HALT                ;wait for the next free appointment
+  94  E053 ED 5E                IM   $2             ;no table! I=$E0,($E0FF)=E3FB -> video driver
+  95  E055 D1                   POP  DE             ;return basic pointer
+  96  E056 F7                   RST  $30            ;return to basic
+  97  E057 CD CC E4             CALL $E4CC          ;HL=RAMTOP+16
+  98  E05A 23                   INC  HL
+  99  E05B 23                   INC  HL
+ 100  E05C 23                   INC  HL             ;HL=RAMTOP+19
+ 101  E05D 7E                   LD   A,(HL)         ;A=reserved graphics indicator
+ 102  E05E 3C                   INC  A
+ 103  E05F C8                   RET  Z              ;if A=255 - graphics reserved, $return
+ 104  E060 2A 6A 2A             LD   HL,($2A6A)     ;if not, HL=RAMTOP
+ 105  E063 11 00 1A             LD   DE,$1A00       ;DE=size 256x208 image in bytes
+ 106  E066 ED 52                SBC  HL,DE          ;HL=future RAMTOP
+ 107  E068 ED 5B 38 2C          LD   DE,($2C38)     ;DE=end of basic program
+ 108  E06C D7                   RST  $10            ;is there that much room?
+ 109  E06D DA 54 01             JP   C,$0154        ;if there is none, $SORRY
+ 110  E070 22 6A 2A             LD   ($2A6A), HL    ; if there is, $install a new RAMTOP...
+ 111  E073 CD 29 E0             CALL $E029          ;...and new system variables
+ 112  E076 23                   INC  HL
+ 113  E077 23                   INC  HL             ;HL=RAMTOP+19
+ 114  E078 36 FF                LD   (HL),$FF       ;graphics reserved
+ 115  E07A 11 0D 00             LD   DE,$000D
+ 116  E07D 19                   ADD  HL,DE
+ 117  E07E E5                   PUSH HL             ;HL=RAMTOP+32 (start of image) and onto the stack
+ 118  E07F 7D                   LD   A,L            ;setting 5 bytes for graphics (RAMTOP + 26-31)
+ 119  E080 CB 7F                BIT  $7,A
+ 120  E082 1E 02                LD   E,$2
+ 121  E084 20 02                JR   NZ,$E088
+ 122  E086 CB FB                SET  $7,E
+ 123  E088 D6 05                SUB  $5
+ 124  E08A 6F                   LD   L,A
+ 125  E08B 3E DB                LD   A,$DB
+ 126  E08D 06 0F                LD   B,$0F
+ 127  E08F 0E 01                LD   C,$1
+ 128  E091 BD                   CP   L
+ 129  E092 28 08                JR   Z,$E09C
+ 130  E094 D6 20                SUB  $20
+ 131  E096 CB 00                RLC  B
+ 132  E098 CB 01                RLC  C
+ 133  E09A 18 F5                JR   $E091
+ 134  E09C E6 7F                AND  $7F
+ 135  E09E E1                   POP  HL             ;HL=RAMTOP+32 from stack
+ 136  E09F 54                   LD   D,H
+ 137  E0A0 2B                   DEC  HL             ;HL=RAMTOP+31
+ 138  E0A1 72                   LD   (HL),D         ;RAMTOP+31=higher byte of image start
+ 139  E0A2 2B                   DEC  HL             ;HL=RAMTOP+30
+ 140  E0A3 77                   LD   (HL),A
+ 141  E0A4 2B                   DEC  HL             ;HL=RAMTOP+29
+ 142  E0A5 73                   LD   (HL),E
+ 143  E0A6 2B                   DEC  HL             ;HL=RAMTOP+28
+ 144  E0A7 36 D0                LD   (HL),$D0       ;RAMTOP+28=number of screen lines visible
+ 145  E0A9 2B                   DEC  HL             ;HL=RAMTOP+27
+ 146  E0AA 70                   LD   (HL),B
+ 147  E0AB 2B                   DEC  HL             ;HL=RAMTOP+26
+ 148  E0AC 71                   LD   (HL),C
+ 149  E0AD C9                   RET
+ 150  E0AE              SOUND_CMD:
+ 151  E0AE F1                   POP  AF             ;SOUND command
+ 152  E0AF CF                   RST  $8             ;read the first parameter
+ 153  E0B0 7D                   LD   A,L            ;A=number of AY port
+ 154  E0B1 D3 BE                OUT  ($BE),A        ;send to port 190
+ 155  E0B3 CD 05 00             CALL $0005          ;read second parameter
+ 156  E0B6 7D                   LD   A,L            ;A=data for AY port
+ 157  E0B7 D3 BF                OUT  ($BF),A        ;send to port 191
+ 158  E0B9 F7                   RST  $30            ;return to basic
+ 159  E0BA              TEXT_CMD:
+ 160  E0BA F1                   POP  AF             ;TEXT command
+ 161  E0BB 3E 0C                LD   A,$0C          ;instead of the graphic indicator set...
+ 162  E0BD 32 A8 2B             LD   ($2BA8),A      ;...position of TEXT image (centers)
+ 163  E0C0 ED 56                IM   $1             ;will play video again in ROM
+ 164  E0C2 F7                   RST  $30            ;return to basic
+ 165  E0C3              UNPLOT_CMD:
+ 166  E0C3 AF                   XOR  A              ;UNPLOT command
+ 167  E0C4 3C                   INC  A              ;A=1, $Z flag=0
+ 168  E0C5 06                   DEFB $06            ;false LD B,$AF for UNPLOT (plus 7T)
+ 169  E0C6              PLOT_CMD:
+ 170  E0C6 AF                   XOR  A              ;PLOT command (A=0, $Z flag=1)
+ 171  E0C7 C1                   POP  BC             ;batali return address
+ 172  E0C8 F5                   PUSH AF             ;save Z flag
+ 173  E0C9 CD 6A E4             CALL $E46A          ;read coordinates Y,X in BC
+ 174  E0CC F1                   POP  AF
+ 175  E0CD F5                   PUSH AF             ;refresh Z flag
+ 176  E0CE C5                   PUSH BC             ;pass coordinates to PLOT/UNPLOT subroutine
+ 177  E0CF CD 48 E1             CALL $E148          ;turns the dot on/off
+ 178  E0D2 F1                   POP  AF
+ 179  E0D3 D1                   POP  DE
+ 180  E0D4 F7                   RST  $30            ;return to basic
+ 181  E0D5              UNDRAW_CMD:
+ 182  E0D5 AF                   XOR  A              ;UNDRAW command
+ 183  E0D6 3C                   INC  A              ;A=1, $Z flag=0
+ 184  E0D7 06                   DEFB $06            ;false LD B,$AF for UNDRAW
+ 185  E0D8              DRAW_CMD:
+ 186  E0D8 AF                   XOR  A              ;DRAW command (A=0, $Z flag=1)
+ 187  E0D9 C1                   POP  BC             ;batali return address
+ 188  E0DA F5                   PUSH AF             ;keep Z flag
+ 189  E0DB CD 6A E4             CALL $E46A          ;read coordinates Y2,X2 in BC
+ 190  E0DE CD E7 E0             CALL $E0E7          ;draw / erase line
+ 191  E0E1 DD 21 AC 2A          LD   IX,$2AAC       ;reset arithmetic stack pointer
+ 192  E0E5 18 EB                JR   $E0D2          ;return to basic
+ 193  E0E7 2A 6A 2A             LD   HL,($2A6A)     ;DRAW subroutine, HL=RAMTOP
+ 194  E0EA 11 14 00             LD   DE,$0014
+ 195  E0ED 19                   ADD  HL,DE          ;HL=RAMTOP+20
+ 196  E0EE 5E                   LD   E,(HL)         ;E=current (initial) X1 coordinate
+ 197  E0EF 23                   INC  HL             ;HL=RAMTOP+21
+ 198  E0F0 56                   LD   D,(HL)         ;D=current (initial) Y1 coordinate
+ 199  E0F1 EB                   EX   DE,HL          ;HL=Y1,X1
+ 200  E0F2 78                   LD   A,B
+ 201  E0F3 94                   SUB  H              ;A=difference between Y1 and Y2 points
+ 202  E0F4 16 01                LD   D,$1           ;D=Y step +1
+ 203  E0F6 30 04                JR   NC,$E0FC       ;if Y2 is greater than Y1, $step +1
+ 204  E0F8 16 FF                LD   D,$FF          ; else Y step -1
+ 205  E0FA 7C                   LD   A,H
+ 206  E0FB 90                   SUB  B
+ 207  E0FC 47                   LD   B,A            ;B=difference between Y2 and Y1 points
+ 208  E0FD 18 02                JR   $E101          ;skip IM 2 vector
+ 209  E0FF FB E3                DEFW $E3FB          ; IM2 vector E0FF. service address $E3FB
+ 210  E101 79                   LD   A,C
+ 211  E102 95                   SUB  L              ;A=difference between X1 and X2 points
+ 212  E103 1E 01                LD   E,$1           ;E=X step +1
+ 213  E105 30 04                JR   NC,$E10B       ;if X2 is greater than X1, $step +1
+ 214  E107 1E FF                LD   E,$FF          ;otherwise X step -1
+ 215  E109 7D                   LD   A,L
+ 216  E10A 91                   SUB  C
+ 217  E10B 4F                   LD   C,A            ;C=difference between X2 and X1 points
+ 218  E10C DD E1                POP  IX             ;IX=return address
+ 219  E10E 90                   SUB  B
+ 220  E10F 30 0D                JR   NC,$E11E
+ 221  E111 F1                   POP  AF
+ 222  E112 37                   SCF
+ 223  E113 F5                   PUSH AF
+ 224  E114 7A                   LD   A,D
+ 225  E115 53                   LD   D,E
+ 226  E116 5F                   LD   E,A
+ 227  E117 7C                   LD   A,H
+ 228  E118 65                   LD   H,L
+ 229  E119 6F                   LD   L,A
+ 230  E11A 78                   LD   A,B
+ 231  E11B 41                   LD   B,C
+ 232  E11C 4F                   LD   C,A
+ 233  E11D 90                   SUB  B
+ 234  E11E C5                   PUSH BC
+ 235  E11F 04                   INC  B
+ 236  E120 0C                   INC  C
+ 237  E121 D9                   EXX
+ 238  E122 D1                   POP  DE
+ 239  E123 1C                   INC  E
+ 240  E124 1D                   DEC  E
+ 241  E125 D9                   EXX
+ 242  E126 DD E5                PUSH IX
+ 243  E128 C8                   RET  Z
+ 244  E129 DD E1                POP  IX
+ 245  E12B 90                   SUB  B
+ 246  E12C 30 06                JR   NC,$E134
+ 247  E12E 81                   ADD  A,C
+ 248  E12F 08                   EX   AF,AF'
+ 249  E130 7C                   LD   A,H
+ 250  E131 82                   ADD  A,D
+ 251  E132 67                   LD   H,A
+ 252  E133 08                   EX   AF,AF'
+ 253  E134 08                   EX   AF,AF'
+ 254  E135 7D                   LD   A,L
+ 255  E136 83                   ADD  A,E
+ 256  E137 6F                   LD   L,A
+ 257  E138 F1                   POP  AF
+ 258  E139 F5                   PUSH AF
+ 259  E13A E5                   PUSH HL
+ 260  E13B 30 03                JR   NC,$E140
+ 261  E13D 7C                   LD   A,H
+ 262  E13E 65                   LD   H,L
+ 263  E13F 6F                   LD   L,A
+ 264  E140 E3                   EX   (SP), HL
+ 265  E141 D9                   EXX
+ 266  E142 CD 48 E1             CALL $E148
+ 267  E145 08                   EX   AF,AF'
+ 268  E146 18 DC                JR   $E124
+ 269  E148 E1                   POP  HL             ;HL=return address, $stack=YX
+ 270  E149 E3                   EX   (SP),HL        ;HL=YX, $stack=return address
+ 271  E14A E5                   PUSH HL             ;stack=YX, $return address
+ 272  E14B 21 8A E1             LD   HL,$E18A       ;HL=end address for PLOT
+ 273  E14E 28 03                JR   Z,$E153        ;jump if PLOT
+ 274  E150 21 87 E1             LD   HL,$E187       ;HL=end address for UNPLOT
+ 275  E153 E3                   EX   (SP),HL        ;HL=YX, $stack=address of continuation
+ 276  E154 7C                   LD   A, H
+ 277  E155 FE D0                CP   $D0
+ 278  E157 38 03                JR   C,$E15C        ;if Y < 208, $then
+ 279  E159 3E CF                LD   A,$CF          ;if Y >= 208, $Y=207
+ 280  E15B 67                   LD   H,A            ;H=limited Y
+ 281  E15C E5                   PUSH HL             ;YX onto stack
+ 282  E15D 2F                   CPL
+ 283  E15E D6 30                SUB  $30
+ 284  E160 67                   LD   H,A
+ 285  E161 7D                   LD   A,L
+ 286  E162 E6 07                AND  $7
+ 287  E164 06 03                LD   B,$3
+ 288  E166 CB 3C                SRL  H
+ 289  E168 CB 1D                RR   L
+ 290  E16A 10 FA                DJNZ $E166
+ 291  E16C E3                   EX   (SP),HL        ;HL=YX, $stack=sequence number of bytes points
+ 292  E16D E5                   PUSH HL             ;stack=YX
+ 293  E16E 60                   LD   H,B            ;HL=order bit number of point
+ 294  E16F 6F                   LD   L,A
+ 295  E170 01 8D E1             LD   BC,$E18D       ;BC=address of point bit mask table
+ 296  E173 09                   ADD  HL,BC
+ 297  E174 7E                   LD   A,(HL)         ;A=mask for bit points
+ 298  E175 2A 6A 2A             LD   HL,($2A6A)
+ 299  E178 01 14 00             LD   BC,$0014
+ 300  E17B 09                   ADD  HL,BC          ;HL=RAMTOP+20
+ 301  E17C C1                   POP  BC             ;BC=YX
+ 302  E17D 71                   LD   (HL),C         ; new rear X
+ 303  E17E 23                   INC  HL
+ 304  E17F 70                   LD   (HL),B         ; new rear Y
+ 305  E180 C1                   POP  BC             ;BC=sequence number of the byte in which the point is
+ 306  E181 09                   ADD  HL, BC
+ 307  E182 01 0B 00             LD   BC,$000B       ;BC=offset from RAMTOP+20 to the beginning of the image
+ 308  E185 09                   ADD  HL,BC          ;HL=address of the byte where the point is
+ 309  E186 C9                   RET                 ;continue from PLOT/UNPLOT address from stack
+ 310  E187 2F                   CPL                 ;UNPLOT - turns off point
+ 311  E188 B6                   OR   (HL)
+ 312  E189 06                   DEFB $06            ;dummy LD B,$A6 for UNPLOT
+ 313  E18A A6                   AND  (HL)           ;PLOT - lights point
+ 314  E18B 77                   LD   (HL),A
+ 315  E18C C9                   RET                 ;end - return
+ 316  E18D                      ; BEGIN this part is from the ROM dump but was not in the listing
+ 317  E18D                          IF ROM_C_PATCH
+ 318  E18D FE FD                CP $FD
+ 319  E18F FB                   EI
+ 320  E190 F7           	RST $30
+ 321  E191 EF           	RST $28
+ 322  E192 DF           	RST $18
+ 323  E193 BF           	CP A
+ 324  E194 7F           	LD A, A
+ 325  E195                          ENDIF
+ 326  E195                      ; END this part is from the ROM dump but was not in the listing
+ 327  E195 CD BB E4             CALL VIDEO          ;$E4BB ;LINK TO VIDEO
+ 328  E198 E1                   POP  HL             ;HL=$09B9 (forgot the return address from the link)
+ 329  E199 C1                   POP  BC             ;BC=AF from stack
+ 330  E19A D1                   POP  DE             ;DE=$0026 (return address in RST 20)
+ 331  E19B E1                   POP  HL             ;HL=return address from RST 20 (caller's address)
+ 332  E19C 7D                   LD   A,L
+ 333  E19D FE A5                CP   $A5            ;is it called from the EDIT command? ($02A5 - EDIT)
+ 334  E19F 20 04                JR   NZ,$E1A5       ;if not, $continue
+ 335  E1A1 D9                   EXX                 ;if so, $EDIT is not executed
+ 336  E1A2 C3 66 00             JP   $0066          ; jump to basic reset (HARD-BREAK)
+ 337  E1A5 FE C1                CP   $C1            ; was it called from the old INPUT command? ($07C1 - GETSTR)
+ 338  E1A7 CA 6A E2             JP   Z,$E26A        ;if old INPUT, $jump to new INPUT command
+ 339  E1AA E5                   PUSH HL
+ 340  E1AB C5                   PUSH BC
+ 341  E1AC CD CC E4             CALL $E4CC          ;HL=RAMTOP+16
+ 342  E1AF 23                   INC  HL
+ 343  E1B0 23                   INC  HL             ;HL=RAMTOP+18 (arrow execution indicator)
+ 344  E1B1 FE B1                CP   $B1            ;is it called from a NEW INPUT statement? ($E2B1)
+ 345  E1B3 28 20                JR   Z,$E1D5        ;if so, $jump to print character
+ 346  E1B5 FE 0D                CP   $0D            ;is it called from ......... ? ($E30D)
+ 347  E1B7 28 1C                JR   Z,$E1D5        ;if yes, $jump jump to print character
+ 348  E1B9 78                   LD   A,B            ;A=character to be printed
+ 349  E1BA FE 20                CP   $20            ;is the character an old control code (0-31) ?
+ 350  E1BC 38 38                JR   C,$E1F6        ;if so, $jump to control code processing
+ 351  E1BE FE DF                CP   $DF            ;is the character a new control code (219-222, $arrows) ?
+ 352  E1C0 30 0C                JR   NC,$E1CE       ;if not, $check again for apostrophe (")
+ 353  E1C2 FE DB                CP   $DB            ; is the sign of any arrow ?
+ 354  E1C4 38 08                JR   C,$E1CE        ;if not, $check again for apostrophe (")
+ 355  E1C6 46                   LD   B,(HL)         ;B=arrow execution indicator
+ 356  E1C7 04                   INC  B              ; are arrows printed? (B=255)
+ 357  E1C8 28 0C                JR   Z,$E1D6        ;if printing, $jump to print character
+ 358  E1CA E6 3F                AND  $3F            ;if executed, $A=old arrow code (27-30)
+ 359  E1CC 18 68                JR   $E236          ;jump to cursor move
+ 360  E1CE FE 22                CP   $22            ;is the character an apostrophe (")?
+ 361  E1D0 20 04                JR   NZ,$E1D6       ;if not, $jump to print character
+ 362  E1D2 7E                   LD   A,(HL)         ;if so, $arrow execution indicator...
+ 363  E1D3 2F                   CPL                 ;...changes from 255 to 0 or vice versa
+ 364  E1D4 77                   LD   (HL),A         ;write the new state of the indicator
+ 365  E1D5 78                   LD   A,B            ;A=character to be printed
+ 366  E1D6 2A 68 2A             LD   HL,($2A68)
+ 367  E1D9 77                   LD   (HL),A         ;print character on text screen
+ 368  E1DA E5                   PUSH HL             ;store cursor address on stack
+ 369  E1DB CD 84 E4             CALL $E484          ;BC=XY cursor coordinate text
+ 370  E1DE CD 06 E5             CALL $E506          ;character is drawn on the graphics screen if GRAPH mode is enabled ($2BA8=255)
+ 371  E1E1 04                   INC  B              ;B=X+1, $(new cursor coordinate to the right of the written character)
+ 372  E1E2 CD CA E4             CALL $E4CA          ;HL=RAMTOP+Y (screen editor variable for the line where the cursor is)
+ 373  E1E5 7E                   LD   A,(HL)         ;A=length of the line where the cursor is
+ 374  E1E6 B8                   CP   B              ; is the new position of the cursor at the end of the line?
+ 375  E1E7 38 01                JR   C,$E1EA        ;if right of end, $jump
+ 376  E1E9 47                   LD   B,A            ; if it is at the end of the line (or to the left of the end)
+ 377  E1EA 70                   LD   (HL),B
+ 378  E1EB E1                   POP  HL
+ 379  E1EC 23                   INC  HL
+ 380  E1ED CD FC E4             CALL $E4FC
+ 381  E1F0 F1                   POP  AF
+ 382  E1F1 CD 6F 10             CALL $106F
+ 383  E1F4 D9                   EXX
+ 384  E1F5 C9                   RET
+ 385  E1F6 FE 0D                CP   $0D
+ 386  E1F8 20 05                JR   NZ,$E1FF
+ 387  E1FA CD E5 E4             CALL $E4E5
+ 388  E1FD 18 F1                JR   $E1F0
+ 389  E1FF FE 0C                CP   $0C
+ 390  E201 20 2B                JR   NZ,$E22E
+ 391  E203 21 0A E2             LD   HL,$E20A
+ 392  E206 E5                   PUSH HL
+ 393  E207 CD 1A 0A             CALL $0A1A
+ 394  E20A 2A 6A 2A             LD   HL,($2A6A)
+ 395  E20D 06 10                LD   B,$10
+ 396  E20F 36 00                LD   (HL),$0
+ 397  E211 23                   INC  HL
+ 398  E212 10 FB                DJNZ $E20F
+ 399  E214 23                   INC  HL
+ 400  E215 23                   INC  HL
+ 401  E216 36 00                LD   (HL),$0
+ 402  E218 3A A8 2B             LD   A,($2BA8)
+ 403  E21B 3C                   INC  A
+ 404  E21C 20 D2                JR   NZ,$E1F0
+ 405  E21E 11 0E 00             LD   DE,$000E
+ 406  E221 19                   ADD  HL,DE
+ 407  E222 01 00 1A             LD   BC,$1A00
+ 408  E225 54                   LD   D,H
+ 409  E226 5D                   LD   E,L
+ 410  E227 13                   INC  DE
+ 411  E228 36 FF                LD   (HL),$FF
+ 412  E22A ED B0                LDIR
+ 413  E22C 18 C2                JR   $E1F0
+ 414  E22E 46                   LD   B, (HL)
+ 415  E22F 04                   INC  B
+ 416  E230 20 04                JR   NZ,$E236
+ 417  E232 F6 C0                OR   $C0
+ 418  E234 18 A0                JR   $E1D6
+ 419  E236 FE 1B                CP   $1B
+ 420  E238 38 B6                JR   C,$E1F0
+ 421  E23A 20 03                JR   NZ,$E23F
+ 422  E23C 11 E0 FF             LD   DE,$FFE0
+ 423  E23F FE 1C                CP   $1C
+ 424  E241 20 03                JR   NZ,$E246
+ 425  E243 11 20 00             LD   DE,$0020
+ 426  E246 FE 1D                CP   $1D
+ 427  E248 20 03                JR   NZ,$E24D
+ 428  E24A 11 FF FF             LD   DE,$FFFF
+ 429  E24D FE 1E                CP   $1E
+ 430  E24F 20 03                JR   NZ,$E254
+ 431  E251 11 01 00             LD   DE,$0001
+ 432  E254 2A 68 2A             LD   HL,($2A68)
+ 433  E257 19                   ADD  HL,DE
+ 434  E258 7C                   LD   A,H
+ 435  E259 FE 2A                CP   $2A
+ 436  E25B 38 02                JR   C,$E25F
+ 437  E25D 26 28                LD   H,$28
+ 438  E25F FE 28                CP   $28
+ 439  E261 30 02                JR   NC,$E265
+ 440  E263 26 29                LD   H,$29
+ 441  E265 22 68 2A             LD   ($2A68),HL
+ 442  E268 18 86                JR   $E1F0
+ 443  E26A D9                   EXX                 ;save BC, $DE, HL - NEW INPUT COMMAND
+ 444  E26B CD CC E4             CALL $E4CC          ;HL=RAMTOP+16 (cursor flicker), $DE=16
+ 445  E26E CB 3B                SRL  E              ;DE=8
+ 446  E270 19                   ADD  HL,DE          ;HL=RAMTOP+24 (use screen editor - 2 bytes)
+ 447  E271 ED 5B 68 2A          LD   DE,($2A68)     ;DE=address of screen cursor
+ 448  E275 73                   LD   (HL),E
+ 449  E276 23                   INC  HL
+ 450  E277 72                   LD   (HL),D         ;store cursor address in RAMTOP+24
+ 451  E278 CD CC E4             CALL $E4CC          ;HL=again RAMTOP+16
+ 452  E27B 36 01                LD   (HL),$1        ;set blink counter just before blink cursor
+ 453  E27D CD F5 0C             CALL $0CF5          ;wait for keystroke
+ 454  E280 CD BB E4             CALL VIDEO          ;$E4BB ;turn off cursor blinking (AF is saved)
+ 455  E283 2A 68 2A             LD   HL,($2A68)     ;HL=address of screen cursor
+ 456  E286 F5                   PUSH AF             ;keep AF
+ 457  E287 CD 84 E4             CALL $E484          ;BC=XY cursor coordinate text
+ 458  E28A F1                   POP  AF             ;A=ASCII at pressed key
+ 459  E28B B7                   OR   A              ; is it 0 ? (PART)
+ 460  E28C 28 0C                JR   Z,$E29A        ;if 0, $process DELETE
+ 461  E28E FE 0D                CP   $0D            ; is it ENTER ?
+ 462  E290 CA 17 E3             JP   Z,$E317        ;if so, $process ENTER
+ 463  E293 FE 5F                CP   $5F            ;is it "_" ? (SHIFT + 0)
+ 464  E295 28 3A                JR   Z,$E2D1        ;if yes, $process INSERT
+ 465  E297 E7                   RST  $20            ;if it's something else, $print it
+ 466  E298 18 DE                JR   $E278          ;turn on the cursor again and wait for the next key
+ 467  E29A E5                   PUSH HL             ;DELETE PROCESSING
+ 468  E29B E5                   PUSH HL             ;cursor address 2x on stack
+ 469  E29C CD CA E4             CALL $E4CA          ;HL=RAMTOP+Y coordinate (screen row for screen editor)
+ 470  E29F 7E                   LD   A,(HL)         ;A=number of characters in line (empty line = 0)
+ 471  E2A0 90                   SUB  B              ;A=A-position of the cursor (X coordinate)
+ 472  E2A1 28 02                JR   Z,$E2A5        ;if cursor is at end of line, $jump
+ 473  E2A3 30 04                JR   NC,$E2A9       ;if the cursor is right at the end of the line, $jump
+ 474  E2A5 E1                   POP  HL             ;no deletion (right !!)
+ 475  E2A6 E1                   POP  HL             ;remove cursor addresses from stack 2x
+ 476  E2A7 18 CF                JR   $E278          ;turn on the cursor again and wait for the next key
+ 477  E2A9 B7                   OR   A
+ 478  E2AA 28 0E                JR   Z,$E2BA
+ 479  E2AC 47                   LD   B,A
+ 480  E2AD E3                   EX   (SP), HL
+ 481  E2AE 23                   INC  HL
+ 482  E2AF 7E                   LD   A,(HL)
+ 483  E2B0 E7                   RST  $20
+ 484  E2B1 10 FB                DJNZ $E2AE
+ 485  E2B3 E3                   EX   (SP), HL
+ 486  E2B4 CB 6E                BIT  $5,(HL)
+ 487  E2B6 23                   INC  HL
+ 488  E2B7 7E                   LD   A,(HL)
+ 489  E2B8 20 EF                JR   NZ,$E2A9
+ 490  E2BA 2B                   DEC  HL
+ 491  E2BB E3                   EX   (SP), HL
+ 492  E2BC CD 84 E4             CALL $E484
+ 493  E2BF AF                   XOR  A
+ 494  E2C0 B8                   CP   B
+ 495  E2C1 20 02                JR   NZ,$E2C5
+ 496  E2C3 06 20                LD   B,$20
+ 497  E2C5 05                   DEC  B
+ 498  E2C6 E1                   POP  HL
+ 499  E2C7 3E 20                LD   A,$20
+ 500  E2C9 E7                   RST  $20
+ 501  E2CA 70                   LD   (HL), B
+ 502  E2CB E1                   POP  HL
+ 503  E2CC 22 68 2A             LD   ($2A68),HL
+ 504  E2CF 18 A7                JR   $E278
+ 505  E2D1 E5                   PUSH HL
+ 506  E2D2 CD CA E4             CALL $E4CA
+ 507  E2D5 AF                   XOR  A
+ 508  E2D6 86                   ADD  A,(HL)
+ 509  E2D7 30 07                JR   NC,$E2E0
+ 510  E2D9 E1                   POP  HL
+ 511  E2DA CD F6 E4             CALL $E4F6
+ 512  E2DD C3 54 01             JP   $0154
+ 513  E2E0 CB 6E                BIT  $5,(HL)
+ 514  E2E2 23                   INC  HL
+ 515  E2E3 20 F1                JR   NZ,$E2D6
+ 516  E2E5 90                   SUB  B
+ 517  E2E6 28 02                JR   Z,$E2EA
+ 518  E2E8 30 03                JR   NC,$E2ED
+ 519  E2EA E1                   POP  HL
+ 520  E2EB 18 8B                JR   $E278
+ 521  E2ED 2B                   DEC  HL
+ 522  E2EE 34                   INC  (HL)
+ 523  E2EF E1                   POP  HL
+ 524  E2F0 16 00                LD   D,$0
+ 525  E2F2 5F                   LD   E,A
+ 526  E2F3 19                   ADD  HL,DE
+ 527  E2F4 47                   LD   B,A
+ 528  E2F5 11 FF 29             LD   DE,$29FF
+ 529  E2F8 D7                   RST  $10
+ 530  E2F9 38 0C                JR   C,$E307
+ 531  E2FB C5                   PUSH BC
+ 532  E2FC E5                   PUSH HL
+ 533  E2FD CD 88 E3             CALL $E388
+ 534  E300 E1                   POP  HL
+ 535  E301 11 20 00             LD   DE,$0020
+ 536  E304 ED 52                SBC  HL, DE
+ 537  E306 C1                   POP  BC
+ 538  E307 22 68 2A             LD   ($2A68),HL
+ 539  E30A 2B                   DEC  HL
+ 540  E30B 7E                   LD   A,(HL)
+ 541  E30C E7                   RST  $20
+ 542  E30D 10 F8                DJNZ $E307
+ 543  E30F 22 68 2A             LD   ($2A68),HL
+ 544  E312 3E 20                LD   A,$20
+ 545  E314 E7                   RST  $20
+ 546  E315 18 B5                JR   $E2CC
+ 547  E317 CD CA E4             CALL $E4CA
+ 548  E31A AF                   XOR  A
+ 549  E31B B9                   CP   C
+ 550  E31C 28 08                JR   Z,$E326
+ 551  E31E 0D                   DEC  C
+ 552  E31F 2B                   DEC  HL
+ 553  E320 CB 6E                BIT  $5,(HL)
+ 554  E322 20 F7                JR   NZ,$E31B
+ 555  E324 0C                   INC  C
+ 556  E325 23                   INC  HL
+ 557  E326 E5                   PUSH HL
+ 558  E327 21 00 28             LD   HL,$2800
+ 559  E32A 28 07                JR   Z,$E333
+ 560  E32C 11 20 00             LD   DE,$0020
+ 561  E32F 41                   LD   B,C
+ 562  E330 19                   ADD  HL,DE
+ 563  E331 10 FD                DJNZ $E330
+ 564  E333 E3                   EX   (SP), HL
+ 565  E334 C1                   POP  BC
+ 566  E335 C5                   PUSH BC
+ 567  E336 C5                   PUSH BC
+ 568  E337 06 00                LD   B,$0
+ 569  E339 4E                   LD   C,(HL)
+ 570  E33A E3                   EX   (SP), HL
+ 571  E33B 09                   ADD  HL, BC
+ 572  E33C E3                   EX   (SP), HL
+ 573  E33D 23                   INC  HL
+ 574  E33E CB 69                BIT  $5,C
+ 575  E340 20 F7                JR   NZ,$E339
+ 576  E342 CD CC E4             CALL $E4CC
+ 577  E345 23                   INC  HL
+ 578  E346 23                   INC  HL
+ 579  E347 34                   INC  (HL)
+ 580  E348 28 01                JR   Z,$E34B
+ 581  E34A 35                   DEC  (HL)
+ 582  E34B 1E 06                LD   E,$6
+ 583  E34D 19                   ADD  HL,DE
+ 584  E34E 5E                   LD   E,(HL)
+ 585  E34F 23                   INC  HL
+ 586  E350 56                   LD   D, (HL)
+ 587  E351 C1                   POP  BC
+ 588  E352 E1                   POP  HL
+ 589  E353 D7                   RST  $10
+ 590  E354 30 07                JR   NC,$E35D
+ 591  E356 E5                   PUSH HL
+ 592  E357 60                   LD   H,B
+ 593  E358 69                   LD   L,C
+ 594  E359 D7                   RST  $10
+ 595  E35A E1                   POP  HL
+ 596  E35B 30 01                JR   NC,$E35E
+ 597  E35D EB                   EX   DE, HL
+ 598  E35E 60                   LD   H,B
+ 599  E35F 69                   LD   L,C
+ 600  E360 A7                   AND  A
+ 601  E361 ED 52                SBC  HL, DE
+ 602  E363 D5                   PUSH DE
+ 603  E364 11 7D 00             LD   DE,$007D
+ 604  E367 D7                   RST  $10
+ 605  E368 38 0A                JR   C,$E374
+ 606  E36A ED 43 68 2A          LD   ($2A68),BC
+ 607  E36E CD E5 E4             CALL $E4E5
+ 608  E371 C3 54 01             JP   $0154
+ 609  E374 44                   LD   B,H
+ 610  E375 4D                   LD   C,L
+ 611  E376 E1                   POP  HL
+ 612  E377 11 B6 2B             LD   DE,$2BB6
+ 613  E37A 03                   INC  BC
+ 614  E37B ED B0                LDIR
+ 615  E37D 1B                   DEC  DE
+ 616  E37E 3E 0D                LD   A,$0D
+ 617  E380 12                   LD   (DE),A
+ 618  E381 13                   INC  DE
+ 619  E382 D5                   PUSH DE
+ 620  E383 CD F6 E4             CALL $E4F6
+ 621  E386 D1                   POP  DE
+ 622  E387 C9                   RET
+ 623  E388 ED 5B 6C 2A          LD   DE,($2A6C)
+ 624  E38C 21 E0 01             LD   HL,$01E0
+ 625  E38F 7B                   LD   A,E
+ 626  E390 E6 1F                AND  $1F
+ 627  E392 13                   INC  DE
+ 628  E393 20 FA                JR   NZ,$E38F
+ 629  E395 1B                   DEC  DE
+ 630  E396 ED 52                SBC  HL, DE
+ 631  E398 28 45                JR   Z,$E3DF
+ 632  E39A 38 43                JR   C,$E3DF
+ 633  E39C 44                   LD   B,H
+ 634  E39D 4D                   LD   C,L
+ 635  E39E CB DA                SET  $3,D
+ 636  E3A0 CB EA                SET  $5,D
+ 637  E3A2 E5                   PUSH HL
+ 638  E3A3 D5                   PUSH DE
+ 639  E3A4 21 20 00             LD   HL,$0020
+ 640  E3A7 19                   ADD  HL, DE
+ 641  E3A8 ED B0                LDIR
+ 642  E3AA E1                   POP  HL
+ 643  E3AB CD 84 E4             CALL $E484
+ 644  E3AE CD CA E4             CALL $E4CA
+ 645  E3B1 79                   LD   A,C
+ 646  E3B2 23                   INC  HL
+ 647  E3B3 46                   LD   B,(HL)
+ 648  E3B4 2B                   DEC  HL
+ 649  E3B5 70                   LD   (HL),B
+ 650  E3B6 23                   INC  HL
+ 651  E3B7 3C                   INC  A
+ 652  E3B8 FE 0F                CP   $0F
+ 653  E3BA 38 F6                JR   C,$E3B2
+ 654  E3BC 3A A8 2B             LD   A,($2BA8)
+ 655  E3BF 3C                   INC  A
+ 656  E3C0 20 1C                JR   NZ,$E3DE
+ 657  E3C2 CD CC E4             CALL $E4CC
+ 658  E3C5 19                   ADD  HL, DE
+ 659  E3C6 E5                   PUSH HL
+ 660  E3C7 CD 8D E5             CALL $E58D
+ 661  E3CA C1                   POP  BC
+ 662  E3CB 09                   ADD  HL,BC
+ 663  E3CC E5                   PUSH HL
+ 664  E3CD 19                   ADD  HL, DE
+ 665  E3CE D1                   POP  DE
+ 666  E3CF E3                   EX   (SP),HL
+ 667  E3D0 D5                   PUSH DE
+ 668  E3D1 CD 84 E4             CALL $E484
+ 669  E3D4 CD 8D E5             CALL $E58D
+ 670  E3D7 D1                   POP  DE
+ 671  E3D8 44                   LD   B,H
+ 672  E3D9 4D                   LD   C,L
+ 673  E3DA E1                   POP  HL
+ 674  E3DB ED B0                LDIR
+ 675  E3DD 3E E1                LD   A,$E1
+ 676  E3DF 21 E0 29             LD   HL,$29E0
+ 677  E3E2 E5                   PUSH HL
+ 678  E3E3 CD 84 E4             CALL $E484
+ 679  E3E6 CD D5 E4             CALL $E4D5
+ 680  E3E9 CD CC E4             CALL $E4CC
+ 681  E3EC 2B                   DEC  HL
+ 682  E3ED 77                   LD   (HL),A
+ 683  E3EE 1E 09                LD   E,$9
+ 684  E3F0 19                   ADD  HL, DE
+ 685  E3F1 7E                   LD   A,(HL)
+ 686  E3F2 D6 20                SUB  $20
+ 687  E3F4 77                   LD   (HL),A
+ 688  E3F5 30 02                JR   NC,$E3F9
+ 689  E3F7 23                   INC  HL
+ 690  E3F8 35                   DEC  (HL)
+ 691  E3F9 E1                   POP  HL
+ 692  E3FA C9                   RET
+ 693  E3FB F5                   PUSH AF             ;11 video driver
+ 694  E3FC C5                   PUSH BC             ;11
+ 695  E3FD D5                   PUSH DE             ;11
+ 696  E3FE E5                   PUSH HL             ;11
+ 697  E3FF D9                   EXX                 ;4 alternate registers
+ 698  E400 C5                   PUSH BC             ;11
+ 699  E401 D5                   PUSH DE             ;11
+ 700  E402 E5                   PUSH HL             ;11
+ 701  E403 01 7F 20             LD   BC,$207F       ;10 BC'=latch address (B'=line length, $C'=?)
+ 702  E406 2A 6A 2A             LD   HL,($2A6A)     ;16 HL'=ramtop
+ 703  E409 11 1A 00             LD   DE,$001A       ;10 DE'=26
+ 704  E40C 19                   ADD  HL,DE          ;11 HL'=ramtop+26
+ 705  E40D 56                   LD   D, (HL)        ;7
+ 706  E40E 23                   INC  HL             ;6 HL'=ramtop+27
+ 707  E40F 5E                   LD   E,(HL)         ;7 DE'=address ?
+ 708  E410 23                   INC  HL             ;6 HL'=ramtop+28
+ 709  E411 E5                   PUSH HL             ;11 HL' onto stack
+ 710  E412 66                   LD   H, (HL)        ;7
+ 711  E413 2E 3E                LD   L,$3E          ;7 H'=number of visible image lines, $L'=$3E
+ 712  E415 D9                   EXX                 ;4 basic registers
+ 713  E416 E1                   POP  HL             ;10 HL=ramtop+28 from stack
+ 714  E417 DD E5                PUSH IX             ;15 saves IX
+ 715  E419 DD 21 32 E4          LD   IX,$E432       ;14 IX=main loop address
+ 716  E41D 23                   INC  HL             ;6 HL=ramtop+29
+ 717  E41E 56                   LD   D,(HL)         ;7 D=?
+ 718  E41F 23                   INC  HL             ;6 HL=ramtop+30
+ 719  E420 3E 09                LD   A,$9           ;7 bit3+bit0 =1
+ 720  E422 CB 3F                SRL  A              ;8 Cf=1 + bit2=1
+ 721  E424 38 00                JR   C,$E426        ;12 breaks
+ 722  E426 CB 3F                SRL  A              ;8 Cf=0 + bit1=1 (A=2)
+ 723  E428 47                   LD   B,A            ;4 B=2
+ 724  E429 38 00                JR   C,$E42B        ;7 breaks
+ 725  E42B 10 FC                DJNZ $E429          ;13+7+13+7+8 break
+ 726  E42D 46                   LD   B,(HL)         ;7 B=(ramtop+30) for R
+ 727  E42E 23                   INC  HL             ;6 HL=ramtop+31
+ 728  E42F 4E                   LD   C,(HL)         ;7 C=(ramtop+31) higher byte hires image
+ 729  E430 2E BC                LD   L, $BC           ;7 HL=xxBC
+ 730  E432 78                   LD   A,B            ;4 A=B, $main loop
+ 731  E433 22 7F 20             LD   ($207F),HL     ;16 $207F=L, $$2080=H
+ 732  E436 CA 60 E4             JP   Z,$E460        ;10 if Zf=0 end (from DEC H, $number of lines)
+ 733  E439 ED 4F                LD   R,A            ;9 R=B
+ 734  E43B 79                   LD   A,C            ;4
+ 735  E43C ED 47                LD   I,A            ;9 I=C
+ 736  E43E ED 53 7E 20          LD   ($207E),DE     ;20 $207E=E, $$207F=D
+ 737  E442 78                   LD   A,B
+ 738  E443 D9                   EXX
+ 739  E444 80                   ADD  A,B
+ 740  E445 A1                   AND  C
+ 741  E446 D9                   EXX
+ 742  E447 47                   LD   B,A
+ 743  E448 00                   NOP
+ 744  E449 00                   NOP
+ 745  E44A AF                   XOR  A
+ 746  E44B D9                   EXX
+ 747  E44C CB 0A                RRC  D
+ 748  E44E 17                   RLA
+ 749  E44F D9                   EXX
+ 750  E450 81                   ADD  A,C
+ 751  E451 4F                   LD   C,A
+ 752  E452 00                   NOP
+ 753  E453 AF                   XOR  A
+ 754  E454 D9                   EXX
+ 755  E455 CB 0B                RRC  E
+ 756  E457 1F                   RRA
+ 757  E458 B5                   OR   L
+ 758  E459 D9                   EXX
+ 759  E45A 57                   LD   D,A
+ 760  E45B D9                   EXX
+ 761  E45C 25                   DEC  H
+ 762  E45D D9                   EXX
+ 763  E45E DD E9                JP   (IX)
+ 764  E460 DD E1                POP  IX             ;end of drawing image
+ 765  E462 D9                   EXX                 ; restoration of alt. register
+ 766  E463 E1                   POP  HL
+ 767  E464 D1                   POP  DE
+ 768  E465 C1                   POP  BC
+ 769  E466 D9                   EXX                 ;main registers
+ 770  E467 C3 C0 00             JP   $00C0          ;continuation of RTC routine in ROM A
+ 771  E46A CF                   RST  $8             ;take first parameter
+ 772  E46B E5                   PUSH HL             ;first parameter on stack (X)
+ 773  E46C CD 05 00             CALL $0005          ;get second parameter (Y)
+ 774  E46F 45                   LD   B,L            ;B=Y
+ 775  E470 E1                   POP  HL
+ 776  E471 4D                   LD   C,L            ;C=X
+ 777  E472 E1                   POP  HL             ;HL=return address
+ 778  E473 F1                   POP  AF             ;AF=PLOT/UNPLOT value and flag
+ 779  E474 D5                   PUSH DE             ;BASIC_pointer to stack
+ 780  E475 F5                   PUSH AF             ;PLOT/UNPLOT value and flag on stack
+ 781  E476 E5                   PUSH HL             ;address of return to the stack
+ 782  E477 CD CC E4             CALL $E4CC          ;HL=RAMTOP+16
+ 783  E47A 23                   INC  HL
+ 784  E47B 23                   INC  HL
+ 785  E47C 23                   INC  HL             ;HL=RAMTOP+19 (graphics indicator)
+ 786  E47D 7E                   LD   A,(HL)
+ 787  E47E 3C                   INC  A              ;Zf=1 - graphic screen reserved
+ 788  E47F E1                   POP  HL             ;HL=return address
+ 789  E480 C2 D2 E0             JP   NZ,$E0D2       ;Zf=0 - graphic screen is not reserved, $return to basic
+ 790  E483 E9                   JP   (HL)           ;continue PLOT/UNPLOT
+ 791  E484 3E 1F                LD   A,$1F          ;from address on screen (HL) calculate coordinate text
+ 792  E486 A5                   AND  L
+ 793  E487 47                   LD   B,A            ;B=X
+ 794  E488 CB 0C                RRC  H
+ 795  E48A 7D                   LD   A,L
+ 796  E48B 1F                   RRA
+ 797  E48C 1F                   RRA
+ 798  E48D 1F                   RRA
+ 799  E48E 1F                   RRA
+ 800  E48F 1F                   RRA
+ 801  E490 E6 0F                AND  $0F
+ 802  E492 4F                   LD   C,A            ;C=Y
+ 803  E493 CB 04                RLC  H              ;HL is unchanged
+ 804  E495 C9                   RET
+ 805  E496 3E E0                LD   A,$E0          ;interapt link
+ 806  E498 ED 47                LD   I,A            ;set high byte of interapt vector
+ 807  E49A CD CC E4             CALL $E4CC          ;HL=RAMTOP+16 (cursor blinking)
+ 808  E49D 7E                   LD   A,(HL)
+ 809  E49E FE 01                CP   $1             ;is it blinking ?
+ 810  E4A0 38 04                JR   C,$E4A6        ;if not, $jump
+ 811  E4A2 35                   DEC  (HL)           ;decrease counter to blink
+ 812  E4A3 CC A9 E4             CALL Z,$E4A9        ;if counter is 0 change cursor state
+ 813  E4A6 C3 FD 00             JP   $00FD          ;end interapt
+ 814  E4A9 36 14                LD   (HL),$14       ;blink counter reset (0.4s)
+ 815  E4AB 23                   INC  HL             ;HL=RAMTOP+17
+ 816  E4AC 46                   LD   B,(HL)         ;B=character code under cursor or cursor
+ 817  E4AD ED 5B 68 2A          LD   DE,($2A68)     ;DE=address of screen cursor
+ 818  E4B1 1A                   LD   A,(DE)         ;A=at cursor or character
+ 819  E4B2 77                   LD   (HL),A         ;replace codes
+ 820  E4B3 EB                   EX   DE,HL          ;HL=address of screen cursor
+ 821  E4B4 70                   LD   (HL),B
+ 822  E4B5 CD 84 E4             CALL $E484          ;BC=X,Y text coordinates from address (on 32x16)
+ 823  E4B8 C3 06 E5             JP   $E506
+ 824  E4BB              VIDEO:
+ 825  E4BB F5                   PUSH AF
+ 826  E4BC CD CC E4             CALL $E4CC
+ 827  E4BF 36 00                LD   (HL),$0
+ 828  E4C1 23                   INC  HL
+ 829  E4C2 3E BF                LD   A,$BF
+ 830  E4C4 BE                   CP   (HL)
+ 831  E4C5 C4 AC E4             CALL NZ,$E4AC
+ 832  E4C8 F1                   POP  AF
+ 833  E4C9 C9                   RET
+ 834  E4CA 59                   LD   E,C
+ 835  E4CB 21                   DEFB 33             ;false LD HL,$101E (will hide LD E,$10 from CALL $E4CA !)
+ 836  E4CC 1E 10                LD   E,$10
+ 837  E4CE 16 00                LD   D,$0           ;DE=16
+ 838  E4D0 2A 6A 2A             LD   HL,($2A6A)
+ 839  E4D3 19                   ADD  HL,DE          ;HL=RAMTOP+16 (cursor blinking)
+ 840  E4D4 C9                   RET
+ 841  E4D5 3E 20                LD   A,$20
+ 842  E4D7 77                   LD   (HL),A
+ 843  E4D8 E5                   PUSH HL
+ 844  E4D9 CD 06 E5             CALL $E506
+ 845  E4DC 04                   INC  B
+ 846  E4DD E1                   POP  HL
+ 847  E4DE 23                   INC  HL
+ 848  E4DF 7D                   LD   A,L
+ 849  E4E0 E6 1F                AND  $1F
+ 850  E4E2 20 F1                JR   NZ,$E4D5
+ 851  E4E4 C9                   RET
+ 852  E4E5 2A 68 2A             LD   HL,($2A68)
+ 853  E4E8 CD 84 E4             CALL $E484
+ 854  E4EB E5                   PUSH HL
+ 855  E4EC CD CA E4             CALL $E4CA
+ 856  E4EF 70                   LD   (HL),B
+ 857  E4F0 E1                   POP  HL
+ 858  E4F1 CD D5 E4             CALL $E4D5
+ 859  E4F4 18 06                JR   $E4FC
+ 860  E4F6 23                   INC  HL
+ 861  E4F7 7D                   LD   A,L
+ 862  E4F8 E6 1F                AND  $1F
+ 863  E4FA 20 FA                JR   NZ,$E4F6
+ 864  E4FC 7C                   LD   A,H
+ 865  E4FD FE 2A                CP   $2A
+ 866  E4FF D4 88 E3             CALL NC,$E388
+ 867  E502 22 68 2A             LD   ($2A68),HL
+ 868  E505 C9                   RET
+ 869  E506 3A A8 2B             LD   A,($2BA8)
+ 870  E509 3C                   INC  A
+ 871  E50A C0                   RET  NZ
+ 872  E50B C5                   PUSH BC
+ 873  E50C E5                   PUSH HL
+ 874  E50D CD 8D E5             CALL $E58D
+ 875  E510 48                   LD   C,B
+ 876  E511 47                   LD   B,A
+ 877  E512 09                   ADD  HL, BC
+ 878  E513 E3                   EX   (SP), HL
+ 879  E514 7E                   LD   A,(HL)
+ 880  E515 E1                   POP  HL
+ 881  E516 01 20 00             LD   BC,$0020
+ 882  E519 ED 5B 6A 2A          LD   DE,($2A6A)
+ 883  E51D 19                   ADD  HL, DE
+ 884  E51E 09                   ADD  HL,BC
+ 885  E51F FE 5B                CP   $5B
+ 886  E521 38 35                JR   C,$E558
+ 887  E523 FE 5C                CP   $5C
+ 888  E525 38 21                JR   C,$E548
+ 889  E527 28 1F                JR   Z,$E548
+ 890  E529 FE 5E                CP   $5E
+ 891  E52B 38 1E                JR   C,$E54B
+ 892  E52D FE 5F                CP   $5F
+ 893  E52F 38 14                JR   C,$E545
+ 894  E531 FE BF                CP   $BF
+ 895  E533 20 04                JR   NZ,$E539
+ 896  E535 3E 5B                LD   A,$5B
+ 897  E537 18 1F                JR   $E558
+ 898  E539 FE DB                CP   $DB
+ 899  E53B 38 4E                JR   C,$E58B
+ 900  E53D FE DF                CP   $DF
+ 901  E53F 30 4A                JR   NC,$E58B
+ 902  E541 D6 7F                SUB  $7F
+ 903  E543 18 13                JR   $E558
+ 904  E545 3E 53                LD   A,$53
+ 905  E547 11 3E 43             LD   DE,$433E
+ 906  E54A 11 3E 5A             LD   DE,$5A3E
+ 907  E54D 36 D7                LD   (HL),$D7
+ 908  E54F 20 02                JR   NZ,$E553
+ 909  E551 36 DF                LD   (HL),$DF
+ 910  E553 09                   ADD  HL, BC
+ 911  E554 36 EF                LD   (HL),$EF
+ 912  E556 18 05                JR   $E55D
+ 913  E558 36 FF                LD   (HL),$FF
+ 914  E55A 09                   ADD  HL,BC
+ 915  E55B 36 FF                LD   (HL),$FF
+ 916  E55D 09                   ADD  HL,BC
+ 917  E55E D6 20                SUB  $20
+ 918  E560 38 29                JR   C,$E58B
+ 919  E562 E5                   PUSH HL
+ 920  E563 1E 09                LD   E,$9
+ 921  E565 EF                   RST  $28
+ 922  E566 67                   LD   H,A
+ 923  E567 55                   LD   D,L
+ 924  E568 3E 08                LD   A,$8
+ 925  E56A 29                   ADD  HL,HL
+ 926  E56B 30 01                JR   NC,$E56E
+ 927  E56D 19                   ADD  HL, DE
+ 928  E56E 3D                   DEC  A
+ 929  E56F 20 F9                JR   NZ,$E56A
+ 930  E571 E5                   PUSH HL
+ 931  E572 2A 6A 2A             LD   HL,($2A6A)
+ 932  E575 11 16 00             LD   DE,$0016
+ 933  E578 19                   ADD  HL, DE
+ 934  E579 5E                   LD   E,(HL)
+ 935  E57A 23                   INC  HL
+ 936  E57B 56                   LD   D, (HL)
+ 937  E57C E1                   POP  HL
+ 938  E57D 19                   ADD  HL,DE
+ 939  E57E EB                   EX   DE, HL
+ 940  E57F E1                   POP  HL
+ 941  E580 3E 09                LD   A,$9
+ 942  E582 08                   EX   AF,AF'
+ 943  E583 1A                   LD   A, (DE)
+ 944  E584 77                   LD   (HL),A
+ 945  E585 13                   INC  DE
+ 946  E586 09                   ADD  HL, BC
+ 947  E587 08                   EX   AF,AF'
+ 948  E588 3D                   DEC  A
+ 949  E589 20 F7                JR   NZ,$E582
+ 950  E58B C1                   POP  BC
+ 951  E58C C9                   RET
+ 952  E58D 11 A0 01             LD   DE,$01A0       ;DE=text line on graphics screen (13x32)
+ 953  E590 EF                   RST  $28            ;HL=0
+ 954  E591 79                   LD   A,C            ;A=Y
+ 955  E592 3C                   INC  A
+ 956  E593 3D                   DEC  A
+ 957  E594 C8                   RET  Z              ;if A=0, $return
+ 958  E595 19                   ADD  HL,DE          ;(multiply DE by the ordinal number of the text line)
+ 959  E596 18 FB                JR   $E593
+ 960  E598 FF FF FF FF          DEFB   $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF ;BLANK - character table
+ 960  E59C FF FF FF FF
+ 960  E5A0 FF
+ 961  E5A1 EF EF EF EF          DEFB   $EF, $EF, $EF, $EF, $EF, $EF, $EF, $FF, $EF ;EXCLAMATION
+ 961  E5A5 EF EF EF FF
+ 961  E5A9 EF
+ 962  E5AA 93 93 B7 DB          DEFB   $93, $93, $B7, $DB, $FF, $FF, $FF, $FF, $FF ;QUOTE
+ 962  E5AE FF FF FF FF
+ 962  E5B2 FF
+ 963  E5B3 D7 D7 01 D7          DEFB   $D7, $D7, $01, $D7, $D7, $D7, $01, $D7, $D7 ;TARABA
+ 963  E5B7 D7 D7 01 D7
+ 963  E5BB D7
+ 964  E5BC EF 83 ED ED          DEFB   $EF, $83, $ED, $ED, $83, $6F, $6F, $83, $EF ;DOLLAR
+ 964  E5C0 83 6F 6F 83
+ 964  E5C4 EF
+ 965  E5C5 FF B3 B3 DF          DEFB   $FF, $B3, $B3, $DF, $EF, $F7, $9B, $9B, $FF ;PERCENT
+ 965  E5C9 EF F7 9B 9B
+ 965  E5CD FF
+ 966  E5CE E3 DD EB F7          DEFB   $E3, $DD, $EB, $F7, $EB, $5D, $BD, $5D, $63 ;AND
+ 966  E5D2 EB 5D BD 5D
+ 966  E5D6 63
+ 967  E5D7 FE FC FA F6          DEFB   $FE, $FC, $FA, $F6, $EF, $F6, $FA, $FC, $FE ;MIPRO1
+ 967  E5DB EF F6 FA FC
+ 967  E5DF FE
+ 968  E5E0 DF EF F7 F7          DEFB   $DF, $EF, $F7, $F7, $F7, $F7, $F7, $EF, $DF ;OPEN PARENTHESIS
+ 968  E5E4 F7 F7 F7 EF
+ 968  E5E8 DF
+ 969  E5E9 F7 EF DF DF          DEFB   $F7, $EF, $DF, $DF, $DF, $DF, $DF, $EF, $F7 ;CLOSED PARENTHESIS
+ 969  E5ED DF DF DF EF
+ 969  E5F1 F7
+ 970  E5F2 FF EF AB C7          DEFB   $FF, $EF, $AB, $C7, $01, $C7, $AB, $EF, $FF ;STAR
+ 970  E5F6 01 C7 AB EF
+ 970  E5FA FF
+ 971  E5FB FF EF EF EF          DEFB   $FF, $EF, $EF, $EF, $01, $EF, $EF, $EF, $FF ;PLUS
+ 971  E5FF 01 EF EF EF
+ 971  E603 FF
+ 972  E604 FF FF FF FF          DEFB   $FF, $FF, $FF, $FF, $FF, $E7, $E7, $EF, $F7 ;COMMA
+ 972  E608 FF E7 E7 EF
+ 972  E60C F7
+ 973  E60D FF FF FF FF          DEFB   $FF, $FF, $FF, $FF, $01, $FF, $FF, $FF, $FF ;MINUS
+ 973  E611 01 FF FF FF
+ 973  E615 FF
+ 974  E616 FF FF FF FF          DEFB   $FF, $FF, $FF, $FF, $FF, $FF, $FF, $E7, $E7 ;POINT
+ 974  E61A FF FF FF E7
+ 974  E61E E7
+ 975  E61F 7F 7F BF DF          DEFB   $7F, $7F, $BF, $DF, $EF, $F7, $FB, $FD, $FD ;/
+ 975  E623 EF F7 FB FD
+ 975  E627 FD
+ 976  E628 C7 BB 3D 5D          DEFB   $C7, $BB, $3D, $5D, $6D, $75, $79, $BB, $C7 ;0
+ 976  E62C 6D 75 79 BB
+ 976  E630 C7
+ 977  E631 EF E7 EF EF          DEFB   $EF, $E7, $EF, $EF, $EF, $EF, $EF, $EF, $C7 ;1
+ 977  E635 EF EF EF EF
+ 977  E639 C7
+ 978  E63A C7 BB 7D 7F          DEFB   $C7, $BB, $7D, $7F, $BF, $C7, $FB, $FD, $01 ;2
+ 978  E63E BF C7 FB FD
+ 978  E642 01
+ 979  E643 C7 BB BF CF          DEFB   $C7, $BB, $BF, $CF, $BF, $7F, $7D, $BB, $C7 ;3
+ 979  E647 BF 7F 7D BB
+ 979  E64B C7
+ 980  E64C BF DF EF F7          DEFB   $BF, $DF, $EF, $F7, $BB, $BD, $01, $BF, $BF ;4
+ 980  E650 BB BD 01 BF
+ 980  E654 BF
+ 981  E655 01 FD C5 B9          DEFB   $01, $FD, $C5, $B9, $7D, $7F, $7D, $BB, $C7 ;5
+ 981  E659 7D 7F 7D BB
+ 981  E65D C7
+ 982  E65E C7 BB FD C5          DEFB   $C7, $BB, $FD, $C5, $B9, $7D, $7D, $BB, $C7 ;6
+ 982  E662 B9 7D 7D BB
+ 982  E666 C7
+ 983  E667 01 7D BF DF          DEFB   $01, $7D, $BF, $DF, $EF, $EF, $F7, $F7, $F7 ;7
+ 983  E66B EF EF F7 F7
+ 983  E66F F7
+ 984  E670 C7 BB BB C7          DEFB   $C7, $BB, $BB, $C7, $BB, $7D, $7D, $BB, $C7 ;8
+ 984  E674 BB 7D 7D BB
+ 984  E678 C7
+ 985  E679 C7 BB 7D 7D          DEFB   $C7, $BB, $7D, $7D, $3B, $47, $7F, $BF, $C3 ;9
+ 985  E67D 3B 47 7F BF
+ 985  E681 C3
+ 986  E682 FF E7 E7 FF          DEFB   $FF, $E7, $E7, $FF, $FF, $FF, $E7, $E7, $FF ;DOUBLE
+ 986  E686 FF FF E7 E7
+ 986  E68A FF
+ 987  E68B FF E7 E7 FF          DEFB   $FF, $E7, $E7, $FF, $FF, $E7, $E7, $EF, $F7 ;Semicolon
+ 987  E68F FF E7 E7 EF
+ 987  E693 F7
+ 988  E694 BF DF EF F7          DEFB   $BF, $DF, $EF, $F7, $FB, $F7, $EF, $DF, $BF ;LESS
+ 988  E698 FB F7 EF DF
+ 988  E69C BF
+ 989  E69D FF FF FF 01          DEFB   $FF, $FF, $FF, $01, $FF, $01, $FF, $FF, $FF ;EQUAL
+ 989  E6A1 FF 01 FF FF
+ 989  E6A5 FF
+ 990  E6A6 FB F7 EF DF          DEFB   $FB, $F7, $EF, $DF, $BF, $DF, $EF, $F7, $FB ;LARGER
+ 990  E6AA BF DF EF F7
+ 990  E6AE FB
+ 991  E6AF C7 BB 7D BF          DEFB   $C7, $BB, $7D, $BF, $DF, $EF, $EF, $FF, $EF ;QUESTION
+ 991  E6B3 DF EF EF FF
+ 991  E6B7 EF
+ 992  E6B8 DF EF F7 03          DEFB   $DF, $EF, $F7, $03, $FF, $03, $F7, $EF, $DF ;MIPRO2
+ 992  E6BC FF 03 F7 EF
+ 992  E6C0 DF
+ 993  E6C1 C7 BB 7D 7D          DEFB   $C7, $BB, $7D, $7D, $7D, $01, $7D, $7D, $7D ;A
+ 993  E6C5 7D 01 7D 7D
+ 993  E6C9 7D
+ 994  E6CA C1 BD 7D BD          DEFB   $C1, $BD, $7D, $BD, $C1, $BD, $7D, $7D, $81 ;B
+ 994  E6CE C1 BD 7D 7D
+ 994  E6D2 81
+ 995  E6D3 C7 BB 7D FD          DEFB   $C7, $BB, $7D, $FD, $FD, $FD, $7D, $BB, $C7 ;C
+ 995  E6D7 FD FD 7D BB
+ 995  E6DB C7
+ 996  E6DC C1 BD 7D 7D          DEFB   $C1, $BD, $7D, $7D, $7D, $7D, $7D, $BD, $C1 ;D
+ 996  E6E0 7D 7D 7D BD
+ 996  E6E4 C1
+ 997  E6E5 01 FD FD FD          DEFB   $01, $FD, $FD, $FD, $C1, $FD, $FD, $FD, $01 ;E
+ 997  E6E9 C1 FD FD FD
+ 997  E6ED 01
+ 998  E6EE 01 FD FD FD          DEFB   $01, $FD, $FD, $FD, $C1, $FD, $FD, $FD, $FD ;F
+ 998  E6F2 C1 FD FD FD
+ 998  E6F6 FD
+ 999  E6F7 87 7B FD FD          DEFB   $87, $7B, $FD, $FD, $0D, $7D, $7D, $7B, $87 ;G
+ 999  E6FB 0D 7D 7D 7B
+ 999  E6FF 87
+1000  E700 7D 7D 7D 7D          DEFB   $7D, $7D, $7D, $7D, $01, $7D, $7D, $7D, $7D ;H
+1000  E704 01 7D 7D 7D
+1000  E708 7D
+1001  E709 C7 EF EF EF          DEFB   $C7, $EF, $EF, $EF, $EF, $EF, $EF, $EF, $C7 ;I
+1001  E70D EF EF EF EF
+1001  E711 C7
+1002  E712 01 7F 7F 7F          DEFB   $01, $7F, $7F, $7F, $7F, $7F, $7D, $BB, $C7 ;J
+1002  E716 7F 7F 7D BB
+1002  E71A C7
+1003  E71B BD DD ED F5          DEFB   $BD, $DD, $ED, $F5, $F9, $F5, $ED, $DD, $BD ;K
+1003  E71F F9 F5 ED DD
+1003  E723 BD
+1004  E724 FD FD FD FD          DEFB   $FD, $FD, $FD, $FD, $FD, $FD, $FD, $FD, $01 ;L
+1004  E728 FD FD FD FD
+1004  E72C 01
+1005  E72D 7D 39 55 6D          DEFB   $7D, $39, $55, $6D, $7D, $7D, $7D, $7D, $7D ;M
+1005  E731 7D 7D 7D 7D
+1005  E735 7D
+1006  E736 7D 7D 79 75          DEFB   $7D, $7D, $79, $75, $6D, $5D, $3D, $7D, $7D ;N
+1006  E73A 6D 5D 3D 7D
+1006  E73E 7D
+1007  E73F C7 BB 7D 7D          DEFB   $C7, $BB, $7D, $7D, $7D, $7D, $7D, $BB, $C7 ;O
+1007  E743 7D 7D 7D BB
+1007  E747 C7
+1008  E748 81 7D 7D 7D          DEFB   $81, $7D, $7D, $7D, $81, $FD, $FD, $FD, $FD ;P
+1008  E74C 81 FD FD FD
+1008  E750 FD
+1009  E751 C7 BB 7D 7D          DEFB   $C7, $BB, $7D, $7D, $7D, $7D, $5D, $BB, $47 ;Q
+1009  E755 7D 7D 5D BB
+1009  E759 47
+1010  E75A 81 7D 7D 7D          DEFB   $81, $7D, $7D, $7D, $81, $ED, $DD, $BD, $7D ;R
+1010  E75E 81 ED DD BD
+1010  E762 7D
+1011  E763 C3 BD FD C3          DEFB   $C3, $BD, $FD, $C3, $BF, $7F, $7D, $BB, $C7 ;S
+1011  E767 BF 7F 7D BB
+1011  E76B C7
+1012  E76C 01 EF EF EF          DEFB   $01, $EF, $EF, $EF, $EF, $EF, $EF, $EF, $EF ;T
+1012  E770 EF EF EF EF
+1012  E774 EF
+1013  E775 7D 7D 7D 7D          DEFB   $7D, $7D, $7D, $7D, $7D, $7D, $7D, $BB, $C7 ;U
+1013  E779 7D 7D 7D BB
+1013  E77D C7
+1014  E77E 7D 7D 7D BB          DEFB   $7D, $7D, $7D, $BB, $BB, $BB, $D7, $D7, $EF ;V
+1014  E782 BB BB D7 D7
+1014  E786 EF
+1015  E787 7D 7D 7D 6D          DEFB   $7D, $7D, $7D, $6D, $6D, $6D, $6D, $55, $BB ;W
+1015  E78B 6D 6D 6D 55
+1015  E78F BB
+1016  E790 7D 7D BB D7          DEFB   $7D, $7D, $BB, $D7, $EF, $D7, $BB, $7D, $7D ;X
+1016  E794 EF D7 BB 7D
+1016  E798 7D
+1017  E799 7D 7D 7D 3B          DEFB   $7D, $7D, $7D, $3B, $47, $7F, $7F, $BB, $C7 ;Y
+1017  E79D 47 7F 7F BB
+1017  E7A1 C7
+1018  E7A2 01 7F BF DF          DEFB   $01, $7F, $BF, $DF, $EF, $F7, $FB, $FD, $01 ;Z
+1018  E7A6 EF F7 FB FD
+1018  E7AA 01
+1019  E7AB 01 01 01 01          DEFB   $01, $01, $01, $01, $01, $01, $01, $01, $01 ;CURSOR BLOCK
+1019  E7AF 01 01 01 01
+1019  E7B3 01
+1020  E7B4 00 00 10 28          DEFB   $00, $00, $10, $28, $44, $10, $10, $00, $00 ;ARROW UP
+1020  E7B8 44 10 10 00
+1020  E7BC 00
+1021  E7BD 00 00 10 10          DEFB   $00, $00, $10, $10, $44, $28, $10, $00, $00 ;DOWN ARROW
+1021  E7C1 44 28 10 00
+1021  E7C5 00
+1022  E7C6 00 00 10 08          DEFB   $00, $00, $10, $08, $64, $08, $10, $00, $00 ;LEFT ARROW
+1022  E7CA 64 08 10 00
+1022  E7CE 00
+1023  E7CF 00 00 10 20          DEFB   $00, $00, $10, $20, $4C, $20, $10, $00, $00 ;ARROW RIGHT
+1023  E7D3 4C 20 10 00
+1023  E7D7 00
+1024  E7D8 0C 0C                DEFW $0C0C          ;text of the opening screen
+1025  E7DA 20 20 20 20          DEFB "     *** GAL"
+1025  E7DE 20 2A 2A 2A
+1025  E7E2 20 47 41 4C
+1026  E7E6 41 4B 53 49          DEFB "AKSIJA PLUS "
+1026  E7EA 4A 41 20 50
+1026  E7EE 4C 55 53 20
+1027  E7F2 2A 2A 2A             DEFB "***"
+1028  E7F5 DC DC                DEFW $DCDC          ;DC=down arrow - move to the next line
+1029  E7F7 00                   DEFB 0
+1030  E7F8 E3                   EX   (SP),HL        ;store HL, HL=return address - command link
+1031  E7F9 D5                   PUSH DE             ;basic pointer to stack
+1032  E7FA 11 5B 07             LD   DE,$075B       ;recognition attempt orders
+1033  E7FD D7                   RST  $10
+1034  E7FE D1                   POP  DE             ;DE=basic pointer
+1035  E7FF 28 14                JR   Z,$E815        ;order is
+1036  E801 7C                   LD   A,H
+1037  E802 FE 20                CP   $20            ;below $2000 ?
+1038  E804 38 0B                JR   C,$E811        ;ROM-A/B command
+1039  E806 FE 28                CP   $28            ;above $2800
+1040  E808 30 07                JR   NC,$E811       ;user command
+1041  E80A E6 07                AND  $7             ;between - ROM-C command
+1042  E80C 07                   RLCA                ; correct address...
+1043  E80D 07                   RLCA                ;...to the right value
+1044  E80E F6 E0                OR   $E0
+1045  E810 67                   LD   H,A
+1046  E811 E3                   EX   (SP),HL        ;return address to stack
+1047  E812 C3 0F 10             JP   $100F          ;next round of recognition
+1048  E815 E3                   EX   (SP), HL
+1049  E816 21 1B E8             LD   HL,$E81B       ;command table -1
+1050  E819 C3 9A 03             JP   $039A          ;recognize command
+1051  E81C
+1052  E81C 44 52 41 57          DEFB "DRAW"
+1053  E820 A0                   DEFB $A0            ;E0D8
+1054  E821 D8                   DEFB DRAW
+1055  E822 55 4E 44 52          DEFB "UNDRAW"
+1055  E826 41 57
+1056  E828 A0                   DEFB $A0            ;E0D5
+1057  E829 D5                   DEFB UNDRAW
+1058  E82A 50 4C 4F 54          DEFB "PLOT"
+1059  E82E A0                   DEFB $A0            ;E0C6
+1060  E82F C6                   DEFB PLOT
+1061  E830 55 4E 50 4C          DEFB "UNPLOT"
+1061  E834 4F 54
+1062  E836 A0                   DEFB $A0            ;E0C3
+1063  E837 C3                   DEFB UNPLOT
+1064  E838 47 52 41 50          DEFB "GRAPH"
+1064  E83C 48
+1065  E83D A0                   DEFB $A0            ;E045
+1066  E83E 45                   DEFB GRAPH
+1067  E83F 54 45 58 54          DEFB "TEXT"
+1068  E843 A0                   DEFB $A0            ;E0BA
+1069  E844 BA                   DEFB TEKST
+1070  E845 53 4F 55 4E          DEFB "SOUND"
+1070  E849 44
+1071  E84A A0                   DEFB $A0            ;E0AE
+1072  E84B AE                   DEFB SOUND
+1073  E84C 51 53 41 56          DEFB "QSAVE"
+1073  E850 45
+1074  E851 A3                   DEFB $A3            ;EC18
+1075  E852 18                   DEFB QSAVE
+1076  E853 51 4C 4F 41          DEFB "QLOAD"
+1076  E857 44
+1077  E858 A3                   DEFB $A3            ;EC1B
+1078  E859 1B                   DEFB QLOAD
+1079  E85A 56 45 52 49          DEFB "VERIFY"
+1079  E85E 46 59
+1080  E860 A3                   DEFB $A3            ;EC1E
+1081  E861 1E                   DEFB VERIFY
+1082  E862 46 41 53 54          DEFB "FAST"
+1083  E866 A2                   DEFB $A2            ;E8BC
+1084  E867 BC                   DEFB FAST
+1085  E868 53 4C 4F 57          DEFB "SLOW"
+1086  E86C A2                   DEFB $A2            ;E8BF
+1087  E86D BF                   DEFB SLOW
+1088  E86E 4C 49 4E 45          DEFB "LINE"
+1089  E872 A2                   DEFB $A2            ;E8C5
+1090  E873 C5                   DEFB LINE
+1091  E874 4B 49 4C 4C          DEFB "KILL"
+1092  E878 A2                   DEFB $A2            ;E8D9
+1093  E879 D9                   DEFB KILL
+1094  E87A 44 45 53 54          DEFB "DESTROY"
+1094  E87E 52 4F 59
+1095  E881 A2                   DEFB $A2            ;E8F8
+1096  E882 F8                   DEFB DESTROY
+1097  E883 43 4C 45 41          DEFB "CLEAR"
+1097  E887 52
+1098  E888 A2                   DEFB $A2            ;E8DB
+1099  E889 DB                   DEFB CLEAR
+1100  E88A 48 4C 4F 41          DEFB "HLOAD"
+1100  E88E 44
+1101  E88F A3                   DEFB $A3            ;EC21
+1102  E890 21                   DEFB HLOAD
+1103  E891 48 44 55 4D          DEFB "HDUMP"
+1103  E895 50
+1104  E896 A3                   DEFB $A3            ;EC24
+1105  E897 24                   DEFB HDUMP
+1106  E898 48 4C 44 55          DEFB "HLDUMP"
+1106  E89C 4D 50
+1107  E89E A3                   DEFB $A3            ;EC27
+1108  E89F 27                   DEFB HLDUMP
+1109  E8A0 41 55 54 4F          DEFB "AUTO"
+1110  E8A4 A3                   DEFB $A3            ;EC2A
+1111  E8A5 2A                   DEFB AUTO
+1112  E8A6 55 50                DEFB "UP"
+1113  E8A8 A3                   DEFB $A3            ;EC30
+1114  E8A9 30                   DEFB UP
+1115  E8AA 44 4F 57 4E          DEFB "DOWN"
+1116  E8AE A3                   DEFB $A3            ;EC33
+1117  E8AF 33                   DEFB DOWN
+1118  E8B0 46 49 4C 4C          DEFB "FILL"
+1119  E8B4 A3                   DEFB $A3            ;EC2D
+1120  E8B5 2D                   DEFB FILL
+1121  E8B6 52 32                DEFB "R2"
+1122  E8B8 A3                   DEFB $A3           ;EC36
+1123  E8B9 36                   DEFB R2D2
+1124  E8BA 90                   DEFB $10+$80        ;100F (ROM-B)
+1125  E8BB 0F                   DEFB $0F
+1126  E8BC              FAST_CMD:
+1127  E8BC F1                   POP  AF             ;FAST command
+1128  E8BD F3                   DI                  ;disable interapt
+1129  E8BE F7                   RST  $30
+1130  E8BF              SLOW_CMD:
+1131  E8BF F1                   POP  AF             ;SLOW command
+1132  E8C0 FB                   EI                  ;enable interapt
+1133  E8C1 F7                   RST  $30
+1134  E8C2 C3 5A 06             JP   $065A          ;print error message "HOW?"
+1135  E8C5              LINE_CMD:
+1136  E8C5 F1                   POP  AF             ;LINE command
+1137  E8C6 CF                   RST  $8             ;read parameter
+1138  E8C7 7D                   LD   A,L
+1139  E8C8 FE D1                CP   $D1            ;max. 208
+1140  E8CA 30 F6                JR   NC,$E8C2       ;if greater, $error
+1141  E8CC FE 21                CP   $21            ;min. 33
+1142  E8CE 38 F2                JR   C,$E8C2        ;if less, $error
+1143  E8D0 2A 6A 2A             LD   HL,($2A6A)
+1144  E8D3 01 1C 00             LD   BC,$001C
+1145  E8D6 09                   ADD  HL,BC          ;HL=RAMTOP+28 (number of visible screen lines)
+1146  E8D7 77                   LD   (HL),A         ;write the value
+1147  E8D8 F7                   RST  $30            ;resume basic
+1148  E8D9              KILL_CMD:
+1149  E8D9 18 2E                JR   $E909          ;KILL command
+1150  E8DB              CLEAR_CMD:
+1151  E8DB F1                   POP  AF             ;CLEAR command
+1152  E8DC D5                   PUSH DE             ;save basic pointer
+1153  E8DD DD E5                PUSH IX             ;save arithmetic stack pointer
+1154  E8DF 06 1A                LD   B,$1A          ;26 variables from A to Z
+1155  E8E1 DD 21 02 2A          LD   IX,$2A02
+1156  E8E5 11 04 00             LD   DE,$0004       ;length of variable in bytes
+1157  E8E8 DD 36 01 40          LD   (IX+$1),$40    ;characteristic is set...
+1158  E8EC DD CB 00 BE          RES  $7,(IX)        ;...-128, $which represents the number 0
+1159  E8F0 DD 19                ADD  IX, DE
+1160  E8F2 10 F4                DJNZ $E8E8          ;clears all variables
+1161  E8F4 DD E1                POP  IX             ;return arithm. stack pointer
+1162  E8F6 D1                   POP  DE             ;return basic pointer
+1163  E8F7 F7                   RST  $30            ;return to basic
+1164  E8F8              DESTROY_CMD:
+1165  E8F8 F1                   POP  AF             ;DESTROY command
+1166  E8F9 CF                   RST  $8             ;read first parameter
+1167  E8FA E5                   PUSH HL             ;store parameter on stack
+1168  E8FB CD 05 00             CALL $0005          ;read second parameter
+1169  E8FE EB                   EX   DE,HL          ;DE=second parameter, HL=basic pointer
+1170  E8FF E3                   EX   (SP),HL        ;HL=first parameter, $basic stack pointer
+1171  E900 EB                   EX   DE,HL          ;HL=second parameter, $DE=first parameter
+1172  E901 AF                   XOR  A              ;A=0
+1173  E902 12                   LD   (DE),A         ;delete byte
+1174  E903 13                   INC  DE             ;next byte
+1175  E904 D7                   RST  $10            ;compare DE with HL
+1176  E905 30 FA                JR   NC,$E901       ;continue if DE is not greater
+1177  E907 D1                   POP  DE             ;return basic pointer
+1178  E908 F7                   RST  $30            ;return to basic
+1179  E909 3A 30 20             LD   A,($2030)      ;continuation of KILL command
+1180  E90C CB 47                BIT  $0,A           ;wait for key release...
+1181  E90E 28 F9                JR   Z,$E909        ;...ENTER
+1182  E910 11 29 E9             LD   DE,$E929       ;message address "SURE ?"
+1183  E913 CD 37 09             CALL $0937          ;print message
+1184  E916 21 37 20             LD   HL,$2037       ;check all keys
+1185  E919 CB 46                BIT  $0,(HL)
+1186  E91B 28 05                JR   Z,$E922        ;if key pressed, $check which one
+1187  E91D 2D                   DEC  L
+1188  E91E 20 F9                JR   NZ,$E919
+1189  E920 18 F4                JR   $E916          ;if none pressed, $repeat all
+1190  E922 7D                   LD   A,L
+1191  E923 FE 19                CP   $19            ;if the key is not "Y"...
+1192  E925 C2 66 00             JP   NZ,$0066       ;...only HARD BREAK
+1193  E928 C7                   RST  $0             ;if key is "Y", $RESET
+1194  E929 53 55 52 45          DEFB "SURE ?"
+1194  E92D 20 3F
+1195  E92F 0D                   DEFB 13             ;new line
+1196  E930              QSAVE_CMD:
+1197  E930 F1                   POP  AF             ;QSAVE command
+1198  E931 CD 39 EA             CALL $EA39          ;initialize AY-3-8910 ()
+1199  E934 DF                   RST  $18
+1200  E935 22                   DEFB $22            ; does an apostrophe follow the command?
+1201  E936 09                   DEFB $E940-$-1      ;if not, $error WHAT?
+1202  E937 ED 53 00 2B          LD   ($2B00),DE     ;record the address of the beginning of the name
+1203  E93B 06 15                LD   B,$15          ;find the next apostrophe in the next 15 characters
+1204  E93D 13                   INC  DE
+1205  E93E 10 03                DJNZ $E943
+1206  E940 C3 8F 07             JP   $078F          ; if there is no 2x" or the name is longer than 15. WHAT?
+1207  E943 DF                   RST  $18
+1208  E944 22                   DEFB $22
+1209  E945 00                   DEFB $E946-$-1      ;same continuation regardless of the result
+1210  E946 20 F5                JR NZ,$E93D         ;if not "search further
+1211  E948 CD 9C EA             CALL $EA9C          ;is it followed by ENTER or . ? (are there parameters?)
+1212  E94B 28 35                JR   Z,$E982        ;if ENTER or ., $no parameters. jump (it's basic)
+1213  E94D 21 62 EA             LD   HL,$EA62       ;HL=text address "LINE"
+1214  E950 D5                   PUSH DE             ;save basic pointer (byte address after name)
+1215  E951 CD 6A EA             CALL $EA6A          ; is the parameter LINE ?
+1216  E954 28 44                JR   Z,$E99A        ; if so, $read the LINE number (autostart line number)
+1217  E956 21 66 EA             LD   HL,$EA66       ;if not, HL=address of text "CODE"
+1218  E959 D1                   POP  DE             ; return basic pointer (byte address after the name)
+1219  E95A CD 6A EA             CALL $EA6A          ;is the parameter CODE ?
+1220  E95D 20 E1                JR   NZ,$E940       ;if not, $WHAT?
+1221  E95F EF                   RST  $28            ;HL=0
+1222  E960 22 02 2B             LD   ($2B02),HL     ; if CODE, $LINE address is 0
+1223  E963 CF                   RST  $8             ;get 1st parameter for CODE
+1224  E964 E5                   PUSH HL
+1225  E965 CD 05 00             CALL $0005          ;get 2nd parameter for CODE
+1226  E968 E5                   PUSH HL
+1227  E969 DF                   RST  $18            ; any more parameters ?
+1228  E96A 2C                   DEFB ","            ;(is the next character a comma?)
+1229  E96B 02                   DEFB $E96E-$-1      ; if not, $skip taking the 3rd parameter
+1230  E96C CF                   RST  $8             ; if yes, $take the 3rd parameter (relocation)
+1231  E96D 3E                   DEFB $3E            ;false LD A,$EF if there is also a 3rd parameter
+1232  E96E EF                   RST  $28            ;HL=0 if there is no 3rd parameter
+1233  E96F ED 53 04 2B          LD   ($2B04),DE     ;save basic pointer
+1234  E973 44                   LD   B,H            ;BC=3. parameter (reloc, $0 or value)
+1235  E974 4D                   LD   C,L
+1236  E975 E1                   POP  HL             ;HL=2. parameter (end)
+1237  E976 22 08 2B             LD   ($2B08),HL
+1238  E979 09                   ADD  HL,BC          ;HL=relocated end
+1239  E97A EB                   EX   DE,HL          ;DE=relocated end
+1240  E97B E1                   POP  HL             ;HL=1. parameter (start)
+1241  E97C 22 06 2B             LD   ($2B06),HL
+1242  E97F 09                   ADD  HL,BC          ;HL=relocated start
+1243  E980 18 24                JR   $E9A6          ;record leader and header at 300bps
+1244  E982 EF                   RST  $28
+1245  E983 22 02 2B             LD   ($2B02),HL     ;LINE number for basic
+1246  E986 21 36 2C             LD   HL,$2C36       ;HL=start of data block
+1247  E989 ED 53 04 2B          LD   ($2B04),DE     ;save basic pointer
+1248  E98D ED 5B 38 2C          LD   DE,($2C38)     ;DE=end of data block
+1249  E991 22 06 2B             LD   ($2B06),HL
+1250  E994 ED 53 08 2B          LD   ($2B08),DE
+1251  E998 18 0C                JR   $E9A6          ;record leader and header at 300bps
+1252  E99A F1                   POP  AF
+1253  E99B CF                   RST  $8             ;get LINE parameter (basic line number for autostart)
+1254  E99C 22 02 2B             LD   ($2B02),HL     ;remember it
+1255  E99F DF                   RST  $18            ;any more parameters?
+1256  E9A0 2C                   DEFB ","            ;(is there a comma?)
+1257  E9A1 02                   DEFB $E9A4-$-1      ;if not, $just basic
+1258  E9A2 18 BF                JR   $E963          ;if yes, $take other parameters (start, $end, $[reloc])
+1259  E9A4 18 E0                JR   $E986          ;set header for "basic only"
+1260  E9A6 F3                   DI                  ;deny interapte - QSAVE 300bps header
+1261  E9A7 06 64                LD   B,$64          ;counter leader bytes
+1262  E9A9 AF                   XOR  A              ;leader bytes are zero
+1263  E9AA CD 68 0E             CALL $0E68          ;record leader byte
+1264  E9AD 10 FA                DJNZ $E9A9          ;...all 100
+1265  E9AF 3E A5                LD   A,$A5          ;header ID (and base for CRC in B register)
+1266  E9B1 CD 68 0E             CALL $0E68          ;record header ID byte
+1267  E9B4 3E FF                LD   A,$FF          ;indicator byte ??
+1268  E9B6 CD 68 0E             CALL $0E68          ;record indicator
+1269  E9B9 CD 63 0E             CALL $0E63          ;record HL
+1270  E9BC EB                   EX   DE,HL
+1271  E9BD CD 63 0E             CALL $0E63          ;record DE
+1272  E9C0 2A 02 2B             LD   HL,($2B02)
+1273  E9C3 CD 63 0E             CALL $0E63          ;record LINE number (autostart line)
+1274  E9C6 ED 5B 00 2B          LD   DE,($2B00)     ;DE=beginning of name (first letter after the first ")
+1275  E9CA 1A                   LD   A, (DE)
+1276  E9CB FE 22                CP   $22            ;is the character "
+1277  E9CD 20 02                JR   NZ,$E9D1       ;if not, $record it
+1278  E9CF 18 06                JR   $E9D7          ;if " , $jump
+1279  E9D1 CD 68 0E             CALL $0E68          ;write name letter
+1280  E9D4 13                   INC  DE             ;next letter
+1281  E9D5 18 F3                JR   $E9CA          ;check this sign too
+1282  E9D7 3E FF                LD   A,$FF          ;indicator byte ??
+1283  E9D9 CD 68 0E             CALL $0E68          ;save indicator byte
+1284  E9DC 78                   LD   A,B            ;A=CRC of bytes recorded so far
+1285  E9DD 2F                   CPL                 ;complement CRC byte
+1286  E9DE CD 68 0E             CALL $0E68          ;record CRC byte
+1287  E9E1 06 0F                LD   B,$0F          ;pause ~4 seconds
+1288  E9E3 21 00 80             LD   HL,$8000
+1289  E9E6 2B                   DEC  HL
+1290  E9E7 CB 7C                BIT  $7,H
+1291  E9E9 28 FB                JR   Z,$E9E6
+1292  E9EB 10 F6                DJNZ $E9E3
+1293  E9ED AF                   XOR  A              ;leader byte 0
+1294  E9EE CD E5 EB             CALL $EBE5          ;record TURBO leader byte...
+1295  E9F1 10 FA                DJNZ $E9ED          ;...256 times (initial B is 0 !)
+1296  E9F3 3E A5                LD   A,$A5          ;header ID
+1297  E9F5 CD E5 EB             CALL $EBE5          ;record TURBO header ID
+1298  E9F8 AF                   XOR  A              ;indicator 0 ??
+1299  E9F9 CD E5 EB             CALL $EBE5          ;record TURBO indicator
+1300  E9FC 2A 06 2B             LD   HL,($2B06)     ;HL=start of data block
+1301  E9FF ED 5B 08 2B          LD   DE,($2B08)     ;DE=end of data block
+1302  EA03 13                   INC  DE             ;DE=end of data block +1 (for RST $10)
+1303  EA04 7E                   LD   A,(HL)         ;read data byte
+1304  EA05 23                   INC  HL             ;next address
+1305  EA06 CD E5 EB             CALL $EBE5          ;record TURBO data byte
+1306  EA09 38 F9                JR   C,$EA04        ;write all bytes to end
+1307  EA0B 78                   LD   A,B
+1308  EA0C 2F                   CPL                 ;complement CRC
+1309  EA0D CD E5 EB             CALL $EBE5          ;record TURBO CRC BYTE (not WORD)
+1310  EA10 ED 5B 04 2B          LD   DE,($2B04)     ;restore basic pointer
+1311  EA14 FB                   EI                  ; enable interapt
+1312  EA15 CD 52 EA             CALL $EA52          ;mute AY sound
+1313  EA18 F7                   RST  $30            ;continue basic
+1314  EA19 53 45 41 52          DEFB "SEARCHING"
+1314  EA1D 43 48 49 4E
+1314  EA21 47
+1315  EA22 0D                   DEFB 13
+1316  EA23 3A 00 20             LD   A,($2000)      ;A=state of port for tape recorder (WAITING FOR IMPULSE)
+1317  EA26 0F                   RRCA                ;C=state of input port (bit 0)
+1318  EA27 D0                   RET  NC             ;if Cf=0, $pulse detected, $return
+1319  EA28 18 F9                JR   $EA23          ;if there is no impulse, $wait for it further
+1320  EA2A 46 4F 55 4E          DEFB "FOUND "
+1320  EA2E 44 20
+1321  EA30 00                   DEFB 0
+1322  EA31 4C 4F 41 44          DEFB "LOADING"
+1322  EA35 49 4E 47
+1323  EA38 0D                   DEFB 13
+1324  EA39 AF                   XOR  A              ;INITIALIZE AY SOUND
+1325  EA3A D3 00                OUT  ($0),A         ;R0
+1326  EA3C D3 01                OUT  ($1),A         ;channel A frequency (fine - 0)
+1327  EA3E 3E 07                LD   A,$7
+1328  EA40 D3 00                OUT  ($0),A         ;R7
+1329  EA42 3E FE                LD   A,$FE
+1330  EA44 D3 01                OUT  ($1),A         ;tone on channel A only
+1331  EA46 3E 08                LD   A,$8
+1332  EA48 D3 00                OUT  ($0),A         ;R8
+1333  EA4A 3E 0F                LD   A,$0F
+1334  EA4C D3 01                OUT  ($1),A         ; volume on channel A is maximum (15)
+1335  EA4E AF                   XOR  A
+1336  EA4F D3 00                OUT  ($0),A         ;R0 prepared for further writing
+1337  EA51 C9                   RET                 ;return with A=0
+1338  EA52 3E 08                LD   A,$8           ;SILENCE AY SOUND
+1339  EA54 D3 00                OUT  ($0),A         ;R8
+1340  EA56 AF                   XOR  A
+1341  EA57 D3 01                OUT  ($1),A         ;volume on channel A = 0 (none)
+1342  EA59 3E 07                LD   A,$7
+1343  EA5B D3 00                OUT  ($0),A         ;R7
+1344  EA5D 3E FF                LD   A,$FF
+1345  EA5F D3 01                OUT  ($1),A         ;exclusion of all channels
+1346  EA61 C9                   RET                 ;return with A = 255
+1347  EA62 4C 49 4E 45          DEFB "LINE"
+1348  EA66 43 4F 44 45          DEFB "CODE"
+1349  EA6A 06 04                LD   B,$4           ;RECOGNITION OF "LINE" AND "CODE" WORDS
+1350  EA6C CD 05 01             CALL $0105          ;skip blanks
+1351  EA6F 1A                   LD   A,(DE)         ;get byte from BASIC
+1352  EA70 BE                   CP   (HL)           ;compare with given text
+1353  EA71 23                   INC  HL             ;increase pointer
+1354  EA72 13                   INC  DE
+1355  EA73 C0                   RET  NZ             ;return with Zf=0 if they are not the same
+1356  EA74 10 F9                DJNZ $EA6F          ;if they are the same, $check all 4 letters
+1357  EA76 C9                   RET                 ;return with Zf=1 if the words are the same
+1358  EA77              QLOAD_CMD:
+1359  EA77 F1                   POP  AF             ;forget return address - QLOAD command
+1360  EA78 ED 53 00 2B          LD   ($2B00),DE     ;store basic pointer (address names)
+1361  EA7C CD 39 EA             CALL $EA39          ;initialize AY sound (A=0 on return)
+1362  EA7F 3C                   INC  A              ;A=1 , $Zf=0
+1363  EA80 F5                   PUSH AF             ;$XX01 onto stack (1=LOAD mode, $0=VERIFY mode)
+1364  EA81 FB                   EI                  ;enable interapte (exit FAST mode to see messages)
+1365  EA82 3E FF                LD   A,$FF
+1366  EA84 F5                   PUSH AF             ;$XXFF onto stack (ie name not specified)
+1367  EA85 DF                   RST  $18
+1368  EA86 22                   DEFB $22            ; is the QLOAD command followed by a quotation mark ?
+1369  EA87 1B                   DEFB $EAA3-$-1      ; if not, $jump to further checks
+1370  EA88 EB                   EX   DE,HL          ;HL=address of the character after the first quotation mark (A=character of the first quotation mark)
+1371  EA89 BE                   CP   (HL)           ; is the name given? (or just two quotes)
+1372  EA8A EB                   EX   DE,HL          ;DE=basic pointer (points to second quote or first letter of name)
+1373  EA8B 28 1E                JR   Z,$EAAB        ;if there is no name, $jump to check further parameters
+1374  EA8D F1                   POP  AF             ;pop $XXFF off stack
+1375  EA8E D5                   PUSH DE             ;start address of the name of the requested image on the stack
+1376  EA8F AF                   XOR  A
+1377  EA90 F5                   PUSH AF             ;$XX00 onto stack (means name is specified)
+1378  EA91 06 15                LD   B,$15          ;find another quote (from here QLOAD and VERIFY are the same)
+1379  EA93 13                   INC  DE
+1380  EA94 10 00                DJNZ $EA96
+1381  EA96 DF                   RST  $18
+1382  EA97 22                   DEFB $22
+1383  EA98 10                   DEFB $EAA9-$-1      ; if it is not a quote, $search further (to 15 places)
+1384  EA99 1B                   DEC  DE             ;second quote found, $jump compensation (why?)
+1385  EA9A 18 0F                JR   $EAAB          ;jump (why not JR $EAAC here without DEC DE ?)
+1386  EA9C 1A                   LD   A,(DE)         ;A=character text (basic) (Why is this pinched here ???)
+1387  EA9D FE 0D                CP   $0D            ;is it ENTER ?
+1388  EA9F C8                   RET  Z              ;if so, $return with Zf=1
+1389  EAA0 FE 3A                CP   $3A            ;is it a colon ?
+1390  EAA2 C9                   RET                 ;return with Zf=0 if none
+1391  EAA3 CD 9C EA             CALL $EA9C          ;no quotes after QLOAD, $is there . or ENTER ?
+1392  EAA6 EF                   RST  $28            ;HL=0
+1393  EAA7 28 0A                JR   Z,$EAB3        ;if any, $jump
+1394  EAA9 18 E8                JR   $EA93          ; if there is no . or ENTER, $search further for quotation marks (?)
+1395  EAAB 13                   INC  DE             ;return the pointer to the end of the name
+1396  EAAC EF                   RST  $28            ;HL=0 (RELOC parameter in case it is not specified)
+1397  EAAD CD 9C EA             CALL $EA9C          ;is the name followed by . or ENTER ?
+1398  EAB0 28 01                JR   Z,$EAB3        ; if followed by . or ENTER, $skip reading the RELOC parameter
+1399  EAB2 CF                   RST  $8             ;HL=RELOC parameter
+1400  EAB3 ED 53 04 2B          LD   ($2B04),DE     ;save basic pointer (address of continuation of basic)
+1401  EAB7 E5                   PUSH HL             ;RELOC parameter to stack
+1402  EAB8 11 19 EA             LD   DE,$EA19       ;message address "SEARCHING"
+1403  EABB CD 37 09             CALL $0937          ;print message + new line
+1404  EABE CD 23 EA             CALL $EA23          ;wait for an impulse from the tape recorder
+1405  EAC1 F3                   DI                  ;pulse detected, $turn off image
+1406  EAC2 06 14                LD   B,$14          ;B=20 - WAITING FOR LEADER RECORD, $at least 20 consecutive zeros)
+1407  EAC4 C5                   PUSH BC             ;keep B counter on stack
+1408  EAC5 CD DD 0E             CALL $0EDD          ;load byte from cassette (300bps)
+1409  EAC8 79                   LD   A,C            ;A=loaded byte
+1410  EAC9 C1                   POP  BC             ;return B counter from stack
+1411  EACA B7                   OR   A              ; is byte 0 (leader) loaded
+1412  EACB 20 F5                JR   NZ,$EAC2       ;if not, $reset the counter and wait for 20 leaders
+1413  EACD 10 F5                DJNZ $EAC4          ;detect 20 consecutive leader bytes
+1414  EACF CD DD 0E             CALL $0EDD          ;load next byte from cassette - WAIT FOR HEADER ID
+1415  EAD2 79                   LD   A,C
+1416  EAD3 FE A5                CP   $A5            ; is byte header id ?
+1417  EAD5 20 F8                JR   NZ,$EACF       ;if not, $wait for it further
+1418  EAD7 47                   LD   B,A            ;B=$A5 (CRC basis)
+1419  EAD8 CD DD 0E             CALL $0EDD          ;load next BYTE
+1420  EADB 79                   LD   A,C
+1421  EADC 3C                   INC  A              ;is byte $FF (TURBO header indicator) ?
+1422  EADD 20 76                JR   NZ,$EB55       ;if not, $jump (stack=RRRR[XX00XXXX]/[XXFFXX01] !!!)
+1423  EADF CD D9 0E             CALL $0ED9          ;if yes, $load start address (WORD)
+1424  EAE2 61                   LD   H,C
+1425  EAE3 EB                   EX   DE,HL          ;DE=start address
+1426  EAE4 CD D9 0E             CALL $0ED9          ;load end address (WORD)
+1427  EAE7 61                   LD   H,C            ;HL=end address
+1428  EAE8 78                   LD   A,B            ;A=CRC of loaded bytes (effectively only the last 5)
+1429  EAE9 C1                   POP  BC             ;BC=RELOC number from stack
+1430  EAEA 09                   ADD  HL, BC
+1431  EAEB EB                   EX   DE,HL          ;DE=relocated end address of load data
+1432  EAEC 09                   ADD  HL,BC          ;HL=relocated start address of load data
+1433  EAED 47                   LD   B,A            ;B=CRC again
+1434  EAEE 22 06 2B             LD   ($2B06),HL     ;remembers actual initial and...
+1435  EAF1 ED 53 08 2B          LD   ($2B08),DE     ;...actual end address to load
+1436  EAF5 CD D9 0E             CALL $0ED9          ;load AUTOSTART line number (WORD)
+1437  EAF8 61                   LD   H,C
+1438  EAF9 22 02 2B             LD   ($2B02),HL     ;remember AUTOSTART line number
+1439  EAFC 11 2A EA             LD   DE,$EA2A       ;message address "FOUND "
+1440  EAFF C5                   PUSH BC             ;store CRC on stack (PRINTSTR dirty BC)
+1441  EB00 CD 37 09             CALL $0937          ;print message "FOUND " (cursor remains in the same row)
+1442  EB03 C1                   POP  BC             ;B=CRC from stack
+1443  EB04 2A 68 2A             LD   HL,($2A68)     ;HL=cursor address (beginning of the name found on the screen)
+1444  EB07 CD DD 0E             CALL $0EDD          ;load next byte (name letter)
+1445  EB0A 79                   LD   A,C            ;A=letter of name
+1446  EB0B 0C                   INC  C              ;is byte $FF loaded (end of name)
+1447  EB0C 28 03                JR   Z,$EB11        ;if end of name jump to load CRC
+1448  EB0E E7                   RST  $20            ;if letter, $print to screen
+1449  EB0F 18 F6                JR   $EB07          ;load and print all letters of image name (if any)
+1450  EB11 CD DD 0E             CALL $0EDD          ; load CRC BYTE header (B=calculated CRC + loaded CRC !)
+1451  EB14 3E 0D                LD   A,$0D
+1452  EB16 E7                   RST  $20            ;goes to a new line on the screen
+1453  EB17 04                   INC  B              ;(CRC is recorded in complemented form)
+1454  EB18 C2 8F 07             JP   NZ,$078F       ;if CRC + loaded byte is not $FF , $WHAT? mistake
+1455  EB1B 7C                   LD   A,H            ;CRC OK, $A=higher byte of cursor address (FIND SCREEN NAME)
+1456  EB1C FE 28                CP   $28            ;does the name start at the top of the screen?
+1457  EB1E 28 08                JR   Z,$EB28        ;if in top half of screen, $jump to check name
+1458  EB20 7D                   LD   A,L
+1459  EB21 FE E6                CP   $E6            ;does the name start on line 16?
+1460  EB23 20 03                JR   NZ,$EB28       ;if not, $jump (not in last row, $$0D didn't move it)
+1461  EB25 D6 20                SUB  $20            ;if in line 16, $address in line 15 of screen (due to $0D)
+1462  EB27 6F                   LD   L,A            ;HL=address of screen name
+1463  EB28 3E 25                LD   A,$25          ;A=character %
+1464  EB2A BE                   CP   (HL)           ;does name start with % (???)
+1465  EB2B 20 17                JR   NZ,$EB44       ;if not, $jump
+1466  EB2D E5                   PUSH HL             ;if yes, $store name address on stack (I don't understand this part !!!)
+1467  EB2E F6 30                OR   $30            ;A=$55 (character U)
+1468  EB30 ED 73 34 2C          LD   ($2C34),SP     ;store stack pointer at end of input buffer
+1469  EB34 31 AE 2B             LD   SP,$2BAE       ;???
+1470  EB37 33                   INC  SP             ;StackPointer=$2BAF (system variable for clock start)
+1471  EB38 EF                   RST  $28            ;HL=0
+1472  EB39 67                   LD   H,A            ;HL=$5500
+1473  EB3A E5                   PUSH HL             ;START_RTC=$55, $VIDEO_LINK=$C39500 (CALL $0095 ????)
+1474  EB3B ED 7B 34 2C          LD   SP,($2C34)     ;restore StackPointer
+1475  EB3F E1                   POP  HL             ;HL=address of found name
+1476  EB40 3E 20                LD   A,$20
+1477  EB42 77                   LD   (HL),A         ;blank in place of the first letter (instead of % ?)
+1478  EB43 23                   INC  HL             ;HL=address of the second letter of the screen name
+1479  EB44 F1                   POP  AF             ;A=name indicator from stack
+1480  EB45 3C                   INC  A              ; if the name is not specified (indicator is $XXFF)...
+1481  EB46 28 1A                JR   Z,$EB62        ;...jump
+1482  EB48 D1                   POP  DE             ; otherwise, $DE=address of the name of the requested image
+1483  EB49 1A                   LD   A,(DE)         ;A=letter of the name of the requested image
+1484  EB4A FE 22                CP   $22            ;is there a quotation mark at the end of the name
+1485  EB4C 28 14                JR   Z,$EB62        ;if so, $jump
+1486  EB4E BE                   CP   (HL)           ; compare the letter of the searched and found name
+1487  EB4F 23                   INC  HL             ;next letter found (screen)
+1488  EB50 13                   INC  DE             ;next letter requested (stack pointer)
+1489  EB51 28 F6                JR   Z,$EB49        ;if the letters are the same, $compare further
+1490  EB53 18 06                JR   $EB5B          ;if they are different, $it is not that shot - jump
+1491  EB55 F1                   POP  AF             ;THE VIDEO IS NOT A TURBO HEADER !! (forget YYYY address)
+1492  EB56 F1                   POP  AF             ;pop 4 bytes off stack (forget XX00 or XXFF)
+1493  EB57 3C                   INC  A              ;(stack was RRRRXX00NNNN OR XXFFXX01)
+1494  EB58 28 01                JR   Z,$EB5B        ;if the last one is not $XXFF (but NNNN)...
+1495  EB5A F1                   POP  AF             ;...remove 2 more bytes (to leave only XX01)
+1496  EB5B ED 5B 00 2B          LD   DE,($2B00)     ;DE=saved basic pointer (pointer before the name)
+1497  EB5F C3 81 EA             JP   $EA81          ;find the name of the requested recording again (and why ???)
+1498  EB62 F1                   POP  AF
+1499  EB63 F5                   PUSH AF             ;A=load mode (1=LOAD, $0=VERIFY)
+1500  EB64 28 06                JR   Z,$EB6C        ;if Zf=1, $jump to pause (requested clip not found)
+1501  EB66 11 31 EA             LD   DE,$EA31       ;if Zf=0, $the requested recording is found, $print...
+1502  EB69 CD 37 09             CALL $0937          ;...messages "LOADING"
+1503  EB6C FB                   EI                  ;enable interapt (to see messages)
+1504  EB6D 06 05                LD   B,$5           ;pause ~1.3 seconds
+1505  EB6F 21 00 80             LD   HL,$8000
+1506  EB72 2B                   DEC  HL
+1507  EB73 CB 7C                BIT  $7,H
+1508  EB75 28 FB                JR   Z,$EB72
+1509  EB77 10 F6                DJNZ $EB6F
+1510  EB79 CD 23 EA             CALL $EA23          ;wait for an impulse from the tape recorder
+1511  EB7C F3                   DI                  ;disable interapt (and image)
+1512  EB7D ED 5B 06 2B          LD   DE,($2B06)     ;DE=load start address
+1513  EB81 2A 08 2B             LD   HL,($2B08)     ;HL=loading end address
+1514  EB84 06 14                LD   B,$14          ;B=20 (WAITING FOR LEADER TURBO RECORD, $at least 20 zeros in a row)
+1515  EB86 C5                   PUSH BC             ;keep counter
+1516  EB87 CD 3C EC             CALL $EC3C          ;load TURBO byte in C (and change AY sound, $A on return $7A/$B7)
+1517  EB8A 79                   LD   A,C            ;A=loaded byte
+1518  EB8B C1                   POP  BC             ;return counter
+1519  EB8C B7                   OR   A              ; is byte 0 ?
+1520  EB8D 20 F5                JR   NZ,$EB84       ;if not 0, $reset counter and look for leader next
+1521  EB8F 10 F5                DJNZ $EB86          ;if zero, $load all 20
+1522  EB91 CD 3C EC             CALL $EC3C          ;load next byte into C
+1523  EB94 79                   LD   A,C
+1524  EB95 FE A5                CP   $A5            ;is byte header ID loaded?
+1525  EB97 20 F8                JR   NZ,$EB91       ;if not, $load next byte
+1526  EB99 47                   LD   B,A            ;if so, $B=$A5 - basis for CRC
+1527  EB9A CD 3C EC             CALL $EC3C          ;load next byte into C
+1528  EB9D 79                   LD   A,C
+1529  EB9E B7                   OR   A
+1530  EB9F 20 2B                JR   NZ,$EBCC       ;if header ID does not follow byte 0, $report WHAT?
+1531  EBA1 EB                   EX   DE,HL          ;HL=start address, $DE=end
+1532  EBA2 CD 3C EC             CALL $EC3C          ;load data byte into C
+1533  EBA5 08                   EX   AF,AF'         ;keep flag C (from comparing HL with DE)
+1534  EBA6 79                   LD   A,C            ;A=loaded byte
+1535  EBA7 BE                   CP   (HL)           ;compare loaded byte with byte in memory (VERIFY ?)
+1536  EBA8 28 05                JR   Z,$EBAF        ;if same, $continue loading
+1537  EBAA F1                   POP  AF             ;if not, $A=load mode from stack
+1538  EBAB 28 1F                JR   Z,$EBCC        ;if VERIFY ($00), $report WHAT?
+1539  EBAD F5                   PUSH AF             ;if LOAD ($01), $return A to stack
+1540  EBAE 71                   LD   (HL),C         ;write loaded byte into memory
+1541  EBAF 23                   INC  HL             ;next memory address
+1542  EBB0 EB                   EX   DE,HL          ;DE=start address, HL=end
+1543  EBB1 08                   EX   AF,AF'         ;are all data bytes loaded?
+1544  EBB2 38 ED                JR   C,$EBA1        ;if not yet, $continue loading
+1545  EBB4 CD 3C EC             CALL $EC3C          ;load TURBO CRC byte
+1546  EBB7 F1                   POP  AF             ;A=remove load mode from stack
+1547  EBB8 04                   INC  B              ; is the loaded CRC equal to the calculated one?
+1548  EBB9 20 11                JR   NZ,$EBCC       ;if not, $state WHAT?
+1549  EBBB FB                   EI                  ;enable interapt (include image)
+1550  EBBC CD 52 EA             CALL $EA52          ;silence AY chip
+1551  EBBF ED 5B 04 2B          LD   DE,($2B04)     ;restore DE (basic pointer)
+1552  EBC3 2A 02 2B             LD   HL,($2B02)     ;HL=AUTOSTART line number
+1553  EBC6 7C                   LD   A,H
+1554  EBC7 B5                   OR   L              ; if line number is not 0...
+1555  EBC8 C2 0E 04             JP   NZ,$040E       ;...RUN of loaded BASIC from line from HL
+1556  EBCB F7                   RST  $30            ;if 0, $return to basic
+1557  EBCC C3 8F 07             JP   $078F          ;jump to print message "WHAT?" (vector)
+1558  EBCF              VERIFY_CMD:
+1559  EBCF F1                   POP  AF             ;forget return address - TURBO VERIFY command
+1560  EBD0 ED 53 00 2B          LD   ($2B00),DE     ;remember basic pointer (address before name - quotes)
+1561  EBD4 CD 39 EA             CALL $EA39          ;initialize AY sound
+1562  EBD7 AF                   XOR  A              ;A=$00 - loading mode (VERIFY - XX00)
+1563  EBD8 F5                   PUSH AF             ;stack load mode
+1564  EBD9 DF                   RST  $18
+1565  EBDA 22                   DEFB $22            ; is the command followed by a quotation mark ?
+1566  EBDB 06                   DEFB $EBE2-$-1      ; if not, $report WHAT?
+1567  EBDC D5                   PUSH DE             ;address of name on stack (NNNN)
+1568  EBDD AF                   XOR  A
+1569  EBDE F5                   PUSH AF             ;name indicator on stack (XX00)
+1570  EBDF C3 91 EA             JP   $EA91          ;continue as that QLOAD is a command
+1571  EBE2 C3 8F 07             JP   $078F          ;jump to print message "WHAT?" (vector)
+1572  EBE5 D9                   EXX                 ;TURBO BYTE RECORDING FROM A (with AY sound and patterns?)
+1573  EBE6 21 38 20             LD   HL,$2038       ;HL=cassette recorder output port
+1574  EBE9 0E 08                LD   C,$8
+1575  EBEB 0F                   RRCA
+1576  EBEC 36 FC                LD   (HL),$FC
+1577  EBEE 06 1E                LD   B,$1E
+1578  EBF0 38 02                JR   C,$EBF4
+1579  EBF2 06 64                LD   B,$64
+1580  EBF4 10 FE                DJNZ $EBF4
+1581  EBF6 36 B8                LD   (HL),$B8
+1582  EBF8 06 1E                LD   B,$1E
+1583  EBFA 38 02                JR   C,$EBFE
+1584  EBFC 06 64                LD   B,$64
+1585  EBFE 10 FE                DJNZ $EBFE
+1586  EC00 36 BC                LD   (HL),$BC
+1587  EC02 0D                   DEC  C
+1588  EC03 20 E6                JR   NZ,$EBEB
+1589  EC05 06 00                LD   B,$0
+1590  EC07 10 FE                DJNZ $EC07
+1591  EC09 D9                   EXX
+1592  EC0A 80                   ADD  A,B            ;add byte to CRC - COMMON CRC AND AY SOUND FOR QLOAD AND QSAVE
+1593  EC0B 47                   LD   B,A            ;B=CRC
+1594  EC0C 3E 7A                LD   A,$7A          ;A=value for even CRC is 784Hz
+1595  EC0E CB 40                BIT  $0,B           ;basis for AY sound is CRC parity (bit 0)
+1596  EC10 28 02                JR   Z,$EC14        ;if even, $sound is 784Hz
+1597  EC12 3E B7                LD   A,$B7          ;A=value for odd CRC is 523Hz
+1598  EC14 D3 01                OUT  ($1),A         ;write in R0 AY chip (frequency fine in Hz)
+1599  EC16 D7                   RST  $10
+1600  EC17 C9                   RET
+1601  EC18 C3 30 E9             JP   QSAVE_CMD      ;$E930 ;QSAVE (why were these 30 bytes consumed when already in the table...)
+1602  EC1B C3 77 EA             JP   QLOAD_CMD      ;$EA77 ;QLOAD (...addresses from $E000 to $EFFF can be specified ???)
+1603  EC1E C3 CF EB             JP   VERIFY_CMD     ;$EBCF ;VERIFY
+1604  EC21 C3 F4 EE             JP   HLOAD_CMD      ;$EEF4 ;HLOAD
+1605  EC24 C3 C0 EE             JP   HDUMP_CMD      ;$EEC0 ;HDUMP
+1606  EC27 C3 BD EE             JP   HLDUMP_CMD     ;$EEBD ;HLDUMP
+1607  EC2A C3 F4 EC             JP   AUTO_CMD       ;$ECF4 ;AUTO
+1608  EC2D C3 02 EE             JP   FILL_CMD       ;$EE02 ;FILL
+1609  EC30 C3 93 EF             JP   UP_CMD         ;$EF93 ;UP
+1610  EC33 C3 C8 EF             JP   DOWN_CMD       ;$EFC8 ;DOWN
+1611  EC36 CD B5 EC             CALL R2_CMD         ;$ECB5 ;hidden command "R2"
+1612  EC39 C3 66 00             JP   $0066 ;HARD-BREAK ("farm" - reset basic)
+1613  EC3C D9                   EXX                 ;TURBO load byte into A
+1614  EC3D 21 00 20             LD   HL,$2000
+1615  EC40 06 55                LD   B,$55
+1616  EC42 CB 46                BIT  $0,(HL)
+1617  EC44 28 06                JR   Z,$EC4C
+1618  EC46 10 FA                DJNZ $EC42
+1619  EC48 D9                   EXX
+1620  EC49 79                   LD   A,C
+1621  EC4A 18 BE                JR   $EC0A          ;byte loaded into A, $jump to CRC and AY sound
+1622  EC4C 3E E4                LD   A,$E4
+1623  EC4E 3C                   INC  A
+1624  EC4F CB 46                BIT  $0,(HL)
+1625  EC51 28 FB                JR   Z,$EC4E
+1626  EC53 17                   RLA
+1627  EC54 D9                   EXX
+1628  EC55 CB 19                RR   C
+1629  EC57 D9                   EXX
+1630  EC58 18 E6                JR   $EC40
+1631  EC5A BC                   CP   H
+1632  EC5B 20 02                JR   NZ,$EC5F
+1633  EC5D 26 00                LD   H,$0
+1634  EC5F BD                   CP   L
+1635  EC60 20 02                JR   NZ,$EC64
+1636  EC62 2E 00                LD   L,$0
+1637  EC64 1D                   DEC  E
+1638  EC65 20 0B                JR   NZ,$EC72       ;key not pressed, $check next
+1639  EC67 18 06                JR   $EC6F          ;no key pressed, $repeat the whole check
+1640  EC69 D9                   EXX                 ;REPLACE FOR "KEY_0" IN SCREEN EDITOR
+1641  EC6A 2A A5 2A             LD   HL,($2AA5)     ;HL=sis. var. keyboard differentiator
+1642  EC6D 0E 0E                LD   C,$0E          ;C=14, $number of keys to check (from "STOP/LIST" to "7")
+1643  EC6F 11 34 20             LD   DE,$2034       ;DE=address of STOP/LIST key
+1644  EC72 1A                   LD   A,(DE)         ;A=key state
+1645  EC73 0F                   RRCA                ;Cf=key state
+1646  EC74 7B                   LD   A,E            ;A=key number (address)
+1647  EC75 38 E3                JR   C,$EC5A        ;if the key is not pressed, $check if it has been pressed before
+1648  EC77 FE 32                CP   $32            ;is that the REPT key?
+1649  EC79 20 09                JR   NZ,$EC84       ;if not, $jump
+1650  EC7B 0D                   DEC  C              ;next key
+1651  EC7C 20 DC                JR   NZ,$EC5A       ;if it's not the last one, $check if it's already pressed before
+1652  EC7E 3A B4 2B             LD   A,($2BB4)      ;A=REPT status (contents of system register for REPT)
+1653  EC81 C3 54 0D             JP   $0D54          ;end in ROM-A (to shorten the code by 2 bytes!)
+1654  EC84 BC                   CP   H
+1655  EC85 28 DD                JR   Z,$EC64
+1656  EC87 BD                   CP   L
+1657  EC88 28 DA                JR   Z,$EC64
+1658  EC8A 06 00                LD   B,$0           ;B=0 (counter 256) - DELAY FOR REPT (repetition rate)
+1659  EC8C D7                   RST  $10            ;pause
+1660  EC8D 1A                   LD   A, (DE)
+1661  EC8E 0F                   RRCA                ;is the key still pressed
+1662  EC8F 38 C9                JR   C,$EC5A        ;if not, $continue with other keys
+1663  EC91 10 F9                DJNZ $EC8C          ;if pressed, $do pause
+1664  EC93 7C                   LD   A,H
+1665  EC94 B7                   OR   A
+1666  EC95 20 03                JR   NZ,$EC9A
+1667  EC97 63                   LD   H,E
+1668  EC98 18 05                JR   $EC9F
+1669  EC9A 7D                   LD   A,L
+1670  EC9B B7                   OR   A
+1671  EC9C 20 D4                JR   NZ,$EC72
+1672  EC9E 6B                   LD   L,E
+1673  EC9F 22 A5 2A             LD   ($2AA5),HL
+1674  ECA2 EF                   RST  $28
+1675  ECA3 7B                   LD   A,E
+1676  ECA4 FE 34                CP   $34
+1677  ECA6 20 04                JR   NZ,$ECAC
+1678  ECA8 3E 02                LD   A,$2
+1679  ECAA 18 D5                JR   $EC81
+1680  ECAC FE 31                CP   $31
+1681  ECAE C2 39 0D             JP   NZ,$0D39
+1682  ECB1 3E 01                LD   A,$1
+1683  ECB3 18 CC                JR   $EC81
+1684  ECB5              R2_CMD:
+1685  ECB5 3E 0C                LD   A,$0C          ;HIDDEN COMMAND "R2" TO RETURN TO MINUS MODE
+1686  ECB7 E7                   RST  $20            ;clear the screen
+1687  ECB8 ED 56                IM   $1             ;interapt mode 1
+1688  ECBA D9                   EXX
+1689  ECBB CD 23 10             CALL $1023          ;arrange links in ROM-B for ROM-A+B
+1690  ECBE D9                   EXX
+1691  ECBF C9                   RET                 ;go back, $and jump to the FARM !!!
+1692  ECC0 69                   LD   L,C
+1693  ECC1 C5                   PUSH BC
+1694  ECC2 78                   LD   A,B
+1695  ECC3 2F                   CPL
+1696  ECC4 D6 30                SUB  $30
+1697  ECC6 67                   LD   H,A
+1698  ECC7 7D                   LD   A,L
+1699  ECC8 E6 07                AND  $7
+1700  ECCA 06 03                LD   B,$3
+1701  ECCC CB 3C                SRL  H
+1702  ECCE CB 1D                RR   L
+1703  ECD0 10 FA                DJNZ $ECCC
+1704  ECD2 E5                   PUSH HL
+1705  ECD3 60                   LD   H,B
+1706  ECD4 6F                   LD   L,A
+1707  ECD5 01 8D E1             LD   BC,$E18D
+1708  ECD8 09                   ADD  HL,BC
+1709  ECD9 7E                   LD   A,(HL)
+1710  ECDA 2A 6A 2A             LD   HL,($2A6A)
+1711  ECDD 01 20 00             LD   BC,$0020
+1712  ECE0 09                   ADD  HL, BC
+1713  ECE1 C1                   POP  BC
+1714  ECE2 09                   ADD  HL,BC
+1715  ECE3 C1                   POP  BC
+1716  ECE4 C9                   RET
+1717  ECE5 E5                   PUSH HL
+1718  ECE6 CD C0 EC             CALL $ECC0
+1719  ECE9 A6                   AND  (HL)
+1720  ECEA 77                   LD   (HL),A
+1721  ECEB E1                   POP  HL
+1722  ECEC C9                   RET
+1723  ECED E5                   PUSH HL
+1724  ECEE CD C0 EC             CALL $ECC0
+1725  ECF1 A6                   AND  (HL)
+1726  ECF2 E1                   POP  HL
+1727  ECF3 C9                   RET
+1728  ECF4              AUTO_CMD:
+1729  ECF4 F1                   POP  AF
+1730  ECF5 CF                   RST  $8
+1731  ECF6 22 34 2C             LD   ($2C34),HL
+1732  ECF9 CB 7C                BIT  $7,H
+1733  ECFB C2 8F 07             JP   NZ,$078F
+1734  ECFE CD 05 00             CALL $0005
+1735  ED01 22 32 2C             LD   ($2C32),HL
+1736  ED04 CB 7C                BIT  $7,H
+1737  ED06 20 F3                JR   NZ,$ECFB
+1738  ED08 CD B5 EC             CALL $ECB5
+1739  ED0B 2A 34 2C             LD   HL,($2C34)
+1740  ED0E 22 B6 2B             LD   ($2BB6),HL
+1741  ED11 CD F2 07             CALL $07F2
+1742  ED14 CA AF ED             JP   Z,$EDAF
+1743  ED17 CD F3 08             CALL $08F3
+1744  ED1A 11 B8 2B             LD   DE,$2BB8
+1745  ED1D CD E6 ED             CALL $EDE6
+1746  ED20 E7                   RST  $20
+1747  ED21 D9                   EXX
+1748  ED22 36 5F                LD   (HL),$5F
+1749  ED24 D9                   EXX
+1750  ED25 12                   LD   (DE), A
+1751  ED26 13                   INC  DE
+1752  ED27 7A                   LD   A,D
+1753  ED28 FE 2C                CP   $2C
+1754  ED2A 20 F1                JR   NZ,$ED1D
+1755  ED2C 7B                   LD   A,E
+1756  ED2D FE 31                CP   $31
+1757  ED2F 20 EC                JR   NZ,$ED1D
+1758  ED31 CD E6 ED             CALL $EDE6
+1759  ED34 18 FB                JR   $ED31
+1760  ED36 7A                   LD   A,D
+1761  ED37 FE 2B                CP   $2B
+1762  ED39 20 05                JR   NZ,$ED40
+1763  ED3B 7B                   LD   A,E
+1764  ED3C FE B8                CP   $B8
+1765  ED3E 28 DD                JR   Z,$ED1D
+1766  ED40 1B                   DEC  DE
+1767  ED41 3E 1D                LD   A,$1D
+1768  ED43 E7                   RST  $20
+1769  ED44 D9                   EXX
+1770  ED45 36 5F                LD   (HL),$5F
+1771  ED47 D9                   EXX
+1772  ED48 18 D3                JR   $ED1D
+1773  ED4A 12                   LD   (DE),A
+1774  ED4B E7                   RST  $20
+1775  ED4C 13                   INC  DE
+1776  ED4D 42                   LD   B,D
+1777  ED4E 4B                   LD   C,E
+1778  ED4F 11 B6 2B             LD   DE,$2BB6
+1779  ED52 2A 34 2C             LD   HL,($2C34)
+1780  ED55 C5                   PUSH BC
+1781  ED56 D5                   PUSH DE
+1782  ED57 79                   LD   A,C
+1783  ED58 93                   SUB  E
+1784  ED59 F5                   PUSH AF
+1785  ED5A CD F2 07             CALL $07F2
+1786  ED5D D5                   PUSH DE
+1787  ED5E 20 10                JR   NZ,$ED70
+1788  ED60 D5                   PUSH DE
+1789  ED61 CD 11 08             CALL $0811
+1790  ED64 C1                   POP  BC
+1791  ED65 2A 38 2C             LD   HL,($2C38)
+1792  ED68 CD 44 09             CALL $0944
+1793  ED6B 60                   LD   H,B
+1794  ED6C 69                   LD   L,C
+1795  ED6D 22 38 2C             LD   ($2C38),HL
+1796  ED70 C1                   POP  BC
+1797  ED71 2A 38 2C             LD   HL,($2C38)
+1798  ED74 F1                   POP  AF
+1799  ED75 E5                   PUSH HL
+1800  ED76 FE 03                CP   $3
+1801  ED78 28 18                JR   Z,$ED92
+1802  ED7A 5F                   LD   E,A
+1803  ED7B 16 00                LD   D,$0
+1804  ED7D 19                   ADD  HL, DE
+1805  ED7E ED 5B 6A 2A          LD   DE,($2A6A)
+1806  ED82 D7                   RST  $10
+1807  ED83 D2 53 01             JP   NC,$0153
+1808  ED86 22 38 2C             LD   ($2C38),HL
+1809  ED89 D1                   POP  DE
+1810  ED8A CD 4C 09             CALL $094C
+1811  ED8D D1                   POP  DE
+1812  ED8E E1                   POP  HL
+1813  ED8F CD 44 09             CALL $0944
+1814  ED92 2A 34 2C             LD   HL,($2C34)
+1815  ED95 ED 5B 32 2C          LD   DE,($2C32)
+1816  ED99 19                   ADD  HL, DE
+1817  ED9A CB 7C                BIT  $7,H
+1818  ED9C C2 53 01             JP   NZ,$0153
+1819  ED9F 22 34 2C             LD   ($2C34),HL
+1820  EDA2 C3 0B ED             JP   $ED0B
+1821  EDA5 57                   LD   D,A
+1822  EDA6 41                   LD   B,C
+1823  EDA7 52                   LD   D,D
+1824  EDA8 4E                   LD   C,(HL)
+1825  EDA9 49                   LD   C,C
+1826  EDAA 4E                   LD   C,(HL)
+1827  EDAB 47                   LD   B,A
+1828  EDAC 20 21                JR   NZ,$EDCF
+1829  EDAE 0D                   DEC  C
+1830  EDAF D5                   PUSH DE
+1831  EDB0 CD 39 EA             CALL $EA39
+1832  EDB3 3E C8                LD   A,$C8
+1833  EDB5 D3 01                OUT  ($1),A
+1834  EDB7 11 A5 ED             LD   DE,$EDA5
+1835  EDBA CD 37 09             CALL $0937
+1836  EDBD D1                   POP  DE
+1837  EDBE CD 31 09             CALL $0931
+1838  EDC1 06 00                LD   B,$0
+1839  EDC3 10 FE                DJNZ $EDC3
+1840  EDC5 CD 52 EA             CALL $EA52
+1841  EDC8 CD 69 EC             CALL $EC69
+1842  EDCB FE 01                CP   $1
+1843  EDCD CA 7F EF             JP   Z,$EF7F
+1844  EDD0 FE 02                CP   $2
+1845  EDD2 28 F4                JR   Z,$EDC8
+1846  EDD4 FE 0D                CP   $0D
+1847  EDD6 28 BA                JR   Z,$ED92
+1848  EDD8 2A 34 2C             LD   HL,($2C34)
+1849  EDDB F5                   PUSH AF
+1850  EDDC CD F3 08             CALL $08F3
+1851  EDDF F1                   POP  AF
+1852  EDE0 11 B8 2B             LD   DE,$2BB8
+1853  EDE3 C3 20 ED             JP   $ED20
+1854  EDE6 E1                   POP  HL
+1855  EDE7 CD 69 EC             CALL $EC69
+1856  EDEA FE 01                CP   $1
+1857  EDEC CA 7F EF             JP   Z,$EF7F
+1858  EDEF FE 02                CP   $2
+1859  EDF1 28 F4                JR   Z,$EDE7
+1860  EDF3 FE 0D                CP   $0D
+1861  EDF5 CA 4A ED             JP   Z,$ED4A
+1862  EDF8 FE 1D                CP   $1D
+1863  EDFA CA 36 ED             JP   Z,$ED36
+1864  EDFD FE 20                CP   $20
+1865  EDFF 38 E6                JR   C,$EDE7
+1866  EE01 E9                   JP   (HL)
+1867  EE02              FILL_CMD:
+1868  EE02 F1                   POP  AF
+1869  EE03 CF                   RST  $8
+1870  EE04 4D                   LD   C,L
+1871  EE05 C5                   PUSH BC
+1872  EE06 CD 05 00             CALL $0005
+1873  EE09 3A A8 2B             LD   A,($2BA8)
+1874  EE0C 3C                   INC  A
+1875  EE0D C1                   POP  BC
+1876  EE0E 28 01                JR   Z,$EE11
+1877  EE10 F7                   RST  $30
+1878  EE11 45                   LD   B,L
+1879  EE12 D5                   PUSH DE
+1880  EE13 ED 73 32 2C          LD   ($2C32), SP
+1881  EE17 2A 6A 2A             LD   HL,($2A6A)
+1882  EE1A ED 5B 99 2A          LD   DE,($2A99)
+1883  EE1E CB 7C                BIT  $7,H
+1884  EE20 28 03                JR   Z,$EE25
+1885  EE22 19                   ADD  HL,DE
+1886  EE23 18 03                JR   $EE28
+1887  EE25 AF                   XOR  A
+1888  EE26 ED 52                SBC  HL, DE
+1889  EE28 2B                   DEC  HL
+1890  EE29 3E CF                LD   A,$CF
+1891  EE2B 90                   SUB  B
+1892  EE2C DA 5A 06             JP   C,$065A
+1893  EE2F F9                   LD   SP,HL
+1894  EE30 D9                   EXX
+1895  EE31 2A 38 2C             LD   HL,($2C38)
+1896  EE34 D9                   EXX
+1897  EE35 21 5C EE             LD   HL,$EE5C
+1898  EE38 E5                   PUSH HL
+1899  EE39 26 FF                LD   H,$FF
+1900  EE3B 3B                   DEC  SP
+1901  EE3C E5                   PUSH HL
+1902  EE3D CD 74 EE             CALL $EE74
+1903  EE40 C1                   POP  BC
+1904  EE41 3B                   DEC  SP
+1905  EE42 D1                   POP  DE
+1906  EE43 CD 67 EE             CALL $EE67
+1907  EE46 04                   INC  B
+1908  EE47 C8                   RET  Z
+1909  EE48 78                   LD   A,B
+1910  EE49 D6 D0                SUB  $D0
+1911  EE4B DC 74 EE             CALL C,$EE74
+1912  EE4E 05                   DEC  B
+1913  EE4F 28 05                JR   Z,$EE56
+1914  EE51 05                   DEC  B
+1915  EE52 CD 74 EE             CALL $EE74
+1916  EE55 04                   INC  B
+1917  EE56 0C                   INC  C
+1918  EE57 15                   DEC  D
+1919  EE58 20 EC                JR   NZ,$EE46
+1920  EE5A 18 E4                JR   $EE40
+1921  EE5C ED 7B 32 2C          LD   SP,($2C32)
+1922  EE60 D1                   POP  DE
+1923  EE61 F7                   RST  $30
+1924  EE62 3A 33 20             LD   A,($2033)
+1925  EE65 0F                   RRCA
+1926  EE66 D8                   RET  C
+1927  EE67 3A 31 20             LD   A,($2031)
+1928  EE6A 0F                   RRCA
+1929  EE6B 38 F5                JR   C,$EE62
+1930  EE6D ED 7B 32 2C          LD   SP,($2C32)
+1931  EE71 C3 05 03             JP   $0305
+1932  EE74 26 00                LD   H,$0
+1933  EE76 CD AD EE             CALL $EEAD
+1934  EE79 D0                   RET  NC
+1935  EE7A 59                   LD   E,C
+1936  EE7B 79                   LD   A,C
+1937  EE7C A7                   AND  A
+1938  EE7D 28 07                JR   Z,$EE86
+1939  EE7F 0D                   DEC  C
+1940  EE80 CD AD EE             CALL $EEAD
+1941  EE83 38 F6                JR   C,$EE7B
+1942  EE85 0C                   INC  C
+1943  EE86 69                   LD   L,C
+1944  EE87 4B                   LD   C,E
+1945  EE88 0C                   INC  C
+1946  EE89 28 05                JR   Z,$EE90
+1947  EE8B CD AD EE             CALL $EEAD
+1948  EE8E 38 F8                JR   C,$EE88
+1949  EE90 4D                   LD   C, L
+1950  EE91 D9                   EXX
+1951  EE92 ED 73 34 2C          LD   ($2C34), SP
+1952  EE96 ED 5B 34 2C          LD   DE,($2C34)
+1953  EE9A 1B                   DEC  DE
+1954  EE9B 1B                   DEC  DE
+1955  EE9C 1B                   DEC  DE
+1956  EE9D D7                   RST  $10
+1957  EE9E 30 06                JR   NC,$EEA6
+1958  EEA0 D9                   EXX
+1959  EEA1 E3                   EX   (SP), HL
+1960  EEA2 33                   INC  SP
+1961  EEA3 C5                   PUSH BC
+1962  EEA4 4B                   LD   C,E
+1963  EEA5 E9                   JP   (HL)
+1964  EEA6 ED 7B 32 2C          LD   SP,($2C32)
+1965  EEAA C3 53 01             JP   $0153
+1966  EEAD E5                   PUSH HL
+1967  EEAE D5                   PUSH DE
+1968  EEAF CD C0 EC             CALL $ECC0
+1969  EEB2 A6                   AND  (HL)
+1970  EEB3 BE                   CP   (HL)
+1971  EEB4 28 01                JR   Z,$EEB7
+1972  EEB6 77                   LD   (HL),A
+1973  EEB7 D1                   POP  DE
+1974  EEB8 E1                   POP  HL
+1975  EEB9 C8                   RET  Z
+1976  EEBA 24                   INC  H
+1977  EEBB 37                   SCF
+1978  EEBC C9                   RET
+1979  EEBD              HLDUMP_CMD:
+1980  EEBD CD 60 10             CALL $1060
+1981  EEC0              HDUMP_CMD:
+1982  EEC0 F1                   POP  AF
+1983  EEC1 CF                   RST  $8
+1984  EEC2 E5                   PUSH HL
+1985  EEC3 CD 05 00             CALL $0005
+1986  EEC6 EB                   EX   DE, HL
+1987  EEC7 E3                   EX   (SP), HL
+1988  EEC8 7C                   LD   A,H
+1989  EEC9 85                   ADD  A,L
+1990  EECA E5                   PUSH HL
+1991  EECB 06 08                LD   B,$8
+1992  EECD 86                   ADD  A, (HL)
+1993  EECE 23                   INC  HL
+1994  EECF 10 FC                DJNZ $EECD
+1995  EED1 E1                   POP  HL
+1996  EED2 F5                   PUSH AF
+1997  EED3 CD 4F 13             CALL $134F
+1998  EED6 06 08                LD   B,$8
+1999  EED8 3E 20                LD   A,$20
+2000  EEDA E7                   RST  $20
+2001  EEDB 7E                   LD   A,(HL)
+2002  EEDC CD 5C 13             CALL $135C
+2003  EEDF 23                   INC  HL
+2004  EEE0 10 F6                DJNZ $EED8
+2005  EEE2 3E 20                LD   A,$20
+2006  EEE4 E7                   RST  $20
+2007  EEE5 F1                   POP  AF
+2008  EEE6 CD 5C 13             CALL $135C
+2009  EEE9 CD FF 02             CALL $02FF
+2010  EEEC 3E 0D                LD   A,$0D
+2011  EEEE E7                   RST  $20
+2012  EEEF D7                   RST  $10
+2013  EEF0 38 D6                JR   C,$EEC8
+2014  EEF2 D1                   POP  DE
+2015  EEF3 F7                   RST  $30
+2016  EEF4              HLOAD_CMD:
+2017  EEF4 F1                   POP  AF             ;HLOAD command
+2018  EEF5 CF                   RST  $8             ;get parameter (address of input start)
+2019  EEF6 CD B5 EC             CALL $ECB5          ;turn off ROM-C (back to (one)line editor !!!)
+2020  EEF9 E5                   PUSH HL             ;(BAG. in case of gross error ROM-C remains off !!!)
+2021  EEFA E5                   PUSH HL             ;start address on stack 2x
+2022  EEFB E1                   POP  HL             ;HL=address from stack
+2023  EEFC CD 4F 13             CALL $134F          ; print HEX address
+2024  EEFF E5                   PUSH HL             ;address back on stack
+2025  EF00 3E 20                LD   A,$20          ;A=ASCII blank
+2026  EF02 11 B6 2B             LD   DE,$2BB6       ;DE=address of input buffer
+2027  EF05 12                   LD   (DE),A         ; the first character of the input buffer is blank
+2028  EF06 13                   INC  DE             ;DE=cursor address in input buffer
+2029  EF07 E7                   RST  $20            ; on the screen after the address, $the same blank
+2030  EF08 D9                   EXX
+2031  EF09 36 5F                LD   (HL),$5F       ;print cursor on screen (block) after blank
+2032  EF0B D9                   EXX
+2033  EF0C CD 69 EC             CALL $EC69          ;wait for key press (new KEY(0))
+2034  EF0F FE 01                CP   $1             ;is BRK pressed?
+2035  EF11 28 6C                JR   Z,$EF7F        ;end of entry, $jump to power on ROM-C
+2036  EF13 FE 02                CP   $2             ;is STOP/LIST pressed?\
+2037  EF15 28 F5                JR   Z,$EF0C        ;wait for next key /(unnecessary)
+2038  EF17 FE 1D                CP   $1D            ;is the left arrow pressed (delete)?
+2039  EF19 28 13                JR   Z,$EF2E        ;if so, $jump to delete processing
+2040  EF1B FE 0D                CP   $0D            ;has ENTER been pressed?
+2041  EF1D 28 19                JR   Z,$EF38        ;if so, $jump to processing input
+2042  EF1F FE 20                CP   $20            ;is any other control key pressed?
+2043  EF21 38 E9                JR   C,$EF0C        ;if so, $wait for the next key
+2044  EF23 08                   EX   AF,AF'         ;save character code in A'
+2045  EF24 7B                   LD   A,E
+2046  EF25 FE D1                CP   $D1            ;is the cursor at the end of the line?
+2047  EF27 28 E3                JR   Z,$EF0C        ;if it is, $there is no printout, $wait for the key
+2048  EF29 08                   EX   AF,AF'         ;A=printable character
+2049  EF2A 12                   LD   (DE),A         ;write a character into the input buffer
+2050  EF2B 13                   INC  DE             ;DE=next location of input buffer
+2051  EF2C 18 D9                JR   $EF07          ;jump to print character on screen and wait for key
+2052  EF2E 7B                   LD   A,E            ;delete processing
+2053  EF2F FE B7                CP   $B7            ; is the cursor in the buffer at the 2nd position (address+blank is not deleted)
+2054  EF31 28 D9                JR   Z,$EF0C        ;if so, $no deletion, $wait for another key
+2055  EF33 1B                   DEC  DE             ;if not, $cursor in buffer one character back
+2056  EF34 3E 1D                LD   A,$1D          ;A=erasure control code (left arrow - line editor !!)
+2057  EF36 18 CF                JR   $EF07          ;jump to print character on screen and wait for key
+2058  EF38 12                   LD   (DE),A         ; enter ENTER at the end of the buffer - processing the input
+2059  EF39 E7                   RST  $20            ;print ENTER to screen (new line)
+2060  EF3A 11 B6 2B             LD   DE,$2BB6       ;DE=start of input buffer (entry)
+2061  EF3D CD 05 01             CALL $0105          ;skip blanks (A=first character in buffer)
+2062  EF40 FE 0D                CP   $0D            ;is the sign ENTER?
+2063  EF42 28 0A                JR   Z,$EF4E        ;if yes, $jump to end of line processing
+2064  EF44 CD EE 18             CALL $18EE          ;read HEX number in HL (if not HEX number, $HOW? and ROM-C remains off)
+2065  EF47 7D                   LD   A,L            ;A=number
+2066  EF48 E1                   POP  HL             ;HL=address for number
+2067  EF49 77                   LD   (HL),A         ; entry of number to address
+2068  EF4A 23                   INC  HL             ;next address
+2069  EF4B E5                   PUSH HL             ;keep recording address still
+2070  EF4C 18 EF                JR   $EF3D          ;process next HEX number (8 + CRC)
+2071  EF4E E1                   POP  HL             ;forget the last entry address - end of line processing
+2072  EF4F E1                   POP  HL
+2073  EF50 E5                   PUSH HL             ;HL=address of the first entry in the line
+2074  EF51 06 08                LD   B,$8           ;B=number of entered HEX digits in the line (if there are less, $BAG?)
+2075  EF53 7C                   LD   A,H            ;A=CRC basis (higher byte of starting address)
+2076  EF54 85                   ADD  A,L            ;CRC+lower byte of address
+2077  EF55 86                   ADD  A,(HL)         ;CRC+written byte
+2078  EF56 23                   INC  HL             ;address of next byte
+2079  EF57 10 FC                DJNZ $EF55          ;add all eight bytes
+2080  EF59 BE                   CP   (HL)           ;is the CRC equal to the ninth written byte (again BAG !!!)
+2081  EF5A 28 1F                JR   Z,$EF7B        ;if equal, $jump to next line entry
+2082  EF5C E1                   POP  HL             ;set stack as...
+2083  EF5D E5                   PUSH HL             ;...as at the beginning of the line
+2084  EF5E E5                   PUSH HL             ;(will be repeated !!)
+2085  EF5F 11 75 EF             LD   DE,$EF75       ;DE=address of error message "ERROR"
+2086  EF62 CD 37 09             CALL $0937          ;print error message
+2087  EF65 CD 39 EA             CALL $EA39          ;initialize AY sound
+2088  EF68 3E AA                LD   A,$AA          ;A=frequency ~560Hz fine
+2089  EF6A D3 01                OUT  ($1),A         ;write to register R0 for channel A
+2090  EF6C 06 00                LD   B,$0
+2091  EF6E 10 FE                DJNZ $EF6E          ;short pause (from .1s to .21s)
+2092  EF70 CD 52 EA             CALL $EA52          ;mute sound
+2093  EF73 18 86                JR   $EEFB          ;expect the same line again
+2094  EF75 45 52 52 4F          DEFB "ERROR"
+2094  EF79 52
+2095  EF7A 0D                   DEFB 13
+2096  EF7B F1                   POP  AF             ;forget line start address
+2097  EF7C C3 F9 EE             JP   $EEF9          ;expect next line
+2098  EF7F F3                   DI                  ;disable interrupts - REFLASH ROM C
+2099  EF80 CD 00 E0             CALL $E000          ;initialize ROM-C (and set 32 ​​system variables)
+2100  EF83 2A 6A 2A             LD   HL,($2A6A)     ;HL=new RAMTOP
+2101  EF86 11 20 00             LD   DE,$0020       ;DE=number of system variables above RAMTOP
+2102  EF89 19                   ADD  HL,DE          ;HL=old RAMTOP (with old system variables)
+2103  EF8A 22 6A 2A             LD   ($2A6A),HL     ;set system variable RAMTOP
+2104  EF8D 3E 0C                LD   A,$0C
+2105  EF8F E7                   RST  $20            ;clear the screen
+2106  EF90 C3 66 00             JP   $0066          ;jump to HARD-BREAK ("farm")
+2107  EF93              UP_CMD:
+2108  EF93 F1                   POP  AF             ;COMMAND UP
+2109  EF94 CF                   RST  $8             ;read the parameter (how many bytes to raise the basic up)
+2110  EF95 D5                   PUSH DE             ;save basic pointer
+2111  EF96 E5                   PUSH HL             ;save parameter
+2112  EF97 CB 7C                BIT  $7,H           ; is the parameter greater than 32767 ?
+2113  EF99 20 2A                JR   NZ,$EFC5       ;if bigger HOW? (BUG. with ROM-D it will be stuck or RESET!!!)
+2114  EF9B ED 5B 38 2C          LD   DE,($2C38)     ;DE=end of basic +1
+2115  EF9F D5                   PUSH DE
+2116  EFA0 19                   ADD  HL,DE          ;HL=new end of basic (end + parameter)
+2117  EFA1 ED 5B 6A 2A          LD   DE,($2A6A)     ;DE=RAMTOP
+2118  EFA5 D7                   RST  $10            ;is there room to move the base
+2119  EFA6 D2 53 01             JP   NC,$0153       ;if none, $SORRY error message
+2120  EFA9 E3                   EX   (SP), HL       ; new end of basic to stack
+2121  EFAA E5                   PUSH HL             ;HL=old end of basic, $and onto stack
+2122  EFAB ED 5B 36 2C          LD   DE,($2C36)     ;DE=start of basic
+2123  EFAF CD EF EF             CALL $EFEF          ;is there a basic at all?
+2124  EFB2 ED B8                LDDR                ;if any, $move the base
+2125  EFB4 D1                   POP  DE             ;DE=saved parameter from stack
+2126  EFB5 2A 38 2C             LD   HL,($2C38)     ;HL=BASIC_END (end of BASIC system variable)
+2127  EFB8 19                   ADD  HL,DE          ;HL=new end of basic
+2128  EFB9 22 38 2C             LD   ($2C38),HL     ;update system variable
+2129  EFBC 2A 36 2C             LD   HL,($2C36)     ;HL=BASIC_START (basic start system variable)
+2130  EFBF 19                   ADD  HL,DE          ;HL=new beginning of BASIC
+2131  EFC0 22 36 2C             LD   ($2C36),HL     ;update system variable
+2132  EFC3 D1                   POP  DE             ;DE=saved basic pointer
+2133  EFC4 F7                   RST  $30            ;continue basic (after changing the address ??? but it works!)
+2134  EFC5 C3 5A 06             JP   $065A          ;print message "HOW?"
+2135  EFC8              DOWN_CMD:
+2136  EFC8 F1                   POP  AF             ;COMMAND DOWN
+2137  EFC9 CF                   RST  $8             ;read the parameter (how many bytes to lower the basic down)
+2138  EFCA D5                   PUSH DE             ;save basic pointer
+2139  EFCB CB 7C                BIT  $7,H           ;is the parameter greater than 32767?
+2140  EFCD 20 F6                JR   NZ,$EFC5       ;if greater, $HOW? (BUG. with ROM-D it will be stuck or RESET!!!)
+2141  EFCF EB                   EX   DE,HL          ;DE=parameter
+2142  EFD0 EF                   RST  $28            ;HL=0
+2143  EFD1 AF                   XOR  A              ;Cf=0
+2144  EFD2 ED 52                SBC  HL,DE          ;HL= negative parameter
+2145  EFD4 E5                   PUSH HL             ;negative parameter on stack
+2146  EFD5 ED 5B 36 2C          LD   DE,($2C36)     ;DE=BASIC_START (start of basic)
+2147  EFD9 D5                   PUSH DE             ;start of basic on stack
+2148  EFDA 19                   ADD  HL,DE          ;HL=new start of basic (practical. start of basic - shift)
+2149  EFDB 11 3A 2C             LD   DE,$2C3A       ;DE=start of BASIC RAM
+2150  EFDE D7                   RST  $10            ;is the new start of basic still in RAM?
+2151  EFDF DA 53 01             JP   C,$0153        ;if not, $error message SORRY
+2152  EFE2 D1                   POP  DE             ;DE=old beginning of BASIC
+2153  EFE3 E5                   PUSH HL             ;new start of BASIC on stack
+2154  EFE4 D5                   PUSH DE             ;old start of BASIC on stack
+2155  EFE5 2A 38 2C             LD   HL,($2C38)     ;HL=old end of basic
+2156  EFE8 CD EF EF             CALL $EFEF          ;is there a basic at all?
+2157  EFEB ED B0                LDIR                ;if there is, $put it down
+2158  EFED 18 C5                JR   $EFB4          ;update system variables BASIC_START and BASIC_END
+2159  EFEF D7                   RST  $10            ;are the beginning of the basic and the end of the basic the same? (SUBROUTINE !)
+2160  EFF0 CA 8F 07             JP   Z,$078F        ;if they are (nothing to move), $report WHAT?
+2161  EFF3 AF                   XOR  A              ;Cf=0
+2162  EFF4 ED 52                SBC  HL,DE          ;HL=base length
+2163  EFF6 44                   LD   B,H
+2164  EFF7 4D                   LD   C,L
+2165  EFF8 03                   INC  BC             ;BC=length of base +1
+2166  EFF9 F1                   POP  AF             ;AF=return address
+2167  EFFA E1                   POP  HL             ;HL=old end of basic
+2168  EFFB D1                   POP  DE             ;DE=new end of basic
+2169  EFFC F5                   PUSH AF             ;return address on stack
+2170  EFFD C9                   RET                 ;return
+2171  EFFE 47 2B                DEFB "G+"           ;(free space in ROM. smartly filled !)
+2172  F000
+# file closed: .//rom_c.asm

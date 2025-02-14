@@ -1,0 +1,2361 @@
+# file opened: .//rom_b.asm
+   1  0000              ; * Galaksija ROM B assembly listing
+   2  0000              ;
+   3  0000              ;  It macthes the binary file ROM_B.bin
+   4  0000              ;  Original images from https://www.voja.rs/galaksija/ROM%20B%20Listing%20Scans/ROM_B_listing.htm
+   5  0000              ;  Thanks Voja!
+   6  0000              ;
+   7  0000              ; * About this version;
+   8  0000              ;  author: issalig 13/02/2025
+   9  0000              ;  Converted to txt and translated with an LLM from the listing images
+  10  0000              ;  The prompt used was:
+  11  0000              ;     'I have a listing of z80 assembler. The typical line contains the address, the code of the instruction
+  12  0000              ;   in hexadecimal, the number of line, a label, a mnemonic of the instruction, the parameters of the
+  13  0000              ;   instruction and the comments. I want to convert it to text and translate into English the comments that
+  14  0000              ;   are the end of the lines. Also put a ";" before the comment if it does not have it. please provide the
+  15  0000              ;   full listing and do not miss any column'
+  16  0000              ;
+  17  0000              ;  Then some hours of sanding, polishing, hammering and comparing it with the original binary.
+  18  0000              ;  LLMs are incredibly helpful but they are not still perfect.
+  19  0000              ;
+  20  0000              ;  Some labels are renamed not to be in confllict with instrucions or directives: ABS_, CPI_, SUB_
+  21  0000              ;  <- has been converted to >> in order to work with pasmo and sjasmplus
+  22  0000              ;
+  23  0000              ; * Assembler
+  24  0000              ;  To assemble it you can use
+  25  0000              ;  - sjasmplus --raw=file.bin file.asm
+  26  0000              ;  - pasmo -v  file.asm file.bin
+  27  0000              ;
+  28  0000              ;********************************************************
+  29  0000              ;*                                                      *
+  30  0000              ;*         "GALAKSIJA" ROM B                            *
+  31  0000              ;*                                                      *
+  32  0000              ;*                             VOJA ANTONIC 12.07.84.   *
+  33  0000              ;*                                                      *
+  34  0000              ;********************************************************
+  35  0000              SPACE    EQU     90
+  36  0000              SHOMEM   EQU     2A97H
+  37  0000              SHOFOR   EQU     2BB2H
+  38  0000              OPTION   EQU     2BB3H
+  39  0000              FIELD    EQU     2BB6H+34
+  40  0000              INS1     EQU     FIELD+5
+  41  0000              INS2     EQU     INS1+1
+  42  0000              INS3     EQU     INS2+3
+  43  0000              IXIY     EQU     INS3+3
+  44  0000              CODE     EQU     IXIY+1
+  45  0000              ADDR     EQU     CODE+5
+  46  0000              TEXTBR   EQU     ADDR+2
+  47  0000              TEMP1    EQU     TEXTBR+1
+  48  0000              TEMP2    EQU     TEMP1+2
+  49  0000              KRUG     EQU     2AAAH
+  50  0000              FLAG2    EQU     2AABH
+  51  0000              FREE     EQU     TEMP2+3
+  52  0000              IXPOS2   EQU     FREE+2
+  53  0000              DISPL    EQU     IXPOS2+2
+  54  0000              FLAG     EQU     2BB5H
+  55  0000              PLUS     EQU     0B32H
+  56  0000              MINUS    EQU     0B1EH
+  57  0000              PUTA     EQU     0AE6H
+  58  0000              KROZ     EQU     0AF7H
+  59  0000              CPIXIX   EQU     0B10H
+  60  0000
+  61  0000              MONITOR  EQU     0CH  ; ROM_B_monitor_value_13.bin 0D
+  62  0000                                    ; ROM_B.bin is 0C
+  63  0000                                    ; ROM_B_monitor_fix.bin 0B
+  64  0000
+  65  0000                      ORG     1000H
+  66  1000 2A 6A 2A             LD      HL,(2A6AH) ; IF (ENDMEM)=0 THEN (ENDMEM)=0FFFFH
+  67  1003 7C                   LD      A,H
+  68  1004 B5                   OR      L
+  69  1005 20 04                JR      NZ,NOT56K ; ENDMEM > 0
+  70  1007 2B                   DEC     HL ; CORRECTED ENDMEM
+  71  1008 22 6A 2A             LD      (2A6AH),HL
+  72  100B 3E 0C        NOT56K:  LD      A,0CH
+  73  100D 18 13                JR      GOINI
+  74  100F E3           ZALINK:  EX      (SP),HL
+  75  1010 D5                   PUSH    DE
+  76  1011 11 5B 07             LD      DE,75BH ; THIS IS THE POSITION WHERE IT WOULD JUMP IF NOT...
+  77  1014 D7                   RST     10H ; ...RECOGNIZED WORD IN BASIC PROGRAM
+  78  1015 20 1D                JR      NZ,DRUGIP
+  79  1017 21 F0 1D             LD      HL,TEXT1-1 ; TABLE OF NEW WORDS
+  80  101A D1                   POP     DE
+  81  101B F1           CASE1:   POP     AF
+  82  101C C3 9A 03             JP      39AH ; RECOGNIZE NEW WORD; IF IT DOESN'T EXIST IN TABLE...
+  83  101F C3 5B 07     KAO75B:  JP      75BH ; ...JUMP TO 10FH, THEN TO 75BH (SEE Z100)
+  84  1022 E7           GOINI:   RST     20H
+  85  1023              ; this byte #1023 changes in different versions of the ROM
+  86  1023              ; ROM_B_monitor_value_13.bin byte is 13(D)
+  87  1023              ; ROM_B.bin is 12(C)
+  88  1023              ; ROM_B_monitor_fix.bin 11 (B)
+  89  1023 3E 0C                LD      A, MONITOR; 0CH ; NEW HORIZONTAL POSITION
+  90  1025 32 A8 2B             LD      (2BA8H),A
+  91  1028 21 A1 10             LD      HL,LINKS ; INSERT JP INSTEAD OF RET IN LINKS
+  92  102B 11 A9 2B             LD      DE,2BA9H
+  93  102E 01 06 00             LD      BC,6
+  94  1031 ED B0                LDIR ; INITIALIZATION OF ROM-A 2
+  95  1033 C9                   RET
+  96  1034 11 8E 04     DRUGIP:  LD      DE,48EH ; SECOND ATTEMPT: CHECK IF IT'S CORRECTLY RECOGNIZED...
+  97  1037 D7                   RST     10H ; WORD 'PRINT', IF IT IS, CHECK WHAT FOLLOWS
+  98  1038 20 13                JR      NZ,TRECIP
+  99  103A D1                   POP     DE
+ 100  103B E3                   EX      (SP),HL
+ 101  103C F1                   POP     AF
+ 102  103D DF                   RST     18H
+ 103  103E 25                   DEFB    '%'
+ 104  103F 0A                   DEFB    KAO48E-$-1
+ 105  1040 CF                   RST     8
+ 106  1041 3E 20                LD      A,' ' ; WRITE BLANK
+ 107  1043 E7                   RST     20H
+ 108  1044 CD 4C 13             CALL    HEX16B ; WRITE NUMBER IN HEX FORMAT
+ 109  1047 C3 AD 04             JP      4ADH
+ 110  104A C3 8E 04     KAO48E:  JP      48EH ; CONTINUES WHERE IT STARTED IF '%' DOESN'T FOLLOW
+ 111  104D 11 77 07     TRECIP:  LD      DE,777H ; THIRD ATTEMPT: CHECK IF IT TRIED TO RECOGNIZE...
+ 112  1050 D7                   RST     10H ; ...FUNCTION, BUT FAILED (777H IS ADDRESS...
+ 113  1051 D1                   POP     DE ; ...TO WHICH IT WOULD JUMP IN THAT CASE)
+ 114  1052 E3                   EX      (SP),HL
+ 115  1053 C0                   RET     NZ
+ 116  1054 21 23 1E             LD      HL,TEXT3-1 ; TABLE OF NEW FUNCTIONS
+ 117  1057 18 C2                JR      CASE1 ; END IS SAME AS IN FIRST ATTEMPT
+ 118  1059 C3 77 07     KAO777:  JP      777H
+ 119  105C 01 80 04     LPRINT:  LD      BC,480H ; 'LPRINT' ENTRY POINT: RET ADDRESS TO 'PRINT'
+ 120  105F C5                   PUSH    BC ; GOES TO STACK
+ 121  1060 3E FF        COPY:    LD      A,0FFH ; SETS LPRINT FLAG
+ 122  1062 32 B5 2B             LD      (FLAG),A
+ 123  1065 C9                   RET
+ 124  1066 CD 60 10     LLIST:   CALL    COPY ; 'LLIST' ENTRY POINT: SET FLAG
+ 125  1069 CD D3 0C             CALL    0CD3H ; CONTINUE AS LLIST
+ 126  106C C3 64 04             JP      464H
+ 127  106F F5           VIDEO:   PUSH    AF ; ADDITION TO SUBPROGRAM THAT WRITES CHARACTER TO...
+ 128  1070 2A B5 2B             LD      HL,(FLAG) ; ...VIDEO MEM (958H, BUT HERE IS CHECKING...
+ 129  1073 2C                   INC     L ; IS THE FLAG FOR PRINTER SET?
+ 130  1074 20 21                JR      NZ,NCOPY ; IF NOT, EXIT
+ 131  1076 21 AB 2A             LD      HL,2AABH ; CHECK IF FLAG IS SET TO NOT WRITE...
+ 132  1079 CB 46                BIT     0,(HL) ; ...CONTROL CHARS?
+ 133  107B 20 0E                JR      NZ,STAND ; IF YES, SKIP CHARACTER CHANGE
+ 134  107D 21 99 10             LD      HL,TABCZS ; IF NOT, POINTER TO TABLE
+ 135  1080 06 04                LD      B,4 ; TOTAL 4 CHARS FOR COMPARISON
+ 136  1082 BE           TEST4:   CP      (HL) ; IS THIS THE SEARCHED WORD?
+ 137  1083 23                   INC     HL
+ 138  1084 28 04                JR      Z,FOUND4 ; YES, JUMP
+ 139  1086 23                   INC     HL
+ 140  1087 10 F9                DJNZ    TEST4 ; TRY NEXT
+ 141  1089 26                   DEFB    26H ; AS 'LD H,ZEH' - TO SAVE MEMORY...
+ 142  108A 7E           FOUND4:  LD      A,(HL) ; ...SKIP NEXT WORD
+ 143  108B F5           STAND:   PUSH    AF ; ...SAVE NEW WORD
+ 144  108C CD FF 02     RDY:     CALL    2FFH ; 'BREAK' TEST
+ 145  108F DB FF                IN      A,(255)
+ 146  1091 17                   RLA
+ 147  1092 38 F8                JR      C,RDY ; JUMP IF PRINTER IS BUSY
+ 148  1094 F1                   POP     AF
+ 149  1095 D3 FF                OUT     (255),A ; PRINTER FREE - SEND CHARACTER
+ 150  1097 F1           NCOPY:   POP     AF
+ 151  1098 C9                   RET
+ 152  1099 5B           TABCZS:  DEFB    91 ; = C caron
+ 153  109A 43                   DEFB    'C'
+ 154  109B 5C                   DEFB    92
+ 155  109C 43                   DEFB    'C' ; = C acute
+ 156  109D 5D                   DEFB    93
+ 157  109E 5A                   DEFB    'Z' ; = Z caron
+ 158  109F 5E                   DEFB    94
+ 159  10A0 53                   DEFB    'S' ; = S caron
+ 160  10A1 C3           LINKS:   DEFB    0C3H
+ 161  10A2 0F 10                DEFW    ZALINK ; CHECK LINE 655 (C3H=JP)
+ 162  10A4 C3                   DEFB    0C3H
+ 163  10A5 6F 10                DEFW    VIDEO
+ 164  10A7 2A 9F 2A     GOASS:   LD      HL,(2A9FH) ; ********** ASSEMBLER **********
+ 165  10AA 7C                   LD      A,H ; IS IT COMMAND MODE?
+ 166  10AB B5                   OR      L
+ 167  10AC CA 5A 06             JP      Z,1626D ; IF YES
+ 168  10AF EB                   EX      DE,HL ; MAIN POINTER WILL BE HL
+ 169  10B0 3E 01                LD      A,1 ; SET OPT 1
+ 170  10B2 32 B3 2B             LD      (OPTION),A
+ 171  10B5 CD BF 10             CALL    START1 ; CALL PROGRAM FOR ASSEMBLY
+ 172  10B8 DD 21 AC 2A          LD      IX,2AACH ; RETURN CORRECT VALUE IX REGISTER
+ 173  10BC 2B                   DEC     HL
+ 174  10BD EB                   EX      DE,HL ; RETURN POINTER DE
+ 175  10BE F7                   RST     30H ; GO BACK TO BASIC
+ 176  10BF AF           START1:  XOR     A
+ 177  10C0 32 AA 2A             LD      (KRUG),A ; FIRST ASSEMBLY PASS
+ 178  10C3 32 DD 2B             LD      (INS1),A ; EXECUTE OPCODE TOKEN
+ 179  10C6 EB                   EX      DE,HL ; SAVE HL IN DE
+ 180  10C7 EF                   RST     28H ; THIS IS LD HL,0
+ 181  10C8 22 F6 2B             LD      (DISPL),HL
+ 182  10CB 22 97 2A             LD      (SHOMEM),HL ; FOR 'REG'; SHOWS 0 BYTES OF MEMORY
+ 183  10CE 2A 6A 2A             LD      HL,(2A6AH) ; = ENDMEM
+ 184  10D1 2B                   DEC     HL
+ 185  10D2 77                   LD      (HL),A ; 0 = TERMINATOR TABLE FOR LABELS
+ 186  10D3 2B                   DEC     HL
+ 187  10D4 77                   LD      (HL),A
+ 188  10D5 EB                   EX      DE,HL ; RETURN HL
+ 189  10D6 CD 52 17             CALL    FINDCR ; FIND END OF LINE WHERE IS '<'
+ 190  10D9 E5                   PUSH    HL ; SAVE POINTER FOR SECOND PASS
+ 191  10DA CD E6 10             CALL    ASS ; FIRST ASSEMBLY PASS
+ 192  10DD 21 AA 2A             LD      HL,KRUG
+ 193  10E0 34                   INC     (HL) ; SET SECOND PASS
+ 194  10E1 AF                   XOR     A
+ 195  10E2 32 DD 2B             LD      (INS1),A ; EXECUTE OPCODES
+ 196  10E5 E1                   POP     HL ; RETURN POINTER TO START 1...
+ 197  10E6 AF           ASS:     XOR     A ; ...ENTER IN SECOND PASS
+ 198  10E7 32 EC 2B             LD      (TEXTBR),A ; 0 WORDS IN TEXT
+ 199  10EA 32 EA 2B             LD      (ADDR),A ; ERASE LABEL ADDRESS IN PROGRAM
+ 200  10ED 32 EB 2B             LD      (ADDR+1),A
+ 201  10F0              LOOP     EQU     $ ; FOLLOWING 13 LINES ARE MAIN LOOP
+ 202  10F0 22 9F 2A             LD      (2A9FH),HL ; POSITION OF CURRENT LINE(FOR ERROR CASE)
+ 203  10F3 ED 5B 38 2C          LD      DE,(2C38H) ; END OF BASIC
+ 204  10F7 D7                   RST     10H
+ 205  10F8 D0                   RET     NC ; RETURN IF IT'S END AND NO '>'
+ 206  10F9 3A DD 2B             LD      A,(INS1)
+ 207  10FC FE 08                CP      8
+ 208  10FE C8                   RET     Z ; RETURN IF IT'S '>'
+ 209  10FF CD FF 02             CALL    2FFH ; 'BREAK' TEST
+ 210  1102 CD 33 17             CALL    PROG1 ; FIRST PART: PUTTING TOKEN IN TABLE
+ 211  1105 E5                   PUSH    HL
+ 212  1106 CD 0C 11             CALL    PROG2 ; SECOND PART: CODE FORMING
+ 213  1109 E1                   POP     HL
+ 214  110A 18 E4                JR      LOOP ; BACK TO MAIN LOOP
+ 215  110C 21 4D 12     PROG2:   LD      HL,GOON ; THIS IS RET ADDRESS FOR END OF SUBROUTINE
+ 216  110F E5                   PUSH    HL
+ 217  1110 21 DE 2B             LD      HL,INS2
+ 218  1113 DD 21 DB 2B          LD      IX,FIELD+3
+ 219  1117 3A DD 2B             LD      A,(INS1)
+ 220  111A B7                   OR      A
+ 221  111B C8                   RET     Z ; NOTHING IN THIS LINE - GO TO GOON
+ 222  111C FE 09                CP      9 ; IS IT SPECIAL WORD (TOKEN=9)
+ 223  111E D2 24 13             JP      NC,NCOMM ; NO - NEXT WORD FOR ASSEMBLY
+ 224  1121 3D                   DEC     A
+ 225  1122 20 27                JR      NZ,NSTAT ; NOT TOKEN 1
+ 226  1124 21 78 19             LD      HL,BRKPT ; TOKEN 1: 'REG' (BREAKPOINT)
+ 227  1127 22 E6 2B             LD      (CODE+1),HL ; BREAKPOINT ADDRESS
+ 228  112A 3E CD                LD      A,0CDH ; CODE FOR 'CALL'
+ 229  112C 32 E5 2B             LD      (CODE),A
+ 230  112F 3E 03                LD      A,3
+ 231  1131 32 E9 2B             LD      (CODE+4),A ; 3 BYTES CODED LENGTH
+ 232  1134 2A DF 2B             LD      HL,(INS2+1) ; IS THERE MEMORY DISPLAY?
+ 233  1137 7C                   LD      A,H
+ 234  1138 B5                   OR      L
+ 235  1139 C8                   RET     Z ; NO - GO TO GOON
+ 236  113A CD 1B 13             CALL    IFNUM2 ; IS IT NUMERIC VALUE (IF NOT-WHAT?)
+ 237  113D 22 97 2A             LD      (SHOMEM),HL ; SHOW HL MEMORY
+ 238  1140 3A E2 2B             LD      A,(INS3+1) ; HOW MANY ROWS?
+ 239  1143 B7                   OR      A
+ 240  1144 20 01                JR      NZ,IMA ; NUMBER OF ROWS SPECIFIED
+ 241  1146 3C                   INC     A ; NOT SPECIFIED - THEN 1 ROW
+ 242  1147 32 B2 2B     IMA:     LD      (SHOFOR),A ; = SHOW FORMAT
+ 243  114A C9                   RET
+ 244  114B 3D           NSTAT:   DEC     A
+ 245  114C 20 21                JR      NZ,NTEXT ; NOT TOKEN 2
+ 246  114E 7E                   LD      A,(HL) ; TOKEN 2: 'TEXT'
+ 247  114F 32 EC 2B             LD      (TEXTBR),A ; NUMBER OF TEXT WORDS
+ 248  1152 11 E5 2B             LD      DE,CODE
+ 249  1155 06 03        TEXTIT:  LD      B,3 ; 3 BYTES IN ONE ROW
+ 250  1157 3A EC 2B     TXT4:    LD      A,(TEXTBR) ; HOW MANY WORDS LEFT?
+ 251  115A B7                   OR      A
+ 252  115B C8                   RET     Z ; NONE - GO TO GOON
+ 253  115C DD 35 11             DEC     (IX+17) ; DECREASE WORD COUNT
+ 254  115F 2A DF 2B             LD      HL,(INS2+1) ; TEXT ADDRESS IN PROGRAM
+ 255  1162 7E                   LD      A,(HL) ; TAKE WORD OR CHARACTER
+ 256  1163 23                   INC     HL ; INCREASE POINTER
+ 257  1164 22 DF 2B             LD      (INS2+1),HL ; AND RETURN IT
+ 258  1167 12                   LD      (DE),A ; PUT CHARACTER IN CODE
+ 259  1168 13                   INC     DE ; INCREASE CODE POINTER
+ 260  1169 DD 34 0E             INC     (IX+14) ; INCREASE BYTE COUNT
+ 261  116C 10 E9                DJNZ    TXT4 ; DO THIS 3 TIMES IN EACH ROW
+ 262  116E C9                   RET ; GO TO GOON
+ 263  116F 3D           NTEXT:   DEC     A
+ 264  1170 20 04                JR      NZ,NWORD ; NOT TOKEN 3
+ 265  1172 3C                   INC     A ; TOKEN 3: 'WORD'
+ 266  1173 DD 77 0E             LD      (IX+14),A ; BYTE COUNT=1 (AND ON 5120 WILL BE +1)
+ 267  1176 3D           NWORD:   DEC     A
+ 268  1177 20 0C                JR      NZ,NBYTE ; NOT TOKEN 4 OR 3
+ 269  1179 CD 18 13             CALL    IFNUM1 ; TOKEN 4: 'BYTE'
+ 270  117C 2A DF 2B             LD      HL,(INS2+1) ; TAKE CODE
+ 271  117F 22 E5 2B             LD      (CODE),HL ; PUT IT IN ITS PLACE
+ 272  1182 C3 48 13             JP      IXGOON ; SEE 5120
+ 273  1185 3D           NBYTE:   DEC     A
+ 274  1186 20 23                JR      NZ,NOPT ; NOT TOKEN 5
+ 275  1188 CD 1B 13             CALL    IFNUM2 ; TOKEN 5: 'OPT' (IF >255, WHAT)
+ 276  118B 2A DF 2B             LD      HL,(INS2+1) ; TAKE NUMBER OPTION
+ 277  118E 7D                   LD      A,L ; U A REG
+ 278  118F E6 04                AND     4 ; IF BIT 2 IS SET (4-5-6-7)
+ 279  1191              ;new page
+ 280  1191 C4 60 10             CALL NZ,COPY ; SET FLAG FOR PRINTER
+ 281  1194 7D                   LD A,L
+ 282  1195 E6 03                AND 3
+ 283  1197 32 B3 2B             LD (OPTION),A ; MASK TO BE LESS THAN 4
+ 284  119A 3A E1 2B             LD A,(INS3)
+ 285  119D B7                   OR A ; IS RELOCATION REQUESTED ON WRITE?
+ 286  119E C8                   RET Z ; NO - GO TO GOON
+ 287  119F FE 40                CP 40H
+ 288  11A1 C2 2D 19             JP NZ,WHATHL ; NOT NUMERIC - ERROR
+ 289  11A4 2A E2 2B             LD HL,(INS3+1) ; RELOCATION SIZE...
+ 290  11A7 22 F6 2B             LD (DISPL),HL ; ...TO ITS PLACE
+ 291  11AA C9                   RET
+ 292  11AB 3D           NOPT:    DEC A
+ 293  11AC 20 0D                JR NZ,NORG ; NOT TOKEN 6
+ 294  11AE CD 18 13             CALL IFNUM1 ; TOKEN 6: 'ORG'
+ 295  11B1 2A DF 2B             LD HL,(INS2+1)
+ 296  11B4 22 ED 2B             LD (TEMP1),HL ; TEMPORARY ADDRESS
+ 297  11B7 22 EA 2B     SKR4:    LD (ADDR),HL ; MAIN POINTER OF PC ADDRESS
+ 298  11BA C9                   RET
+ 299  11BB 3D           NORG:    DEC A
+ 300  11BC C0                   RET NZ ; END = TOKEN 8 '>'
+ 301  11BD CD 18 13             CALL IFNUM1 ; TOKEN 7: 'EQU'
+ 302  11C0 ED 4B DF 2B          LD BC,(INS2+1)
+ 303  11C4 ED 43 ED 2B          LD (TEMP1),BC ; LABEL ADDRESS
+ 304  11C8 CD D2 11             CALL CREATE ; FORM LABEL
+ 305  11CB CA 2D 19             JP Z,WHATHL ; IF NOT PROVIDED - WHAT
+ 306  11CE F1                   POP AF ; RESTORE STACK - WON'T GO TO GOON
+ 307  11CF C3 54 12             JP GOON1 ; BUT TO GOON1
+ 308  11D2 3A AA 2A     CREATE:  LD A,(KRUG) ; ---- LABEL FORMATION ----
+ 309  11D5 B7                   OR A
+ 310  11D6 C0                   RET NZ ; CANNOT BE FORMED IN SECOND PASS
+ 311  11D7 2A DA 2B             LD HL,(FIELD+2)
+ 312  11DA 7C                   LD A,H
+ 313  11DB B5                   OR L
+ 314  11DC C8                   RET Z ; RETURN IF LABEL ADDRESS DOESN'T EXIST
+ 315  11DD CD 15 12             CALL LOCAT2 ; CHECK IF IT'S ALREADY FORMED
+ 316  11E0 CA 4F 16             JP Z,HOWHL ; IF IT EXISTS - CANNOT BE FORMED TWICE (HOW?)
+ 317  11E3 E5           TRANSF:  PUSH HL
+ 318  11E4 2A 38 2C             LD HL,(2C38H) ; END OF BASIC PROGRAM
+ 319  11E7 D7                   RST 10H
+ 320  11E8 E1                   POP HL
+ 321  11E9 D2 53 01             JP NC,339D ; SORRY - NO MEMORY
+ 322  11EC 7E                   LD A,(HL)
+ 323  11ED 12                   LD (DE),A ; TRANSFER LETTER BY LETTER TO TABLE
+ 324  11EE 23                   INC HL
+ 325  11EF 1B                   DEC DE
+ 326  11F0 CD 50 18             CALL NCSLBR ; IF LETTER OR NUMBER
+ 327  11F3 30 EE                JR NC,TRANSF ; ...CONTINUE WITH TRANSFER
+ 328  11F5 EB           NOTRAN:  EX DE,HL
+ 329  11F6 23                   INC HL
+ 330  11F7 CB FE                SET 7,(HL) ; WORD TERMINATOR = BIT 7 SET
+ 331  11F9 2B                   DEC HL
+ 332  11FA 70                   LD (HL),B ; BC = LABEL VALUE
+ 333  11FB 2B                   DEC HL
+ 334  11FC 71                   LD (HL),C
+ 335  11FD 2B                   DEC HL
+ 336  11FE 36 00                LD (HL),0 ; TABLE TERMINATOR
+ 337  1200 EB                   EX DE,HL ; HL = POINTER NOW BEHIND NAME
+ 338  1201 AF                   XOR A ; RESET Z FLAG (SIGN THAT EVERYTHING IS OK)
+ 339  1202 3C                   INC A ; NEW POSITION IN TABLE
+ 340  1203 C9                   RET
+ 341  1204              ;new page
+ 342  1204 3A AA 2A     LOCATE:  LD    A,(KRUG) ; ---- LOOP LABEL ----
+ 343  1207 B7                   OR    A
+ 344  1208 20 0B                JR    NZ,LOCAT2 ; ONLY IN SECOND LOOP
+ 345  120A 2B                   DEC   HL ; AND IN 1. LOOP JUST SKIP NAME
+ 346  120B 23           SRC20H:  INC   HL
+ 347  120C CD 50 18             CALL  NCSLBR
+ 348  120F 30 FA                JR    NC,SRC20H
+ 349  1211 AF                   XOR   A
+ 350  1212 47                   LD    B,A
+ 351  1213 4F                   LD    C,A
+ 352  1214 C9                   RET
+ 353  1215 E5           LOCAT2:  PUSH  HL
+ 354  1216 D9                   EXX
+ 355  1217 2A 6A 2A             LD    HL,(2A6AH) ; END OF MEMORY (START OF COMPARISON)
+ 356  121A 2B                   DEC   HL
+ 357  121B 18 12                JR    IFF1R ; START
+ 358  121D D1           GOSRCH:  POP   DE ; RECONSTRUCT POINTER
+ 359  121E D5                   PUSH  DE
+ 360  121F 1A           GOSRC2:  LD    A,(DE) ; TAKE FROM PROGRAM TEXT
+ 361  1220 BE                   CP    (HL) ; AND COMPARE WITH LABEL LIST
+ 362  1221 28 16                JR    Z,FOUNDV ; ONE WORD MATCHES
+ 363  1223 F6 80                OR    80H ; SET BIT 7 (AS IN THE LAST CHARACTER)
+ 364  1225 BE                   CP    (HL) ; AND COMPARE AGAIN (MAYBE IT'S THE END)
+ 365  1226 28 15                JR    Z,BASFDU ; STILL - SUCCESSFUL COMPARISON
+ 366  1228 CB 7E        SRCHV:   BIT   7,(HL) ; NO - FIND END OF THIS NAME IN LIST
+ 367  122A 2B                   DEC   HL
+ 368  122B 28 FB                JR    Z,SRCHV ; NOT THE END YET
+ 369  122D 2B                   DEC   HL ; SKIP VALUE IN LIST
+ 370  122E 2B                   DEC   HL ; ONE MORE BYTE
+ 371  122F 7E           IFF1R:   LD    A,(HL) ; NEXT NAME (FIRST CHARACTER)
+ 372  1230 B7                   OR    A ; MAYBE IT'S NULL (TERMINATOR TABLE)?
+ 373  1231 20 EA                JR    NZ,GOSRCH ; NO - CONTINUE COMPARISON
+ 374  1233 E5                   PUSH  HL ; TRANSFER HL TO DE
+ 375  1234 D9                   EXX ; ...OF ALTERNATIVE SET
+ 376  1235 D1                   POP   DE ; DE = NEW POSITION IN TABLE
+ 377  1236 E1                   POP   HL ; RECONSTRUCT HL
+ 378  1237 3C                   INC   A ; A=1 (SIGN THAT NAME NOT FOUND)
+ 379  1238 C9                   RET
+ 380  1239 2B           FOUNDV:  DEC   HL ; COMPARISON GOING WELL
+ 381  123A 13                   INC   DE ; GO TO NEW CHARACTER
+ 382  123B 18 E2                JR    GOSRC2 ; CONTINUE COMPARISON
+ 383  123D 13           BASFDU:  INC   DE ; GO TO NEW CHARACTER IN PROGRAM
+ 384  123E EB                   EX    DE,HL
+ 385  123F CD 50 18             CALL  NCSLBR ; IF IT'S WORD OR NUMBER, RESET CARRY
+ 386  1242 EB                   EX    DE,HL
+ 387  1243 30 E3                JR    NC,SRCHV ; SO SAY LONG-NO SUCCESSFUL COMPARISON
+ 388  1245 2B                   DEC   HL ; FULLY SUCCESSFUL COMPARISON; GO TO VALUE
+ 389  1246 46                   LD    B,(HL) ; HIGH BYTE
+ 390  1247 2B                   DEC   HL
+ 391  1248 4E                   LD    C,(HL) ; BC = VALUE
+ 392  1249 EB                   EX    DE,HL ; HL = POINTER TO NAME
+ 393  124A D1                   POP   DE ; DE = START POINTER
+ 394  124B AF                   XOR   A ; A = 0 (SIGN THAT NAME IS FOUND IN LIST)
+ 395  124C C9                   RET
+ 396  124D ED 4B EA 2B  GOON:    LD    BC,(ADDR) ; ---- END OF PROCESSING ONE WORD ----
+ 397  1251 CD D2 11             CALL  CREATE ; CREATE NEW LABEL IF EXISTS
+ 398  1254 11 E4 2B     GOON1:   LD    DE,IXIY ; DE POINTS TO IXIY FLAG IN RAM-U
+ 399  1257 1A                   LD    A,(DE)
+ 400  1258 B7                   OR    A ; IS THERE SOMETHING HERE?
+ 401  1259 20 0B                JR    NZ,IMAGA ; JUMP IF INSTRUCTION REFERS TO IX OR IY
+ 402  125B 21 E5 2B             LD    HL,CODE ; NO - CHECK CODE FOR ONE POSITION LOWER
+ 403  125E 01 04 00             LD    BC,4
+ 404  1261              ;new page
+ 405  1261 ED B0                LDIR
+ 406  1263 12                   LD    (DE),A ; PUT NULL IN LAST BYTE
+ 407  1264 18 17                JR    PRES1
+ 408  1266 FE ED        IMAGA:   CP    0EDH ; IS IT 0EDH?
+ 409  1268 28 13                JR    Z,PRES1 ; IF YES-THEN NEITHER IX NOR IY
+ 410  126A 21 E9 2B             LD    HL,FIELD+17 ; HL POINTS TO NUMBER OF BYTES THAT
+ 411  126D 34                   INC   (HL) ; INCREASES IT
+ 412  126E DD 7E 03             LD    A,(IX+3)
+ 413  1271 FE 86                CP    86H ; IS THE OPERAND 1...
+ 414  1273 28 05                JR    Z,F1 ; ...IX IN BRACKETS?
+ 415  1275 DD 7E 06             LD    A,(IX+6) ; IF YES JUMP
+ 416  1278 FE 86                CP    86H ; OR MAYBE OPERAND 2...
+ 417  127A CC F7 1F     F1:      CALL  Z,EXTRA ; ...IX IN BRACKETS?
+ 418  127D              ; IF YES CALL EXTRA SERVICE
+ 419  127D DD 46 0E     PRES1:   LD    B,(IX+14)
+ 420  1280 04                   INC   B
+ 421  1281 05                   DEC   B ; IF IT'S NULL, SKIP
+ 422  1282 CA 10 13             JP    Z,NEMABY
+ 423  1285 2A EA 2B             LD    HL,(ADDR) ; TAKE PROGRAM COUNTER
+ 424  1288 CD 57 13             CALL  HEX16 ; WRITE VALUE
+ 425  128B 3E 20                LD    A,' ' ; BLANK
+ 426  128D CD 70 13             CALL  ZAPRIN
+ 427  1290 11 E4 2B     PRVIK1:  LD    DE,IXIY
+ 428  1293 3A AA 2A     PUTABY:  LD    A,(KRUG)
+ 429  1296 B7                   OR    A ; WHICH ASSEMBLY PASS IS THIS
+ 430  1297 28 20                JR    Z,PRVIK ; IF FIRST - SKIP
+ 431  1299 C5                   PUSH  BC
+ 432  129A 45                   LD    B,L ; B = LOW BYTE OF PROGRAM COUNTER
+ 433  129B 0E FD                LD    C,253 ; OUTPUT ADDRESS FOR HIGH BYTE
+ 434  129D ED 61                OUT  (C),H ; HIGH BYTE GOES TO LATCH EMULATOR
+ 435  129F 0C                   INC   C ; NEW OUTPUT ADDRESS
+ 436  12A0 3A B3 2B             LD    A,(OPTION)
+ 437  12A3 E6 02                AND   2
+ 438  12A5 1A                   LD    A,(DE) ; TAKE BYTE CODE
+ 439  12A6 ED 79                OUT  (C),A ; SEND TO EMULATOR
+ 440  12A8 C1                   POP   BC
+ 441  12A9 28 0A                JR    Z,NOWMR ; IF SELECTED OPTION DOESN'T REQUIRE WRITING...
+ 442  12AB E5                   PUSH  HL ; ...TO MEMORY - SKIP
+ 443  12AC D5                   PUSH  DE
+ 444  12AD ED 5B F6 2B          LD    DE,(DISPL) ; IS THERE RELOCATION WRITING?
+ 445  12B1 19                   ADD   HL,DE ; ADD RELOCATION VALUE
+ 446  12B2 77                   LD    (HL),A ; ****** WRITE BYTE TO MEMORY ******
+ 447  12B3 D1                   POP   DE
+ 448  12B4 E1                   POP   HL
+ 449  12B5 CD 5C 13     NOWMR:   CALL  HEX8 ; PRINT BYTE ON SCREEN
+ 450  12B8 13                   INC   DE
+ 451  12B9 23           PRVIK:   INC   HL ; INCREASE POINTERS
+ 452  12BA 10 D7                DJNZ  PUTABY ; RETURN AS MANY TIMES AS YOU HAVE BYTES
+ 453  12BC 22 EA 2B             LD    (ADDR),HL ; NEW ADDRESS OF PROGRAM COUNTER
+ 454  12BF 3A EC 2B             LD    A,(TEXTBR) ; IS THERE ANY CODE TEXT?
+ 455  12C2 B7                   OR    A
+ 456  12C3 28 11                JR    Z,NEMAB1 ; IF NOT - JUMP
+ 457  12C5 3E 0D                LD    A,0DH ; IMA - NEW LINE
+ 458  12C7 CD 70 13             CALL  ZAPRIN
+ 459  12CA DD 36 0E 00          LD    (IX+14),0 ; NUMBER OF BYTES = 0
+ 460  12CE 11 E4 2B             LD    DE,CODE-1 ; TAKE NEW 3 BYTES OF TEXT
+ 461  12D1 CD 55 11             CALL  TEXTIT
+ 462  12D4 18 A7                JR    PRES1 ; CONTINUE IF WORKING WITH TEXT
+ 463  12D6 3A AA 2A     NEMAB1:  LD    A,(KRUG)
+ 464  12D9 B7                   OR    A
+ 465  12DA C8                   RET   Z ; RETURN IF IT'S FIRST PASS
+ 466  12DB 3A B3 2B             LD    A,(OPTION)
+ 467  12DE 1F                   RRA
+ 468  12DF D0                   RET   NC ; RETURN IF PRINTING IS NOT REQUIRED
+ 469  12E0 3A 68 2A     GOBL:    LD    A,(2A68H) ; CURSOR POSITION
+ 470  12E3 E6 1F                AND   1FH ; TAKE ONLY POSITION IN LINE
+ 471  12E5              ;new page
+ 472  12E5 FE 0B                CP    0BH ; IS IT LESS THAN 11
+ 473  12E7 30 05                JR    NC,VEC11 ; NO - SKIP
+ 474  12E9 3E 20                LD    A,20H ; BLANK
+ 475  12EB E7                   RST   20H
+ 476  12EC 18 F2                JR    GOBL ; WRITE BLANKS UNTIL YOU REACH TAB(11)
+ 477  12EE ED 5B 9F 2A  VEC11:   LD    DE,(2A9FH) ; TAKE POSITION OF CURRENT LINE
+ 478  12F2 CD 6F 19             CALL  RELIX1 ; PREPARE IX FOR ARITHMETIC
+ 479  12F5 3A B3 2B             LD    A,(OPTION) ; WHICH OPTION?
+ 480  12F8 1F                   RRA
+ 481  12F9 30 10                JR    NC,RELIX2 ; IF NOT PRINT TO SCREEN
+ 482  12FB CD ED 08             CALL  08EDH ; WRITE PROGRAM LINE NUMBER
+ 483  12FE 3A DB 2B             LD    A,(FIELD+3) ; IS THERE A LABEL?
+ 484  1301 B7                   OR    A
+ 485  1302 20 04                JR    NZ,UVUCI ; EXISTS - LEAVE CURSOR WHERE IT IS
+ 486  1304 3E 20                LD    A,' ' ; BLANK
+ 487  1306 E7                   RST   20H ; ONCE
+ 488  1307 E7                   RST   20H ; TWICE
+ 489  1308 CD 34 09     UVUCI:   CALL  934H ; WRITE PROGRAM LINE TEXT
+ 490  130B DD 2A F4 2B  RELIX2:  LD    IX,(IXPOS2) ; RESTORE OLD IX
+ 491  130F C9                   RET ; FINISHED WITH LINE PROCESSING
+ 492  1310 2A ED 2B     NEMABY:  LD    HL,(TEMP1) ; ONLY PROGRAM COUNTER
+ 493  1313 CD 57 13             CALL  HEX16 ; WRITE IT
+ 494  1316 18 BE                JR    NEMAB1 ; AND WRITE LINE NUMBER AND TEXT
+ 495  1318 CD 93 14     IFNUM1:  CALL  TEST3 ; ** IF THERE IS SECOND OPERAND...
+ 496  131B 3A DE 2B     IFNUM2:  LD    A,(INS2) ; ...OR FIRST IS NOT NUMERIC...
+ 497  131E FE 40                CP    40H ; ...THEN WHAT
+ 498  1320 C8                   RET   Z ; ** IF FIRST OPERAND IS NOT...
+ 499  1321 C3 2D 19     ZASN:    JP    WHATHL ; ...NUMERIC - THEN WHAT
+ 500  1324 3D           NCOMM:   DEC   A ; CHECK IF IT'S A SIMPLE INSTRUCTION...
+ 501  1325 4F                   LD    C,A
+ 502  1326 FE 2A                CP    2AH ; ...(GROUP 2) ILI ED+ (GROUP3)
+ 503  1328 D2 82 13             JP    NC,CBPLUS ; IF NOT ONE OR THE OTHER, GO ON
+ 504  132B 06 06                LD    B,6 ; TEST 6 BYTES
+ 505  132D AF                   XOR   A ; IN GROUP 'INS2' AND 'INS3'
+ 506  132E B6           XX6:     OR    (HL)
+ 507  132F 23                   INC   HL
+ 508  1330 10 FC                DJNZ  XX6 ; IF ANY OPERAND EXISTS
+ 509  1332 20 ED                JR    NZ,ZASN ; THEN GO TO WHAT
+ 510  1334 79                   LD    A,C
+ 511  1335 FE 15                CP    15H ; IS IT ED+
+ 512  1337 38 07                JR    C,NOED ; IF NOT SKIP
+ 513  1339 DD 36 09 ED          LD    (IX+9),0EDH ; STORE ED
+ 514  133D DD 34 0E             INC   (IX+14) ; INCREASE NUMBER OF BYTES
+ 515  1340 21 76 1E     NOED:    LD    HL,TABY1-8 ; FIND CODED BYTE IN TABLE
+ 516  1343 09                   ADD   HL,BC ; ...COLLECTION...
+ 517  1344 7E                   LD    A,(HL) ; TAKE IT FROM TABLE
+ 518  1345 DD 77 0A             LD    (IX+10),A ; AND PUT IT IN ITS PLACE
+ 519  1348 DD 34 0E     IXGOON:  INC   (IX+14) ; INCREASE NUMBER OF BYTES
+ 520  134B C9                   RET ; DONE
+ 521  134C 3E 26        HEX16B:  LD    A,'&' ; ****** WRITE IN HEX FORMAT HL UNCONDITIONALLY
+ 522  134E E7                   RST   20H ; FIRST WRITE CHARACTER '&' IN HEX NUMBER
+ 523  134F 3E 01                LD    A,1 ; SET PRINTING CONDITIONS
+ 524  1351 32 B3 2B             LD    (OPTION),A
+ 525  1354 32 AA 2A             LD    (KRUG),A
+ 526  1357 7C           HEX16:   LD    A,H ; ****** WRITE IN HEX FORMAT HL CONDITIONALLY
+ 527  1358 CD 5C 13             CALL  HEX8 ; FIRST HIGH BYTE
+ 528  135B 7D           HEX8L:   LD    A,L ; ****** WRITE IN HEX FORMAT L CONDITIONALLY
+ 529  135C 4F           HEX8:    LD    C,A ; ****** WRITE IN HEX FORMAT A CONDITIONALLY
+ 530  135D E6 F0                AND   0F0H ; MASK UPPER 4 BITS
+ 531  135F CD 37 14             CALL  RLC4 ; ROTATE AND PUT IN LOWER 4
+ 532  1362 CD 68 13             CALL  HCONV ; CONVERT TO HEX DIGIT (0-9; A-F) AND WRITE
+ 533  1365 79                   LD    A,C
+ 534  1366 E6 0F                AND   0FH ; AND SAME FOR LOWER 4 BITS
+ 535  1368              ;newpage
+ 536  1368 C6 30        HCONV:   ADD    A,30H ; CONVERTS TO ASCII CHARACTER
+ 537  136A FE 3A                CP     3AH ; ABOVE 9?
+ 538  136C 38 02                JR     C,ZAPRIN ; NO - SKIP
+ 539  136E C6 07                ADD    A,7 ; IF YES ADD 7 (TO A-F)
+ 540  1370 F5           ZAPRIN:  PUSH   AF
+ 541  1371 3A AA 2A             LD     A,(KRUG) ; TEST FIRST CONDITION
+ 542  1374 B7                   OR     A ; WHICH IS ROUND?
+ 543  1375 28 06                JR     Z,RETK1 ; IF FIRST - DON'T CONTINUE
+ 544  1377 3A B3 2B             LD     A,(OPTION) ; TEST SECOND CONDITION
+ 545  137A 1F                   RRA ; WHICH OPTION?
+ 546  137B 38 02                JR     C,NORET1 ; IF PRINTING IS REQUESTED - SKIP
+ 547  137D F1           RETK1:   POP    AF
+ 548  137E C9                   RET
+ 549  137F F1           NORET1:  POP    AF
+ 550  1380 E7                   RST    20H ; WRITE CHARACTER TO SCREEN AND...
+ 551  1381 C9                   RET ; ...POTENTIALLY TO PRINTER
+ 552  1382              CBPLUS   EQU    $
+ 553  1382 CD 05 17             CALL   IXIYHL ; SAVE IX IY OR HL DEPENDING ON HL
+ 554  1385 79                   LD     A,C
+ 555  1386 06 00                LD     B,0
+ 556  1388 FE 34                CP     34H ; IS IT GROUP 4 (CB+)
+ 557  138A D2 D6 13             JP     NC,GRUPA5 ; IF NOT CONTINUE
+ 558  138D 21 35 1E             LD     HL,TAB4-2AH ; ELSE - POINT TO TABLE
+ 559  1390 09                   ADD    HL,BC ; CALCULATE POSITION
+ 560  1391 46                   LD     B,(HL) ; GET CODE
+ 561  1392 DD 36 0A CB          LD     (IX+10),0CBH ; FIRST BYTE: CB
+ 562  1396 DD 70 0B             LD     (IX+11),B ; SECOND BYTE: FROM TABLE
+ 563  1399 DD 36 0E 02          LD     (IX+14),2 ; NUMBER OF BYTES: 2
+ 564  139D 21 E1 2B             LD     HL,INS3
+ 565  13A0 FE 31                CP     31H ; SOME OF CB+ INSTRUCTIONS DON'T HAVE...
+ 566  13A2 38 13                JR     C,NOBIT ; ...NUMERIC FIELD
+ 567  13A4 CD D6 16             CALL   ZAINS2 ; GET NUMERIC FIELD WITH ALL TESTS
+ 568  13A7 FE 08                CP     8 ; FOR BIT/SET/RES; IF BIT>7
+ 569  13A9 D2 4F 16             JP     NC,HOWHL ; THEN IT'S AN ERROR
+ 570  13AC 07                   RLCA ; ROTATE NUMBER OF BITS INTO YOUR FIELD
+ 571  13AD 07                   RLCA
+ 572  13AE 07                   RLCA
+ 573  13AF DD B6 0B             OR     (IX+11) ; AND PUT IT IN CODE
+ 574  13B2 DD 77 0B             LD     (IX+11),A
+ 575  13B5 18 08                JR     RHLIXY ; CHECK WHICH REGISTER IT IS
+ 576  13B7 7E           NOBIT:   LD     A,(HL) ; WE SAID THERE'S NO NUMERIC FIELD
+ 577  13B8 B7                   OR     A ; ...AND HERE IT IS; SO ERROR
+ 578  13B9 C2 2D 19     WHATNZ:  JP     NZ,WHATHL ; WHICH REGISTER (BCDEHL)A
+ 579  13BC 21 DE 2B             LD     HL,INS2
+ 580  13BF CD E6 16     RHLIXY:  CALL   KOJR2
+ 581  13C2 DD B6 0B     SKRLD:   OR     (IX+11) ; PUT IT IN CODE
+ 582  13C5 DD 77 0B             LD     (IX+11),A
+ 583  13C8 23                   INC    HL
+ 584  13C9 6E                   LD     L,(HL)
+ 585  13CA 3A E4 2B             LD     A,(IXIY) ; IS THIS THE SAVED IX/IY CASE?
+ 586  13CD B7                   OR     A
+ 587  13CE C8                   RET    Z ; NO - RETURN
+ 588  13CF DD 66 0B             LD     H,(IX+11) ; YES - THEN 2-BYTE CODE
+ 589  13D2 22 E6 2B     ZAGOHL:  LD     (CODE+1),HL
+ 590  13D5 C9                   RET
+ 591  13D6 FE 3C        GRUPA5:  CP     3CH ; IS IT GROUP 5 (ARITHMETIC GROUP)
+ 592  13D8 DD 36 0E 01          LD     (IX+14),1
+ 593  13DC D2 63 14             JP     NC,GRUPA6 ; NO - CONTINUE
+ 594  13DF 21 36 1E             LD     HL,TAB5-34H ; TABLE OF GROUP 5
+ 595  13E2 09                   ADD    HL,BC ; CALCULATE POSITION IN TABLE
+ 596  13E3 5E                   LD     E,(HL) ; GET CODE INTO E REGISTER
+ 597  13E4 21 DE 2B             LD     HL,INS2
+ 598  13E7 7E                   LD     A,(HL)
+ 599  13E8              ; new page
+ 600  13E8 FE 06                CP     6 ; IS HL IN PARENTHESES?
+ 601  13EA 28 50                JR     Z,HL16 ; YES - THEN SPECIAL PROCESSING
+ 602  13EC 3A E1 2B             LD     A,(INS3)
+ 603  13EF B7                   OR     A ; IS THERE A SECOND OPERAND?
+ 604  13F0 28 08                JR     Z,PRESK3 ; NO - SKIP ITS PROCESSING
+ 605  13F2 7E                   LD     A,(HL) ; IS THIS THE FIRST OPERAND?
+ 606  13F3 FE 0E                CP     0EH ; IS IT 'A'?
+ 607  13F5 20 C2                JR     NZ,WHATNZ ; IF NOT - ERROR
+ 608  13F7 21 E1 2B             LD     HL,INS3 ; POINT TO OPER 3
+ 609  13FA 7E           PRESK3:  LD     A,(HL)
+ 610  13FB FE 40                CP     40H ; NUMBER WITHOUT PARENTHESES?
+ 611  13FD 28 1F                JR     Z,NUMLOG ; YES - SPECIAL PROCESSING
+ 612  13FF CD E6 16             CALL   KOJR2 ; WHICH REGISTER
+ 613  1402 B3                   OR     E ; PUT IN CODE
+ 614  1403 23           ADJUST:  INC    HL
+ 615  1404 DD 77 0A     ADJ1:    LD     (IX+10),A ; FIRST BYTE OF CODE
+ 616  1407 7E                   LD     A,(HL)
+ 617  1408 DD 77 0B             LD     (IX+11),A ; SECOND BYTE OF CODE
+ 618  140B C9                   RET
+ 619  140C DD 34 0E     SUB_:    INC    (IX+14) ; INCREMENT NUMBER OF BYTES
+ 620  140F 23                   INC    HL
+ 621  1410 23                   INC    HL ; HL POINTS TO HIGH BYTE OF NUMBER
+ 622  1411 3A AA 2A             LD     A,(KRUG)
+ 623  1414 B7                   OR     A ; WHICH ROUND?
+ 624  1415 28 05                JR     Z,NEU1 ; FIRST - THEN DON'T CHECK FOR ERROR
+ 625  1417 7E                   LD     A,(HL)
+ 626  1418 B7                   OR     A
+ 627  1419 C2 4F 16             JP     NZ,HOWHL ; GREATER THAN 255; THUS OVERFLOW
+ 628  141C 2B           NEU1:    DEC    HL ; POINT TO LOW BYTE
+ 629  141D C9                   RET
+ 630  141E CD 0C 14     NUMLOG:  CALL   SUB_ ; OVERFLOW TEST
+ 631  1421 7B                   LD     A,E
+ 632  1422 F6 46                OR     46H ; REWORK CODE
+ 633  1424 18 DE                JR     ADJ1 ; PUT IT IN PLACE FOR CODES
+ 634  1426 1E 01        PARREG:  LD     E,1 ; *** TESTS WHICH REGISTER OR...
+ 635  1428 CD ED 16             CALL   RTEST ; ...PAIR OF REGISTERS AND FORMS MICROCODE
+ 636  142B 30 0B                JR     NC,RLC3 ; NC MEANS IT'S 8-BIT REGISTER
+ 637  142D 1C                   INC    E ; HERE IT'S 16-BIT PAIR
+ 638  142E 7E           KOJPAR:  LD     A,(HL)
+ 639  142F FE 08        KOP1:    CP     8 ; MORE THAN 8 ARE 8-BIT REGISTERS
+ 640  1431 30 0C                JR     NC,WHATNC ; SO THIS IS AN ERROR
+ 641  1433 D6 04                SUB    4 ; SUBTRACT 4 FOR IX/IY/AF
+ 642  1435 38 61                JR     C,SKWHAT ; AND WITH THEM NO ARITHMETIC...
+ 643  1437 07           RLC4:    RLCA ; ...OPERATIONS
+ 644  1438 07           RLC3:    RLCA
+ 645  1439 07                   RLCA
+ 646  143A 07                   RLCA
+ 647  143B C9                   RET
+ 648  143C 79           HL16:    LD     A,C ; 16-BIT OPERATIONS WITH HL REGISTER
+ 649  143D FE 37                CP     37H ; IS IT 'SUB' INSTRUCTION?
+ 650  143F 30 57        WHATNC:  JR     NC,SKWHAT ; YES - BUT THIS CAN'T BE FOR 16-BIT REG
+ 651  1441 21 E5 2B             LD     HL,CODE
+ 652  1444 FE 34                CP     34H ; IS IT 'ADD' INSTRUCTION?
+ 653  1446 28 0C                JR     Z,ADDINS ; YES - SKIP ADDING ONE BYTE
+ 654  1448 3A E4 2B             LD     A,(IXIY) ; IS IX/IY INVOLVED?
+ 655  144B B7                   OR     A
+ 656  144C 20 4A                JR     NZ,SKWHAT ; YES - NOT ALLOWED
+ 657  144E 36 ED                LD     (HL),0EDH ; ADD ED+
+ 658  1450 23                   INC    HL
+ 659  1451 DD 34 0E             INC    (IX+14) ; INCREMENT NUMBER OF BYTES
+ 660  1454 E5           ADDINS:  PUSH   HL
+ 661  1455 21 E1 2B             LD     HL,INS3 ; IN SECOND OPERAND...
+ 662  1458              ;new page
+ 663  1458 CD 2E 14             CALL   KOJPAR ; ...WHICH IS REGISTER PAIR
+ 664  145B 21 3F 1E             LD     HL,TAB6-34H
+ 665  145E 09                   ADD    HL,BC ; CALCULATE MICROCODE
+ 666  145F B6                   OR     (HL) ; AND PUT IT IN CODE
+ 667  1460 E1                   POP    HL
+ 668  1461 77                   LD     (HL),A ; PUT IN PLACE FOR CODES
+ 669  1462 C9                   RET
+ 670  1463 FE 3E        GRUPA6:  CP     3EH ; IS IT GROUP 6 (INC - DEC)
+ 671  1465 30 34                JR     NC,GRUPA7 ; NO - GO FURTHER
+ 672  1467 CD 90 14             CALL   IF3SN ; IF IT HAS OPER 2 THEN WHAT
+ 673  146A CD 26 14             CALL   PARREG ; WHICH REGISTER OR REGISTER PAIR?
+ 674  146D 57                   LD     D,A
+ 675  146E 79                   LD     A,C
+ 676  146F 1D                   DEC    E ; E = NUMBER OF BIT/8; E=2 FOR 16-BIT
+ 677  1470 28 0E                JR     Z,BYTE1 ; IF E=1; THEN 8-BIT
+ 678  1472 FE 3C                CP     3CH ; 3CH = 'INC'
+ 679  1474 28 03                JR     Z,INCJE1 ; SKIP 'DEC' PROCESSING
+ 680  1476 3E 0B                LD     A,0BH ; 'DEC' MICROCODE
+ 681  1478 21                   DEFB   21H ; 21H='LD HL,NN'; JUST SKIPS 2 BYTES
+ 682  1479 3E 03        INCJE1:  LD     A,3 ; 3 = 'DEC'
+ 683  147B B2                   OR     D ; INCLUDE IN MICROCODE
+ 684  147C 32 E5 2B     CODRET:  LD     (CODE),A
+ 685  147F C9                   RET
+ 686  1480 FE 3C        BYTE1:   CP     3CH ; 3CH = 'INC' TOKEN
+ 687  1482 28 03                JR     Z,INCJE ; SKIP 'DEC' PROCESSING
+ 688  1484 3E 05                LD     A,5 ; 5 = 'DEC' MICROCODE
+ 689  1486 21                   DEFB   21H ; 21H='LD HL,NN'; JUST SKIPS 2 BYTES
+ 690  1487 3E 04        INCJE:   LD     A,4 ; 4 = 'INC' MICROCODE
+ 691  1489 B2                   OR     D
+ 692  148A 21 DE 2B             LD     HL,INS2
+ 693  148D C3 03 14             JP     ADJUST ; PUT IN PLACE FOR CODES
+ 694  1490 21 DE 2B     IF3SN:   LD     HL,INS2
+ 695  1493 3A E1 2B     TEST3:   LD     A,(INS3) ; IF THERE EXISTS SECOND OPERAND
+ 696  1496 B7                   OR     A
+ 697  1497 C8                   RET    Z
+ 698  1498 C3 2D 19     SKWHAT:  JP     WHATHL ; ... THEN GO TO WHAT
+ 699  149B FE 3F        GRUPA7:  CP     3FH ; 7. GROUP (LD/EX)
+ 700  149D CA 61 15             JP     Z,EXJE ; IF IT'S JFN (EX) SKIP
+ 701  14A0 D2 8B 15             JP     NC,GRUPA8 ; IF IT'S >3FH GO FURTHER
+ 702  14A3 06 0B                LD     B,11 ; 11 CASES FOR TESTING
+ 703  14A5 21 A1 1E             LD     HL,TESTAB ; 'LD' TABLE
+ 704  14A8 CD 75 15             CALL   TEST ; FIND COINCIDENT CASE
+ 705  14AB 20 2D                JR     NZ,NFOU1 ; NOT SPECIAL CASE - SKIP
+ 706  14AD FE 03                CP     3 ; IS IT LD A,(NN) OR (NN),A?
+ 707  14AF 30 1A                JR     NC,NOTNN ; NEITHER ONE NOR OTHER - SKIP
+ 708  14B1 21 DF 2B             LD     HL,INS2+1 ; GET OPER1
+ 709  14B4 3D                   DEC    A
+ 710  14B5 28 03                JR     Z,NNA ; REMAINING OPER BECAUSE IT'S LD (NN)
+ 711  14B7 21 E2 2B             LD     HL,INS3+1 ; OPER2
+ 712  14BA DD 36 0E 03  NNA:     LD     (IX+14),3 ; 3 BYTES INSTRUCTION LENGTH
+ 713  14BE 7E                   LD     A,(HL)
+ 714  14BF 32 E6 2B             LD     (CODE+1),A ; LOW BYTE OF NUMERIC FIELD NN
+ 715  14C2 23                   INC    HL
+ 716  14C3 7E                   LD     A,(HL)
+ 717  14C4 32 E7 2B             LD     (CODE+2),A ; HIGH BYTE
+ 718  14C7 DD 70 0A     CODEB:   LD     (IX+10),B ; 32H OR 3AH (LD (NN),A OR LD A,(NN))
+ 719  14CA C9                   RET
+ 720  14CB FE 08        NOTNN:   CP     8 ; IS IT LD A,I/I,A/A,R/R,A
+ 721  14CD 21 E5 2B             LD     HL,CODE
+ 722  14D0 38 06                JR     C,SIMPLE ; NONE OF THESE
+ 723  14D2 36 ED                LD     (HL),0EDH ; FIRST BYTE OF CODE IS 0EDH
+ 724  14D4              ;new page
+ 725  14D4 23                   INC     HL
+ 726  14D5 DD 34 0E             INC     (IX+14) ; COUNTER BYTE = 1
+ 727  14D8 70           SIMPLE:  LD    (HL),B ; CODE
+ 728  14D9 C9                   RET
+ 729  14DA 21 DE 2B     NFOU1:   LD     HL,INS2 ; LOAD R,R / R,N / RR,NN
+ 730  14DD CD ED 16             CALL    RTEST ; FIRST REGISTER
+ 731  14E0 38 33                JR      C,BYTE2 ; 16 - BIT
+ 732  14E2 07                   RLCA ; 8 - BIT
+ 733  14E3 07                   RLCA
+ 734  14E4 07                   RLCA
+ 735  14E5 5F                   LD      E,A ; MICROCODE IN E REG
+ 736  14E6 21 E1 2B             LD      HL,INS3
+ 737  14E9 7E                   LD      A,(HL)
+ 738  14EA FE 40                CP      40H
+ 739  14EC 28 17                JR      Z,NUMLD ; NUMERIC 8-BIT LOAD
+ 740  14EE CD E6 16             CALL    KOJR2 ; SECOND REGISTER
+ 741  14F1 B3                   OR      E
+ 742  14F2 FE 36                CP      36H ; IF LD (HL),(HL) IT'S AN ERROR
+ 743  14F4 28 A2                JR      Z,SKWHAT
+ 744  14F6 F6 40                OR      40H ; SET BIT 6
+ 745  14F8 32 E5 2B             LD      (CODE),A
+ 746  14FB 3A E2 2B             LD      A,(INS3+1)
+ 747  14FE DD B6 04             OR      (IX+4)
+ 748  1501 32 E6 2B             LD      (CODE+1),A
+ 749  1504 C9                   RET
+ 750  1505 7B           NUMLD:   LD     A,E
+ 751  1506 F6 06                OR      6 ; SET BIT 5 AND BIT 6 MICROCODE
+ 752  1508 32 E5 2B             LD      (CODE),A
+ 753  150B CD 0C 14             CALL    SUB_ ; INSERT BYTE COUNT AND WHAT TEST
+ 754  150E 7E                   LD      A,(HL)
+ 755  150F 21 DE 2B             LD      HL,INS2
+ 756  1512 C3 C2 13             JP      SKRLD ; DO CODE
+ 757  1515 DD 36 0E 03  BYTE2:   LD   (IX+14),3 ; 16-BIT LOAD; THERE ARE 3 BYTES
+ 758  1519 11 E1 2B             LD      DE,INS3
+ 759  151C 1A                   LD      A,(DE)
+ 760  151D FE 40                CP      40H ; NUMERIC LOAD WITHOUT BRACKETS?
+ 761  151F 28 3A                JR      Z,DDNN ; YES - JUMP
+ 762  1521 06 08                LD      B,8 ; MICROCODE
+ 763  1523 FE C0                CP      0C0H ; DOES IT REFER TO HL?
+ 764  1525 28 11                JR      Z,OSTAJE ; YES - KEEP 3 BYTES
+ 765  1527 7E                   LD      A,(HL) ; IS IT ANOTHER OPERAND HL?
+ 766  1528 FE C0                CP      0C0H
+ 767  152A 28 09                JR      Z,OSTAJ2 ; YES - KEEP 3 BYTES
+ 768  152C FE 07                CP      7 ; DOES IT REFER TO SP?
+ 769  152E 20 03                JR      NZ,WHL2 ; NO - THEN IT'S AN ERROR
+ 770  1530 1A                   LD      A,(DE) ; IS IT LD SP
+ 771  1531 FE 06                CP      6
+ 772  1533 20 3A        WHL2:    JR     NZ,NZWHAT ; WHAT
+ 773  1535 EB           OSTAJ2:  EX    DE,HL
+ 774  1536 06 00                LD      B,0 ; MICROCODE = 0
+ 775  1538 CD 2E 14     OSTAJE:  CALL  KOJPAR ; CHECK PAR REGISTER
+ 776  153B F6 02                OR      2 ; FORM CODE
+ 777  153D B0                   OR      B
+ 778  153E 47                   LD      B,A
+ 779  153F E6 30                AND     30H
+ 780  1541 FE 20                CP      20H
+ 781  1543 78                   LD      A,B
+ 782  1544 28 09                JR      Z,IPAKHL ; TAKE 3-BYTE CASE
+ 783  1546 DD 36 09 ED          LD     (IX+9),0EDH ; FIRST BYTE IS 0EDH
+ 784  154A DD 34 0E             INC     (IX+14) ; 4 - BYTE INSTRUCTION
+ 785  154D F6 41                OR      41H ; CHANGE CODE
+ 786  154F 32 E5 2B     IPAKHL:  LD    (CODE),A
+ 787  1552 EB                   EX      DE,HL
+ 788  1553              ;new page
+ 789  1553 23                   INC     HL
+ 790  1554 5E                   LD      E,(HL) ; LOW BYTE OF CODE
+ 791  1555 23                   INC     HL
+ 792  1556 56                   LD      D,(HL) ; HIGH BYTE OF CODE
+ 793  1557 EB                   EX      DE,HL
+ 794  1558 C3 D2 13             JP      ZAGOHL ; PUT 2 BYTES OF CODE IN PLACE
+ 795  155B CD 2E 14     DDNN:    CALL    KOJPAR ; LD DD CASE
+ 796  155E 3C                   INC     A ; NUMERIC 16-BIT LOAD
+ 797  155F 18 EE                JR      IPAKHL
+ 798  1561 3A DE 2B     EXJE:    LD      A,(INS2) ; 'EX' GROUP
+ 799  1564 CD D8 15             CALL    IFIXIY
+ 800  1567 21 C2 1E             LD      HL,TEST2 ; NO EXCHANGE CODE IX I IY
+ 801  156A 06 03                LD      B,3 ; 'EX' TABLE...
+ 802  156C CD 75 15             CALL    TEST ; ...OF 3 MEMBERS
+ 803  156F C2 2D 19     NZWHAT:  JP     NZ,WHATHL
+ 804  1572 C3 C7 14             JP      CODEB ; NOT FOUND - ERROR
+ 805  1575 3A DE 2B     TEST:    LD      A,(INS2) ; GET OPERAND 1
+ 806  1578 BE                   CP      (HL) ; COMPARE WITH TABLE
+ 807  1579 23                   INC     HL
+ 808  157A 20 06                JR      NZ,FAIL1 ; NO MATCH FOUND
+ 809  157C 3A E1 2B             LD      A,(INS3) ; MAYBE OPER 2?
+ 810  157F BE                   CP      (HL)
+ 811  1580 28 05                JR      Z,MATCH ; MATCH FOUND
+ 812  1582 23           FAIL1:   INC     HL
+ 813  1583 23                   INC     HL
+ 814  1584 10 EF                DJNZ    TEST ; TRY 8 TIMES
+ 815  1586 C9                   RET
+ 816  1587 23           MATCH:   INC     HL
+ 817  1588 78                   LD      A,B ; GET COUNT (N-NUMBER OF TRIES)
+ 818  1589 46                   LD      B,(HL) ; GET MICROCODE
+ 819  158A C9                   RET
+ 820  158B 21 DE 2B     GRUPA8:  LD     HL,INS2
+ 821  158E 11 E1 2B             LD      DE,INS3
+ 822  1591 01 2D 19             LD      BC,WHATHL
+ 823  1594 C5                   PUSH    BC ; FUTURE 'RET' MEANS 'JDI NA WHAT'
+ 824  1595 01 01 00             LD      BC,1 ; IS IT 'OUT' TOKEN?
+ 825  1598 FE 41                CP      41H
+ 826  159A 28 06                JR      Z,OUTJE ; YES - JUMP
+ 827  159C 30 43                JR      NC,GRUPA9 ; IF IT'S >41H, CONTINUE
+ 828  159E EB                   EX      DE,HL
+ 829  159F 01 00 08             LD      BC,800H
+ 830  15A2 CB 7E        OUTJE:   BIT     7,(HL) ; IF NOT IN BRACKETS
+ 831  15A4 C8                   RET     Z
+ 832  15A5 CB 76                BIT     6,(HL)
+ 833  15A7 28 13                JR      Z,NIJENN ; NOT NUMERIC 'IN'
+ 834  15A9 23                   INC     HL
+ 835  15AA 23                   INC     HL
+ 836  15AB 7E                   LD      A,(HL)
+ 837  15AC B7                   OR      A
+ 838  15AD C0                   RET     NZ ; IF NUMERIC EXISTS AT OPER2 PLACE
+ 839  15AE 2B                   DEC     HL
+ 840  15AF 7E                   LD      A,(HL)
+ 841  15B0 32 E6 2B             LD      (CODE+1),A ; NUMERIC VALUE AT PLACE OF 2ND BYTE
+ 842  15B3 1A                   LD      A,(DE)
+ 843  15B4 FE 0E                CP      0EH ; IS IT A REGISTER?
+ 844  15B6 C0                   RET     NZ ; NO-ERROR
+ 845  15B7 3E D3                LD      A,0D3H ; MICROCODE FOR A REGISTER
+ 846  15B9 B0                   OR      B
+ 847  15BA 18 15                JR      CONTNN
+ 848  15BC 7E           NIJENN:  LD     A,(HL) ; IS REGISTER IN BRACKETS C?
+ 849  15BD FE 89                CP      089H
+ 850  15BF              ; new page
+ 851  15BF C0                   RET     NZ ; NO-ERROR
+ 852  15C0 DD 36 09 ED          LD      (IX+9),0EDH ; FIRST BYTE OF CODE
+ 853  15C4 EB                   EX      DE,HL
+ 854  15C5 CD E6 16             CALL    KOJR2 ; WHICH REGISTER IS IN/OUT (C)?
+ 855  15C8 FE 06                CP      6 ; IS IT (HL)?
+ 856  15CA C8                   RET     Z ; IT'S NOT IN ORDER
+ 857  15CB 07                   RLCA
+ 858  15CC 07                   RLCA
+ 859  15CD 07                   RLCA
+ 860  15CE F6 40                OR      40H ; ADD BIT 5 TO MICROCODE
+ 861  15D0 B1                   OR      C ; FORM CODE
+ 862  15D1              CONTNN   EQU    $
+ 863  15D1 32 E5 2B             LD      (CODE),A
+ 864  15D4 F1                   POP     AF
+ 865  15D5 C3 48 13             JP      IXGOON
+ 866  15D8 FE 05        IFIXIY:  CP     5
+ 867  15DA C0                   RET     NZ
+ 868  15DB 3A E4 2B             LD      A,(IXIY) ; IS IT THE SAME IN (IXIY)?
+ 869  15DE B7                   OR      A
+ 870  15DF 18 67                JR      RETIFZ ; RETURN IF NOT, OTHERWISE ERROR
+ 871  15E1 4F           GRUPA9:  LD     C,A ; 'JUMP'/'CALL'/'RET'
+ 872  15E2 FE 44                CP      44H
+ 873  15E4 20 0B                JR      NZ,NOJPHL ; IF NOT JP (HL)/(IX)/(IY) JUMP
+ 874  15E6 7E                   LD      A,(HL)
+ 875  15E7 FE 86                CP      86H
+ 876  15E9 79                   LD      A,C
+ 877  15EA 20 05                JR      NZ,NOJPHL ; IF NOT HL IN BRACKETS JUMP
+ 878  15EC 3E E9                LD      A,0E9H ; CODE FOR JP (HL)
+ 879  15EE D1           SVEOK:   POP    DE
+ 880  15EF 18 75                JR      ZAGOV7 ; PUT CODE IN PLACE
+ 881  15F1 FE 46        NOJPHL:  CP     46H
+ 882  15F3 28 63                JR      Z,RETJE ; JUMP IF 'RET' TOKEN
+ 883  15F5 30 72                JR      NC,GRUP10 ; IF TOKEN IS GREATER
+ 884  15F7 D6 42                SUB     42H
+ 885  15F9 07                   RLCA
+ 886  15FA 5F                   LD      E,A
+ 887  15FB CD BC 16             CALL    CC ; CHECK IF CONDITIONAL JP/RET EXISTS
+ 888  15FE 7B                   LD      A,E
+ 889  15FF 30 0A                JR      NC,NOTCC ; JUMP IF NOT CONDITIONAL
+ 890  1601 3C                   INC     A
+ 891  1602 3D                   DEC     A
+ 892  1603 C8                   RET     Z ; IF IT IS CONDITIONAL - WHAT
+ 893  1604 3D                   DEC     A
+ 894  1605 3D                   DEC     A
+ 895  1606 20 03                JR      NZ,NOTCC ; IF NOT JR
+ 896  1608 CB 68                BIT     5,B ; IF JR PO/PE/P/M
+ 897  160A C0                   RET     NZ ; ...THEN IT'S AN ERROR
+ 898  160B E5           NOTCC:   PUSH   HL
+ 899  160C 16 00                LD      D,0
+ 900  160E 21 76 1E             LD      HL,TABJP
+ 901  1611 ED 5A                ADC     HL,DE ; CALCULATE POSITION IN TABLE
+ 902  1613 7E                   LD      A,(HL) ; FIRST ELEMENT MICROCODE
+ 903  1614 B0                   OR      B ; SECOND ELEMENT MICROCODE
+ 904  1615 32 E5 2B             LD      (CODE),A
+ 905  1618 E1                   POP     HL
+ 906  1619 3E 03                LD      A,3 ; 3-BYTE JP/CALL
+ 907  161B DD 77 0E             LD      (IX+14),A
+ 908  161E 7E                   LD      A,(HL)
+ 909  161F FE 40                CP      40H
+ 910  1621 C0                   RET     NZ ; IF NOT NUMERIC - ERROR
+ 911  1622 F1                   POP     AF
+ 912  1623 23                   INC     HL
+ 913  1624              ; new page
+ 914  1624 5E                   LD      E,(HL) ; LOW BYTE OF NUMERIC
+ 915  1625 23                   INC     HL
+ 916  1626 56                   LD      D,(HL) ; HIGH BYTE OF NUMERIC
+ 917  1627 ED 53 E6 2B          LD      (CODE+1),DE ; ...GO INTO 2 AND 3 BYTE OF INSTRUCTION
+ 918  162B 79                   LD      A,C
+ 919  162C FE 44                CP      44H
+ 920  162E D0                   RET     NC ; RETURN IF IT'S JP/CALL/RET
+ 921  162F DD 35 0E             DEC     (IX+14) ; ONLY 2 BYTES AND NOT 3
+ 922  1632 2A EA 2B             LD      HL,(ADDR)
+ 923  1635 23                   INC     HL
+ 924  1636 23                   INC     HL ; RAISE 2 BYTES JR/DJNZ FIELD
+ 925  1637 EB                   EX      DE,HL
+ 926  1638 B7                   OR      A
+ 927  1639 ED 52                SBC     HL,DE ; CALCULATE RELATIVE JUMP
+ 928  163B DD 75 0B             LD      (IX+11),L ; RELATIVE JUMP
+ 929  163E DD 36 0C 00          LD      (IX+12),0 ; HIGH BYTE = 0
+ 930  1642 CB 7D        ADJOV:   BIT    7,L
+ 931  1644 20 01                JR      NZ,NEGATL ; JUMP BACKWARD (NEGATIVE)
+ 932  1646 25                   DEC     H
+ 933  1647 24           NEGATL:  INC    H
+ 934  1648 C8           RETIFZ:  RET    Z ; RETURN IF JUMP IS POSITIVE AND H=0
+ 935  1649 ED 5B AA 2A  IFOV:    LD   DE,(KRUG)
+ 936  164D 1D                   DEC     E
+ 937  164E C0                   RET     NZ ; RETURN IF IT'S FIRST CIRCLE
+ 938  164F ED 5B 9F 2A  HOWHL:   LD   DE,(2A9FH) ; GO TO "HOW" AFTER SETTING SIGN...
+ 939  1653 13                   INC     DE ; ...QUESTIONS AT START OF LINE
+ 940  1654 13                   INC     DE
+ 941  1655 C3 5A 06             JP      65AH
+ 942  1658 CD BC 16     RETJE:   CALL    CC ; CONDITIONAL RETURN
+ 943  165B 34                   INC     (HL)
+ 944  165C 35                   DEC     (HL)
+ 945  165D C0                   RET     NZ ; ERROR IF OPER2 EXISTS
+ 946  165E 3E C9                LD      A,0C9H ; RET CODE = 0C9H
+ 947  1660 D1                   POP     DE ; REMOVE 'WHAT' ENTRY POINT FROM STACK
+ 948  1661 30 03                JR      NC,ZAGOV7 ; UNCONDITIONAL RET
+ 949  1663 3E C0                LD      A,0C0H ; CONDITIONAL RET: MICROCODE...
+ 950  1665 B0                   OR      B ; ...AND READY CODE
+ 951  1666 C3 7C 14     ZAGOV7:  JP     CODRET
+ 952  1669 D6 49        GRUP10:  SUB     49H ; GROUP 10: RST I IM
+ 953  166B 30 37                JR      NC,PSHPOP ; IF IT'S >49H
+ 954  166D 4F                   LD      C,A
+ 955  166E CD 18 13             CALL    IFNUM1 ; IF NOT OPERAND NUMERIC OR IF...
+ 956  1671 23                   INC     HL ; OPERAND2 EXISTS
+ 957  1672 23                   INC     HL
+ 958  1673 7E                   LD      A,(HL) ; ...THEN WHAT
+ 959  1674 B7                   OR      A
+ 960  1675 C4 49 16             CALL    NZ,IFOV ; IF IT'S >255 AND IF 2ND CIRCLE-ERROR
+ 961  1678 2B                   DEC     HL
+ 962  1679 0C                   INC     C
+ 963  167A 20 1D                JR      NZ,RSTP ; GO TO 'RESTART' PROCESSING
+ 964  167C DD 34 0E             INC     (IX+14) ; HERE IT'S 'IM'; 2 BYTES
+ 965  167F DD 36 09 ED          LD      (IX+9),0EDH ; FIRST BYTE
+ 966  1683 7E                   LD      A,(HL)
+ 967  1684 47                   LD      B,A
+ 968  1685 FE 03                CP      3
+ 969  1687 D4 49 16             CALL    NC,IFOV ; LARGEST IM IS 2; ABOVE THAT IS ERROR
+ 970  168A 3E 56                LD      A,56H ; CODE FOR IM 1
+ 971  168C 05                   DEC     B
+ 972  168D 28 07                JR      Z,SVEOK1
+ 973  168F 3E 5E                LD      A,5EH ; CODE FOR IM 2
+ 974  1691 05                   DEC     B
+ 975  1692 28 02                JR      Z,SVEOK1
+ 976  1694 3E 46                LD      A,46H ; CODE FOR IM 3
+ 977  1696 C3 EE 15     SVEOK1:  JP     SVEOK
+ 978  1699              ; new page
+ 979  1699 7E           RSTP:    LD      A,(HL)
+ 980  169A E6 C7                AND     0C7H ; RESTART PROCESSING
+ 981  169C C4 49 16             CALL    NZ,IFOV ; IMAGE IS ERROR
+ 982  169F 7E                   LD      A,(HL)
+ 983  16A0 F6 C7                OR      0C7H ; MICROCODE
+ 984  16A2 18 F2                JR      SVEOK1
+ 985  16A4 07           PSHPOP:  RLCA ; PUSH/POP PROCESSING
+ 986  16A5 07                   RLCA
+ 987  16A6 4F                   LD      C,A
+ 988  16A7 1A                   LD      A,(DE)
+ 989  16A8 B7                   OR      A
+ 990  16A9 C0                   RET     NZ ; IF OPERATOR 2 EXISTS - ERROR
+ 991  16AA 7E                   LD      A,(HL)
+ 992  16AB FE 07                CP      7
+ 993  16AD C8                   RET     Z ; IF IT'S PUSH/POP SP
+ 994  16AE FE 03                CP      3
+ 995  16B0 20 02                JR      NZ,NOTAF
+ 996  16B2 3E 07                LD      A,7 ; FOR AF A SPECIAL CODE
+ 997  16B4 CD 2F 14     NOTAF:   CALL    KOP1 ; FORMING MICROCODE
+ 998  16B7 F6 C1                OR      0C1H
+ 999  16B9 B1                   OR      C ; THIS IS READY CODE
+1000  16BA 18 DA                JR      SVEOK1
+1001  16BC 06 00        CC:      LD      B,0 ; MICROCODE CONDITIONAL OPERATION
+1002  16BE 7E                   LD      A,(HL)
+1003  16BF FE 09                CP      9
+1004  16C1 20 03                JR      NZ,NREGC
+1005  16C3 3E 14                LD      A,14H ; SPECIAL CASE; C FLAG IS NOT
+1006  16C5 77                   LD      (HL),A ; NEEDED BUT REGISTER C IS!
+1007  16C6 D6 11        NREGC:   SUB     11H
+1008  16C8 3F                   CCF
+1009  16C9 D0                   RET     NC ; NC IF TOKEN=11H (REGISTER!)
+1010  16CA FE 08                CP      8
+1011  16CC D0                   RET     NC
+1012  16CD 07                   RLCA
+1013  16CE 07                   RLCA
+1014  16CF 07                   RLCA
+1015  16D0 23                   INC     HL
+1016  16D1 23                   INC     HL
+1017  16D2 23                   INC     HL
+1018  16D3 47                   LD      B,A ; B IS MICROCODE
+1019  16D4 37                   SCF ; C SET = CONDITION OK
+1020  16D5 C9                   RET
+1021  16D6 DD 7E 03     ZAINS2:  LD      A,(IX+3) ; ** IF NUMERIC LESS THAN 256...
+1022  16D9 D6 40                SUB     40H ; ...RETURN
+1023  16DB DD B6 05             OR      (IX+5)
+1024  16DE 20 0A                JR      NZ,ZAWH1 ; OTHERWISE WHAT
+1025  16E0 DD 7E 04             LD      A,(IX+4)
+1026  16E3 C9                   RET
+1027  16E4 1E 01        KOJREG:  LD      E,1 ; E=1 THIS IS SIGN THAT IT'S 8-BIT REG
+1028  16E6 CD ED 16     KOJR2:   CALL    RTEST ; TAKE TOKEN REGISTER
+1029  16E9 D0                   RET     NC
+1030  16EA C3 2D 19     ZAWH1:   JP      WHATHL ; IF DELETED IS NOT REGISTER
+1031  16ED 7E           RTEST:   LD      A,(HL)
+1032  16EE B7                   OR      A
+1033  16EF 28 F9                JR      Z,ZAWH1 ; IF WITH IT STILL HAS NUMERIC VALUE
+1034  16F1 FE 86                CP      86H ; IF (HL) INDIRECTLY
+1035  16F3 3E 06                LD      A,6
+1036  16F5 C8                   RET     Z ; THEN MICROCODE=6
+1037  16F6 7E                   LD      A,(HL) ; READY CASE (HL)INDIRECTLY
+1038  16F7 FE 0F                CP      0FH
+1039  16F9              ; new page
+1040  16F9 3F                   CCF
+1041  16FA D8                   RET     C
+1042  16FB D6 08                SUB     8
+1043  16FD D8                   RET     C
+1044  16FE FE 06                CP      6
+1045  1700 20 01                JR      NZ,ZARET1 ; RETURN WITH MICROCODE IF IT'S <6
+1046  1702 3C                   INC     A ; INCREMENT TO 7 IF IT'S A REG.
+1047  1703 B7           ZARET1:  OR      A ; SET FLAGS
+1048  1704 C9                   RET
+1049  1705              IXIYHL   EQU     $ ; *** REDUCTION IX/IY TO HL CASE
+1050  1705 CD 17 17             CALL    ZAM ; REDUCE CASE FOR OPER 1
+1051  1708 21 E1 2B             LD      HL,INS3
+1052  170B 20 0A                JR      NZ,ZAM ; REDUCE CASE FOR OPER 2
+1053  170D 50                   LD      D,B
+1054  170E CD 17 17             CALL    ZAM
+1055  1711 C0                   RET     NZ
+1056  1712 78                   LD      A,B
+1057  1713 BA                   CP      D
+1058  1714 C8                   RET     Z
+1059  1715 18 D3                JR      ZAWH1 ; 'IY' FIRST BYTE (REST IS AS HL)
+1060  1717 06 FE        ZAM:     LD      B,0FEH
+1061  1719 7E                   LD      A,(HL)
+1062  171A E6 3F                AND     3FH
+1063  171C FE 06                CP      6
+1064  171E C8                   RET     Z
+1065  171F 05                   DEC     B
+1066  1720 3D                   DEC     A
+1067  1721 20 03                JR      NZ,NOIX
+1068  1723 06 DD                LD      B,0DDH ; 'IX' FIRST BYTE (REST IS AS HL)
+1069  1725 3E                   DEFB    3EH
+1070  1726 3D           NOIX:    DEC     A
+1071  1727 C0                   RET     NZ
+1072  1728 DD 70 09             LD      (IX+9),B ; STORE FIRST BYTE AT SPEC. IXIY POSITION
+1073  172B 7E                   LD      A,(HL)
+1074  172C E6 C0                AND     0C0H
+1075  172E F6 06                OR      6
+1076  1730 77                   LD      (HL),A
+1077  1731 AF                   XOR     A
+1078  1732 C9                   RET
+1079  1733              PROG1    EQU     $ ; ***** TOKEN FORMATION 1...
+1080  1733 11 EA 2B             LD      DE,FIELD+18 ; ...PUTTING IN TABLE *******
+1081  1736 06 12                LD      B,18
+1082  1738 AF                   XOR     A
+1083  1739 1B           CLFLD:   DEC     DE
+1084  173A 12                   LD      (DE),A ; CLEARING ENTIRE TABLE
+1085  173B 10 FC                DJNZ    CLFLD
+1086  173D D5                   PUSH    DE
+1087  173E DD E1                POP     IX ; IX TAKES FIRST POSITION (FOR OPER 1)
+1088  1740 23                   INC     HL
+1089  1741 23                   INC     HL
+1090  1742 E5                   PUSH    HL
+1091  1743 2A EA 2B             LD      HL,(ADDR)
+1092  1746 22 ED 2B             LD      (TEMP1),HL
+1093  1749 E1                   POP     HL
+1094  174A E5                   PUSH    HL
+1095  174B 7E                   LD      A,(HL)
+1096  174C FE 21                CP      '!' ; '!' IS PRIMARY
+1097  174E C4 59 17             CALL    NZ,RELOAD ; CALL TOKENIZATION IF NOT PRIMARY
+1098  1751 E1                   POP     HL
+1099  1752 3E 0D        FINDCR:  LD      A,0DH ; FIND END OF LINE
+1100  1754 BE           SRCHCR:  CP      (HL)
+1101  1755              ; new page
+1102  1755 23                   INC    HL ; IT'S NOT $0D - GO FURTHER
+1103  1756 C8                   RET    Z
+1104  1757 18 FB                JR     SRCHCR
+1105  1759 E5           RELOAD:  PUSH   HL ; **** TOKEN GENERATION ****
+1106  175A CD 05 18             CALL   SUB1A ; RECOGNIZE OPCODE OR OPERAND
+1107  175D 20 19                JR     NZ,NOLAB ; IF RECOGNIZED WORD - JUMP
+1108  175F              ; IF NOT RECOGNIZED - FIND LABEL
+1109  175F E1                   POP    HL
+1110  1760 22 DA 2B             LD     (FIELD+2),HL ; STORE LABEL ADDRESS IN PROGRAM
+1111  1763 23           SRCH20:  INC    HL ; SEARCH FOR END OF LABEL (BLANK OR CR)
+1112  1764 7E                   LD     A,(HL)
+1113  1765 FE 0D                CP     0DH
+1114  1767 28 06                JR     Z,BLANK ; IF CR - EXIT
+1115  1769 FE 20                CP     ' '
+1116  176B C2 63 17             JP     NZ,SRCH20 ; IF NOT BLANK - SEARCH FURTHER
+1117  176E 23                   INC    HL ; FIRST POSITION AFTER BLANK
+1118  176F CD 3C 18     BLANK:   CALL   IF0 ; CHECK IF IT'S END OR REM
+1119  1772 CD 0F 18             CALL   SUB1 ; RECOGNIZE OPCODE
+1120  1775 28 22                JR     Z,NEAR ; IF NOT RECOGNIZED - WHAT
+1121  1777 F5                   PUSH   AF
+1122  1778 F1           NOLAB:   POP    AF
+1123  1779 79                   LD     A,C
+1124  177A E6 7F                AND    7FH ; MASK ALL EXCEPT BIT 7
+1125  177C DD 77 05             LD     (IX+5),A ; STORE OPCODE
+1126  177F CD 1A 18             CALL   IFTXT0 ; CHECK IF IT'S 'TEXT' TOKEN
+1127  1782 CD 9C 17             CALL   TRANS1 ; PROCESS CASE FOR OPER1
+1128  1785 DD 21 DB 2B          LD     IX,FIELD+3 ; SET IX FOR OPER2
+1129  1789 CD 3C 18             CALL   IF0 ; CHECK IF IT'S END OR REM
+1130  178C CD 69 19             CALL   SKIP2 ; SKIP POTENTIAL BLANKS
+1131  178F FE 2C                CP     ','
+1132  1791 20 06                JR     NZ,NEAR ; IF NOT COMMA
+1133  1793 CD 9D 17             CALL   TRANS2 ; PROCESS CASE FOR OPER2
+1134  1796 CD 3C 18             CALL   IF0 ; CHECK IF IT'S END OR REM
+1135  1799 C3 EF 17     NEAR:    JP     WHSK ; IF NOT - ERROR
+1136  179C 2B           TRANS1:  DEC    HL
+1137  179D CD 68 19     TRANS2:  CALL   SKIPBL ; SKIP POTENTIAL BLANKS
+1138  17A0 FE 28                CP     '('
+1139  17A2 20 05                JR     NZ,NEZAG ; NOT '(' - JUMP
+1140  17A4 23                   INC    HL ; SKIP '(' IF EXISTS
+1141  17A5 DD CB 06 FE          SET    7,(IX+6) ; SET BIT TO INDICATE BRACKETS
+1142  17A9 11 B3 1F     NEZAG:   LD     DE,TABEL2-1 ; TABLE 2; OPERAND
+1143  17AC E5                   PUSH   HL
+1144  17AD CD 36 19             CALL   PREPOZ ; FIND WHAT IS
+1145  17B0 0C                   INC    C
+1146  17B1 CB B9                RES    7,C
+1147  17B3 EB                   EX     DE,HL
+1148  17B4 B7                   OR     A
+1149  17B5 28 3E                JR     Z,NEPREP ; NOT RECOGNIZED; MAYBE EXPRESSION?
+1150  17B7 CD 68 19             CALL   SKIPBL ; SKIP POTENTIAL BLANKS
+1151  17BA F1                   POP    AF
+1152  17BB DD 7E 06             LD     A,(IX+6)
+1153  17BE B1                   OR     C ; STORE TOKEN IN OPERAND FIELD
+1154  17BF DD 77 06             LD     (IX+6),A
+1155  17C2 79                   LD     A,C
+1156  17C3 FE 03                CP     3
+1157  17C5 30 1B                JR     NC,ZATZAG ; IF NOT IX OR IY
+1158  17C7 CD 69 19             CALL   SKIP2 ; SKIP POTENTIAL BLANKS
+1159  17CA FE 29                CP     ')'
+1160  17CC 28 1B                JR     Z,ZATZ2 ; THIS IS LIKE (IX+0) OR (IY+0)
+1161  17CE FE 2D                CP     '-'
+1162  17D0 28 04                JR     Z,ZNAK
+1163  17D2 FE 2B                CP     '+'
+1164  17D4 20 1C                JR     NZ,ZATZ3
+1165  17D6 CD 66 18     ZNAK:    CALL   IZRAZ ; PUT EXPRESSION VALUE IN HL
+1166  17D9              ; 011096
+1167  17D9 E5                   PUSH    HL ; NOT IN SCAN BUT IN DUMP !!!
+1168  17DA EB                   EX      DE,HL
+1169  17DB CD 42 16             CALL    ADJOV ; TEST JUMP -128<DE<+127
+1170  17DE 5D                   LD      E,L ; E=L0 BYTE
+1171  17DF E1                   POP     HL
+1172  17E0 18 1E                JR      SKR1 ; FIND CLOSED PARENTHESIS
+1173  17E2 CD 69 19     ZATZAG:  CALL    SKIP2 ; SKIP BLANKS
+1174  17E5 FE 29                CP      ')'
+1175  17E7 20 09                JR      NZ,ZATZ3 ; IF NOT CLOSED PARENTHESIS
+1176  17E9 2F           ZATZ2:   CPL
+1177  17EA 23                   INC     HL
+1178  17EB DD AE 06     NOTZZ:   XOR     (IX+6) ; XOR WITH OLD STATE OF PARENTHESIS
+1179  17EE F0                   RET     P ; RETURN IF FIRST NUMBER OF PARENTHESIS
+1180  17EF C3 2D 19     WHSK:    JP      WHATHL ; IF NOT - ERROR
+1181  17F2 AF           ZATZ3:   XOR     A ; CLEAR A REG
+1182  17F3 18 F6                JR      NOTZZ
+1183  17F5 DD CB 06 F6  NEPREP:  SET     6,(IX+6) ; BIT 6 MEANS NUMERIC VALUE
+1184  17F9 E1                   POP     HL
+1185  17FA CD 66 18             CALL    IZRAZ ; CALCULATE NUMERIC EXPRESSION
+1186  17FD DD 72 08             LD      (IX+8),D ; PUT IT IN NUMERIC...
+1187  1800 DD 73 07     SKR1:    LD      (IX+7),E ; ...OPERAND FIELD
+1188  1803 18 DD                JR      ZATZAG
+1189  1805 E5           SUB1A:   PUSH    HL
+1190  1806 11 B3 1F             LD      DE,TABEL2-1 ; OPERAND TABLE
+1191  1809 CD 36 19             CALL    PREPOZ ; RECOGNIZE WORD IN TABLE
+1192  180C E1                   POP     HL
+1193  180D 20 E0        WHSK2:   JR      NZ,WHSK ; IF RECOGNIZED - MEANS THAT...
+1194  180F 11 CA 1E     SUB1:    LD      DE,TABEL1-1 ; ...OPERAND IN WRONG PLACE; ERROR!
+1195  1812 CD 36 19             CALL    PREPOZ ; RECOGNIZE WORD IN TABLE
+1196  1815 0C                   INC     C
+1197  1816 EB                   EX      DE,HL
+1198  1817 23                   INC     HL
+1199  1818 B7                   OR      A ; IF NOT NZ
+1200  1819 C9                   RET ; MEANS RECOGNITION SUCCESSFUL
+1201  181A D6 02        IFTXT0:  SUB     2 ; 2 = 'TEXT' TOKEN
+1202  181C 20 1E                JR      NZ,IF0 ; IF NOT SKIP
+1203  181E CD 68 19             CALL    SKIPBL ; SKIP EVENTUAL BLANKS
+1204  1821 FE 22                CP      '"'
+1205  1823 20 CA                JR      NZ,WHSK ; IF NOT QUOTE
+1206  1825 23                   INC     HL ; THEN ERROR
+1207  1826 22 DF 2B             LD      (INS2+1),HL ; TEXT START TO TEXT REGISTER
+1208  1829 0E 00                LD      C,0
+1209  182B 7E           FINDZN:  LD      A,(HL)
+1210  182C FE 22                CP      '"' ; END OF TEXT?
+1211  182E 23                   INC     HL
+1212  182F 28 07                JR      Z,IF0T ; YES - GO OUT
+1213  1831 FE 0D                CP      0DH
+1214  1833 28 BA                JR      Z,WHSK ; END OF LINE, NO QUOTE; WHAT
+1215  1835 0C                   INC     C
+1216  1836 18 F3                JR      FINDZN ; CONTINUE SEARCHING QUOTE
+1217  1838 79           IF0T:    LD      A,C
+1218  1839 32 DE 2B             LD      (INS2),A ; NUMBER OF WORDS TEXT
+1219  183C CD 69 19     IF0:     CALL    SKIP2 ; SKIP EVENTUAL BLANKS
+1220  183F FE 21        IF01:    CP      '!'
+1221  1841 28 05                JR      Z,REMJE ; IF REM SKIP
+1222  1843 FE 0D                CP      0DH
+1223  1845 C0                   RET     NZ ; RETURN IF NOT CR
+1224  1846 F1                   POP     AF ; IF CR - REMOVE LAST RET...
+1225  1847 C9                   RET ; ...FROM STACK AND RETURN NO...
+1226  1848              ; ...ONE PLACE EARLIER
+1227  1848 23           REMJE:   INC     HL
+1228  1849 7E                   LD      A,(HL) ; IF ':' - THIS IS REM; FIND END OF LINE
+1229  184A              ; 011097
+1230  184A FE 0D                CP      0DH ; CR - END OF LINE
+1231  184C 20 FA                JR      NZ,REMJE ; IT'S NOT END OF LINE
+1232  184E F1                   POP     AF ; RETURN AND LOCATION EARLIER (AS AT 12510)
+1233  184F C9                   RET
+1234  1850 7E           NCSLBR:  LD      A,(HL)
+1235  1851 CD 73 01             CALL    173H ; IF IT'S 0-9 (NEXT DIGIT)
+1236  1854 1B                   DEC     DE ; ...THEN RESET CARRY FLAG...
+1237  1855 D0                   RET     NC ; ...AND RETURN
+1238  1856 13                   INC     DE
+1239  1857 FE 41        LETNCA:  CP      41H ; IF IT'S A-Z (NEXT LETTER) - RESET CARRY
+1240  1859 D8                   RET     C
+1241  185A FE 5F                CP      5FH
+1242  185C 3F                   CCF
+1243  185D C9                   RET
+1244  185E CD D7 18     JEDANX:  CALL    JEDAN ; CALCULATE ONE MEMBER AND VALUE IN HL
+1245  1861 ED 4B EF 2B          LD      BC,(TEMP2) ; TAKE PREVIOUS VALUE IN BC
+1246  1865 C9                   RET
+1247  1866              IZRAZ    EQU     $
+1248  1866 EB                   EX      DE,HL
+1249  1867 EF                   RST     28H ; THIS IS LD HL
+1250  1868 DF                   RST     18H ; TEST IF NEXT CHARACTER IS...
+1251  1869 2B                   DEFB    '+' ; ...PLUS...
+1252  186A 00                   DEFB    0 ; ...AND SKIP ONLY IT IF YOU ARE
+1253  186B FE 2D                CP      '-' ; OR IF IT'S MINUS...
+1254  186D C4 D7 18             CALL    NZ,JEDAN ; ...PUT MEMBER IN HL...
+1255  1870 22 EF 2B     STORE:   LD      (TEMP2),HL ; ...STORE IN REGISTER OF PREVIOUS VALUE
+1256  1873 CD 7B 18             CALL    CLAN ; CALCULATE ONE MEMBER
+1257  1876 DA 4F 16             JP      C,HOWHL ; IF IT'S OVERFLOW
+1258  1879 18 F5                JR      STORE ; CONTINUE MAIN LOOP OF CALCULATING EXPRESSION
+1259  187B DF           CLAN:    RST     18H ; CALCULATE ONE MEMBER OF EXPRESSION AND VALUE IN HL
+1260  187C 2B                   DEFB    '+' ; IS IT PLUS?
+1261  187D 05                   DEFB    CL1-$-1 ; IF NOT GO TO CL1
+1262  187E CD 5E 18             CALL    JEDANX ; CALCULATE MEMBER
+1263  1881 09                   ADD     HL,BC ; ADD IT WITH PREVIOUS VALUE
+1264  1882 C9                   RET
+1265  1883 DF           CL1:     RST     18H
+1266  1884 2D                   DEFB    '-' ; IS IT MINUS?
+1267  1885 0D                   DEFB    CL2-$-1 ; IF NOT GO TO CL2
+1268  1886 CD D7 18             CALL    JEDAN
+1269  1889 B7                   OR      A
+1270  188A 44                   LD      B,H
+1271  188B 4D                   LD      C,L
+1272  188C 2A EF 2B             LD      HL,(TEMP2)
+1273  188F ED 42                SBC     HL,BC ; SUBTRACT FROM PREVIOUS VALUE
+1274  1891 B7                   OR      A
+1275  1892 C9                   RET
+1276  1893 DF           CL2:     RST     18H
+1277  1894 3C                   DEFB    '<' ; IS SHIFT LEFT?
+1278  1895 0C                   DEFB    CL3-$-1 ; IF NOT GO TO CL3
+1279  1896 CD D7 18             CALL    JEDAN
+1280  1899 45                   LD      B,L ; B=NUMBER OF SHIFTS
+1281  189A 2A EF 2B             LD      HL,(TEMP2)
+1282  189D 29           ROTHL1:  ADD     HL,HL ; ADD IS SHIFT LEFT
+1283  189E 10 FD                DJNZ    ROTHL1 ; DO IT B TIMES
+1284  18A0 B7                   OR      A ; CLEAR CARRY (NO OVERFLOW)
+1285  18A1 C9                   RET
+1286  18A2 DF           CL3:     RST     18H
+1287  18A3 3E                   DEFB    '>' ; IS SHIFT RIGHT?
+1288  18A4 0F                   DEFB    CL4-$-1 ; IF NOT GO TO CL4
+1289  18A5 CD D7 18             CALL    JEDAN
+1290  18A8 45                   LD      B,L
+1291  18A9              ; 011098
+1292  18A9 2A EF 2B             LD      HL,(TEMP2)
+1293  18AC CB 3C        ROTHL2:  SRL     H ; SHIFT RIGHT 8 TIMES
+1294  18AE CB 1D                RR      L
+1295  18B0 10 FA                DJNZ    ROTHL2
+1296  18B2 B7                   OR      A
+1297  18B3 C9                   RET
+1298  18B4 DF           CL4:     RST     18H
+1299  18B5 23                   DEFB    '#' ; IS IT '#' (MEANS AND)
+1300  18B6 0A                   DEFB    CL5-$-1 ; DON'T GO TO CL5
+1301  18B7 CD 5E 18             CALL    JEDANX
+1302  18BA 7C                   LD      A,H
+1303  18BB A0                   AND     B ; AND HIGH BYTE
+1304  18BC 67                   LD      H,A
+1305  18BD 7D                   LD      A,L
+1306  18BE A1                   AND     C ; AND LOW BYTE
+1307  18BF 6F                   LD      L,A
+1308  18C0 C9                   RET
+1309  18C1 FE 29        CL5:     CP      ')' ; TERMINATORS: BRACKET, COMMA
+1310  18C3 28 0C                JR      Z,TERMIN
+1311  18C5 FE 0D                CP      0DH ; END OF LINE
+1312  18C7 28 08                JR      Z,TERMIN
+1313  18C9 FE 21                CP      '!' ; REM
+1314  18CB 28 04                JR      Z,TERMIN
+1315  18CD FE 2C                CP      ',' ; COMMA
+1316  18CF 20 5C                JR      NZ,WHATHL
+1317  18D1 F1           TERMIN:  POP     AF
+1318  18D2 2A EF 2B             LD      HL,(TEMP2)
+1319  18D5 EB                   EX      DE,HL ; TAKE IN DE THE EXPRESSION
+1320  18D6 C9                   RET
+1321  18D7              ; *** ONE MEMBER OF EXPRESSION CALCULATED IN HL ***
+1322  18D7 CD 05 01     JEDAN:   CALL    105H ; SKIP POSSIBLE BLANKS
+1323  18DA CD 73 01             CALL    173H ; IF NOT DIGIT 0-9
+1324  18DD 38 0A                JR      C,NEDEC ; ...THEN SKIP
+1325  18DF 1B                   DEC     DE
+1326  18E0 CD 6F 19             CALL    RELIX1 ; PREPARE FOR ARITHMETIC
+1327  18E3 CD D3 0C             CALL    3283D ; CALCULATE DECIMAL NUMBER
+1328  18E6 C3 0B 13             JP      RELIX2 ; RETURN 1%
+1329  18E9 FE 26        NEDEC:   CP      '&' ; IS IT HEX NUMBER SIGN?
+1330  18EB 20 16                JR      NZ,NEHEX ; NO - SKIP
+1331  18ED 13                   INC     DE
+1332  18EE CD 65 01             CALL    357D ; READ HEX DIGIT
+1333  18F1 DA 4F 16             JP      C,HOWHL ; NOT HEX DIGIT? HOW!
+1334  18F4 1B                   DEC     DE
+1335  18F5 EF                   RST     28H ; THIS IS LD HL,0
+1336  18F6 CD 65 01     GOCONV:  CALL    357D ; READ HEX DIGIT
+1337  18F9 D8                   RET     C ; NOT HEX DIGIT - END OF JOB
+1338  18FA CD 37 14             CALL    RLC4 ; ROTATE 4 PLACES LEFT (+16)
+1339  18FD 01 F6 18             LD      BC,GOCONV ; PREPARE RET ADDRESS
+1340  1900 C3 F2 0D             JP      3570D ; CONTINUE CONVERSION
+1341  1903 EB           NEHEX:   EX      DE,HL
+1342  1904 CD 57 18             CALL    LETNCA ; IF LETTER A-Š
+1343  1907 38 10                JR      C,NLABEL ; NO - LABEL IS NOT LABEL
+1344  1909 CD 04 12             CALL    LOCATE ; LOCATE LABEL
+1345  190C 20 1F                JR      NZ,WHATHL ; NO JE - WHAT?
+1346  190E 3A DD 2B             LD      A,(INS1)
+1347  1911 FE 06                CP      6 ; IF OPKOD=ORG THEN WHAT
+1348  1913 28 18                JR      Z,WHATHL ; (WE MUST NOT CALL ON LABEL)
+1349  1915 50                   LD      D,B
+1350  1916 59                   LD      E,C
+1351  1917 EB                   EX      DE,HL
+1352  1918 C9                   RET
+1353  1919 EB           NLABEL:  EX      DE,HL
+1354  191A DF                   RST     18H
+1355  191B 22                   DEFB    '"'
+1356  191C 09                   DEFB    NIZAGR-$-1 ; NOT ASCII - GO FURTHER
+1357  191D              ; 011099
+1358  191D 1A           ASCX:    LD    A,(DE) ; TAKE ASCII CHARACTER
+1359  191E 13                   INC   DE
+1360  191F 6F                   LD    L,A
+1361  1920 26 00                LD    H,0 ; PLACE IT IN HL
+1362  1922 DF                   RST   18H
+1363  1923 22                   DEFB  '"' ; CLOSING CHARACTER NEEDED - THIS IS HOW IT SHOULD BE IF IT'S NOT - ERROR
+1364  1924 08                   DEFB  WHATHL-$-1
+1365  1925 C9                   RET
+1366  1926 DF           NIZAGR:  RST   18H
+1367  1927 24                   DEFB  '$' ; IS IT A PC LOCATION?
+1368  1928 04                   DEFB  WHATHL-$-1 ; IT - THAT IS NOT NOTHING; ERROR
+1369  1929 2A EA 2B             LD    HL,(ADDR) ; YES - TAKES FROM PC REGISTER
+1370  192C C9                   RET
+1371  192D ED 5B 9F 2A  WHATHL:  LD    DE,(2A9FH) ; *** WHAT *** INPUT POINT
+1372  1931 13                   INC   DE
+1373  1932 13                   INC   DE ; PUTS QUESTION MARK AT START OF LINE
+1374  1933 C3 8F 07             JP    78FH ; RIGHT TO WHAT IN ROM-U 1
+1375  1936 06 7F        PREPOZ:  LD    B,7FH ; **** WORD RECOGNITION ****
+1376  1938 7E                   LD    A,(HL)
+1377  1939 4E           Z1C0C:   LD    C,(HL)
+1378  193A EB                   EX    DE,HL
+1379  193B 23           Z1C0E:   INC   HL ; FIND WORD START IN TABLE (BIT 7=1)
+1380  193C B6                   OR    (HL)
+1381  193D F2 3B 19             JP    P,Z1C0E ; SEARCH FOR START
+1382  1940 04                   INC   B
+1383  1941 7E                   LD    A,(HL) ; IF (HL)=80
+1384  1942 E6 7F                AND   7FH ; THEN IT'S THE END OF TABLE
+1385  1944 C8                   RET   Z ; RETURN IF =80 (CHARACTER NOT RECOGNIZED)
+1386  1945 B9                   CP    C
+1387  1946 20 F3                JR    NZ,Z1C0E ; THIS CHARACTER IS NOT SAME - TRY NEW WORD
+1388  1948 EB                   EX    DE,HL ; CHARACTER SAME - THEREFORE IT'S GOOD
+1389  1949 E5                   PUSH  HL
+1390  194A 13           Z1C1D:   INC   DE
+1391  194B 1A                   LD    A,(DE) ; TAKE NEW CHARACTER FROM TABLE
+1392  194C B7                   OR    A
+1393  194D FA 59 19             JP    M,Z1C39 ; THIS IS THEN START OF NEXT WORD
+1394  1950 4F                   LD    C,A
+1395  1951 23           Z1C2B:   INC   HL
+1396  1952 7E                   LD    A,(HL) ; TAKE NEW CHARACTER FROM PROG. LINE
+1397  1953 B9                   CP    C
+1398  1954 28 F4                JR    Z,Z1C1D ; IF IT'S SAME
+1399  1956 E1           PHL:     POP   HL
+1400  1957 18 E0                JR    Z1C0C ; NOT SAME; TRY NEW WORD
+1401  1959 23           Z1C39:   INC   HL ; SUCCESSFUL COMPARISON; RECOGNIZED WORD
+1402  195A CD 50 18             CALL  NCSLBR ; IS IT THE END OF WORD IN PROGRAM?
+1403  195D 2B                   DEC   HL
+1404  195E 38 03                JR    C,X1C39 ; YES; LAST TEST SUCCESSFUL
+1405  1960 1B                   DEC   DE ; NOT END - SO COMPARISON UNSUCCESSFUL
+1406  1961 18 F3                JR    PHL ; TRY SOME OTHER WORD FROM TABLE
+1407  1963 48           X1C39:   LD    C,B ; C=B=TOKEN
+1408  1964 F1                   POP   AF ; A WILL COME TO IT; THIS IS JB; CHARACTER TO BE...
+1409  1965 EB                   EX    DE,HL
+1410  1966 B7                   OR    A ; ...RECOGNIZED WORD
+1411  1967 C9                   RET
+1412  1968 23           SKIPBL:  INC   HL ; SKIP BLANKS FROM NEXT POSITION
+1413  1969 EB           SKIP2:   EX    DE,HL ; SKIP BLANKS FROM THIS POSITION
+1414  196A CD 05 01             CALL  105H ; SKIP POSSIBLE BLANKS
+1415  196D EB                   EX    DE,HL
+1416  196E C9                   RET
+1417  196F DD 22 F4 2B  RELIX1:  LD    (IXPOS2),IX ; SAVE OLD IX...
+1418  1973 DD 21 AC 2A          LD    IX,2AACH ; ...AND PREPARE IX FOR...
+1419  1977              ; ...ARITHMETIC IN ROM-U 1
+1420  1977              ;011100
+1421  1977 C9                   RET
+1422  1978              BRKPT    EQU      $ ; *** BREAKPOINT (REG) ***
+1423  1978 ED 73 31 2C          LD        (FIELD+SPACE-1),SP ; SAVE SP FOR RETURN
+1424  197C 31 31 2C             LD        SP,FIELD+SPACE-1 ; TAKE NEW SP
+1425  197F F5                   PUSH      AF ; MOVES ALL REGISTERS TO MEMORY
+1426  1980 C5                   PUSH      BC
+1427  1981 D5                   PUSH      DE
+1428  1982 E5                   PUSH      HL
+1429  1983 DD E5                PUSH      IX
+1430  1985 2A 31 2C             LD        HL,(FIELD+SPACE-1)
+1431  1988 23                   INC       HL
+1432  1989 23                   INC       HL
+1433  198A E5                   PUSH      HL ; HL IS HERE SP+2 (SP BEFORE NEG...)
+1434  198B 5E                   LD        E,(HL) ; ...WHAT CAME TO REG
+1435  198C 23                   INC       HL
+1436  198D 56                   LD        D,(HL) ; DE = LAST ITEM ON STACK-U
+1437  198E D9                   EXX
+1438  198F 08                   EX        AF,AF'
+1439  1990 F5                   PUSH      AF ; PUTS ALTERNATIVE REGISTERS IN MEM
+1440  1991 C5                   PUSH      BC
+1441  1992 D5                   PUSH      DE
+1442  1993 E5                   PUSH      HL
+1443  1994 FD E5                PUSH      IY
+1444  1996 D9                   EXX
+1445  1997 D5                   PUSH      DE ; PUTS LAST ITEM FROM STACK-A IN MEM
+1446  1998 CD ED 02             CALL      2EDH ; IDI TO NEW ORDER (IF NOT ALREADY BEGINNING)
+1447  199B 11 D8 1F             LD        DE,NASLOV
+1448  199E CD 37 09             CALL      937H ; PRINT: AF BC DE HL IXIY SP()
+1449  19A1 11 30 2C             LD        DE,FIELD+SPACE-2
+1450  19A4 06 02                LD        B,2 ; TWO LINES TO PRINT
+1451  19A6 C5           RED:     PUSH      BC
+1452  19A7 06 06                LD        B,6 ; SIX MEMBERS TO PRINT
+1453  19A9 3E 20        SABL:    LD        A,' ' ; FIRST BLANK
+1454  19AB E7                   RST       20H
+1455  19AC 1A                   LD        A,(DE) ; TAKES FROM MEMORY IN GROUPS OF...
+1456  19AD 1B                   DEC       DE ; ...TWO BYTES WHAT WAS PUT...
+1457  19AE 67                   LD        H,A ; ...IN LINES 14580-14790
+1458  19AF 1A                   LD        A,(DE)
+1459  19B0 1B                   DEC       DE
+1460  19B1 6F                   LD        L,A ; HL=TWO-BYTE VALUE OF PAIR REGISTERS
+1461  19B2 CD 57 13             CALL      HEX16 ; WRITE HL
+1462  19B5 10 F2                DJNZ      SABL ; DO THAT 6 TIMES
+1463  19B7 3E 0D                LD        A,0DH ; GO TO NEW LINE
+1464  19B9 E7                   RST       20H
+1465  19BA C1                   POP       BC
+1466  19BB 10 E9                DJNZ      RED ; DO ONE MORE TIME (FOR ALT.REG.)
+1467  19BD 2A 97 2A             LD        HL,(SHOMEM)
+1468  19C0 7C                   LD        A,H
+1469  19C1 B5                   OR        L ; SHOULD MEMORY BE SHOWN?
+1470  19C2 3A B2 2B             LD        A,(SHOFOR)
+1471  19C5 C4 DE 19             CALL      NZ,PMEM ; IF NEEDED
+1472  19C8 CD F5 0C             CALL      0CF5H ; WAIT FOR ANY KEY TO BE PRESSED
+1473  19CB F1                   POP       AF ; RETURNS ALL VALUES FROM MEMORY...
+1474  19CC F1                   POP       AF ; ...TO CPU REGISTERS...
+1475  19CD E1                   POP       HL ; ...AS I SET WHEN IT...
+1476  19CE D1                   POP       DE ; ...NOTHING HAPPENED
+1477  19CF C1                   POP       BC
+1478  19D0 F1                   POP       AF
+1479  19D1 08                   EX        AF,AF'
+1480  19D2 D9                   EXX
+1481  19D3 F1                   POP       AF
+1482  19D4 F1                   POP       AF
+1483  19D5 E1                   POP       HL
+1484  19D6 D1                   POP       DE
+1485  19D7 C1                   POP       BC
+1486  19D8              ; 011101
+1487  19D8 F1                   POP    AF
+1488  19D9 ED 7B 31 2C          LD     SP,(FIELD+SPACE-1)
+1489  19DD C9                   RET ; At the end is taken 1 stack pointer
+1490  19DE 57           PMEM:    LD     D,A ; *** Print HEX number from HL total A rows
+1491  19DF CD 4C 13     PMEM2:   CALL   HEX16B ; First memory address
+1492  19E2 3E 3A                LD     A,':' ; Then two dots
+1493  19E4 E7                   RST    20H
+1494  19E5 06 08                LD     B,8 ; 8 bytes per row
+1495  19E7 3E 20        RED8:    LD     A,' ' ; First blank
+1496  19E9 E7                   RST    20H
+1497  19EA 7E                   LD     A,(HL)
+1498  19EB CD 5C 13             CALL   HEX8 ; Print byte
+1499  19EE 23                   INC    HL
+1500  19EF 10 F6                DJNZ   RED8 ; And so eight times
+1501  19F1 CD FF 02             CALL   2FFH ; Test 'BREAK' or 'DEL' key
+1502  19F4 3E 0D                LD     A,0DH
+1503  19F6 E7                   RST    20H ; New row
+1504  19F7 15                   DEC    D
+1505  19F8 20 E5                JR     NZ,PMEM2 ; And so D rows
+1506  19FA C9                   RET
+1507  19FB 3E 03        DEL:     LD     A,3
+1508  19FD F5                   PUSH   AF
+1509  19FE CF                   RST    8 ; Calculate first member ('DD' line)
+1510  19FF D5                   PUSH   DE
+1511  1A00 CD F2 07             CALL   7F2H ; Does this line exist?
+1512  1A03 20 12                JR     NZ,SKRHOW ; Does not exist! HOW
+1513  1A05 E1                   POP    HL
+1514  1A06 D5                   PUSH   DE
+1515  1A07 D5                   PUSH   DE
+1516  1A08 EB                   EX     DE,HL
+1517  1A09 CD 05 00             CALL   5 ; Test memory and calculate 'DO' line
+1518  1A0C CD F2 07             CALL   7F2H ; Does this line exist?
+1519  1A0F 20 06                JR     NZ,SKRHOW ; No? Error
+1520  1A11 E3                   EX     (SP),HL ; Check if second is greater than first
+1521  1A12 D7                   RST    10H
+1522  1A13 E3                   EX     (SP),HL
+1523  1A14 DA 59 03             JP     C,359H ; If yes, throw everything from first to second
+1524  1A17 C3 5B 06     SKRHOW:  JP    65BH ; If not, HOW
+1525  1A1A CF           NAME:    RST    8 ; *** REN *** Limited renumbering
+1526  1A1B 7C                   LD     A,H
+1527  1A1C B7                   OR     A ; If step is greater than 255
+1528  1A1D D5                   PUSH   DE
+1529  1A1E 20 F7                JR     NZ,SKRHOW ; ...then HOW
+1530  1A20 B5                   OR     L ; If step = 0
+1531  1A21 28 F4                JR     Z,SKRHOW ; ...then HOW
+1532  1A23 44                   LD     B,H
+1533  1A24 4D                   LD     C,L
+1534  1A25 EF                   RST    28H ; This is LD HL,0
+1535  1A26 E5                   PUSH   HL
+1536  1A27 ED 5B 36 2C          LD     DE,(2C36H) ; Start of BASIC program
+1537  1A2B 2A 38 2C     THRU:    LD     HL,(2C38H) ; End of BASIC program
+1538  1A2E EB                   EX     DE,HL
+1539  1A2F D7                   RST    10H ; Sort current pointer (DE) and end
+1540  1A30 EB                   EX     DE,HL
+1541  1A31 E1                   POP    HL
+1542  1A32 30 14                JR     NC,NAMED ; If they are same or current is greater-ready
+1543  1A34 09                   ADD    HL,BC ; Add with step
+1544  1A35 CB 7C                BIT    7,H ; If is overflow (>7FFF) HOW
+1545  1A37 20 DE                JR     NZ,SKRHOW
+1546  1A39 E5                   PUSH   HL
+1547  1A3A              ; 011102
+1548  1A3A EB                   EX    DE,HL
+1549  1A3B 73                   LD    (HL),E ; NEW LINE NUMBER - LOW BYTE
+1550  1A3C 23                   INC   HL
+1551  1A3D 72                   LD    (HL),D ; NEW LINE NUMBER - HIGH BYTE
+1552  1A3E EB                   EX    DE,HL
+1553  1A3F 13           FOD:     INC   DE ; FIND END OF LINE
+1554  1A40 1A                   LD    A,(DE)
+1555  1A41 FE 0D                CP    0DH
+1556  1A43 20 FA                JR    NZ,FOD ; NOT END YET - CONTINUE SEARCHING
+1557  1A45 13                   INC   DE
+1558  1A46 18 E3                JR    THRU ; GO TO NEXT LINE
+1559  1A48 D1           NAMED:   POP   DE
+1560  1A49 F7           KAD48:   RST   30H ; SET BASIC
+1561  1A4A              FIND     EQU   $ ; *** / *** (FINDING SEQUENCE OF CHARACTERS IN PROGRAM)
+1562  1A4A D5                   PUSH  DE
+1563  1A4B 2A 36 2C             LD    HL,(2C36H) ; START OF BASIC
+1564  1A4E 2B                   DEC   HL
+1565  1A4F 23           TRAZ1:   INC   HL
+1566  1A50 ED 5B 38 2C  TRAZ19:  LD DE,(2C38H) ; END OF BASIC
+1567  1A54 D7                   RST   10H
+1568  1A55 30 31                JR    NC,IZLAZF ; IF EQUAL - FINISHED
+1569  1A57 CD FF 02             CALL  2FFH ; 'BREAK' - 'DEL' TEST
+1570  1A5A 44                   LD    B,H
+1571  1A5B 4D                   LD    C,L
+1572  1A5C 23                   INC   HL
+1573  1A5D E5                   PUSH  HL
+1574  1A5E E1           NISTO:   POP   HL
+1575  1A5F 23                   INC   HL
+1576  1A60 7E                   LD    A,(HL)
+1577  1A61 FE 0D                CP    0DH ; END OF LINE?
+1578  1A63 28 EA                JR    Z,TRAZ1 ; YES- SEARCH NEXT
+1579  1A65 D1                   POP   DE
+1580  1A66 D5                   PUSH  DE
+1581  1A67 E5                   PUSH  HL
+1582  1A68 1A           TRAZ12:  LD A,(DE) ; GET NEXT CHARACTER
+1583  1A69 BE                   CP    (HL) ; COMPARE WITH CHARACTER IN PROGRAM
+1584  1A6A 20 F2                JR    NZ,NISTO ; NOT SAME - START OVER
+1585  1A6C 13                   INC   DE
+1586  1A6D 1A                   LD    A,(DE) ; GET NEXT CHARACTER
+1587  1A6E FE 0D                CP    0DH ; END OF LINE?
+1588  1A70 28 03                JR    Z,TOTAL ; YES - COMPARISON SUCCESSFUL
+1589  1A72 23                   INC   HL
+1590  1A73 18 F3                JR    TRAZ12 ; NOT SUCCESSFUL - CONTINUE SEARCH
+1591  1A75 F1           TOTAL:   POP   AF
+1592  1A76 D5                   PUSH  DE
+1593  1A77 C5                   PUSH  BC
+1594  1A78 C5                   PUSH  BC
+1595  1A79 D1                   POP   DE
+1596  1A7A CD 31 09             CALL  2353D ; PRINT LINE ON SCREEN
+1597  1A7D E1                   POP   HL
+1598  1A7E D1                   POP   DE
+1599  1A7F 23                   INC   HL
+1600  1A80 23           FEND:    INC   HL ; FIND END WHERE?
+1601  1A81 7E                   LD    A,(HL)
+1602  1A82 FE 0D                CP    0DH
+1603  1A84 20 FA                JR    NZ,FEND ; NOT CR YET
+1604  1A86 18 C7                JR    TRAZ1 ; SEARCH IN NEXT LINE
+1605  1A88 D1           IZLAZF:  POP   DE
+1606  1A89 13           FEND2:   INC   DE ; FIND END WHERE?
+1607  1A8A 1A                   LD    A,(DE)
+1608  1A8B FE 0D                CP    0DH
+1609  1A8D 20 FA                JR    NZ,FEND2 ; NOT CR YET
+1610  1A8F F7                   RST   30H ; SET BASIC
+1611  1A90 CD 60 10     LDUMP:   CALL  COPY ; *** LDUMP *** LINE PRINTER FLAG
+1612  1A93              ;011103
+1613  1A93              DUMP     EQU    $ ; *** DUMP *** Memory Print Subroutine
+1614  1A93 CF                   RST    8 ; From which address?
+1615  1A94 E5                   PUSH   HL ; Address is in HL
+1616  1A95 CD 05 00             CALL   5 ; Test character 1 from which address?
+1617  1A98 7D                   LD     A,L
+1618  1A99 B7                   OR     A ; If it's more than 0 rows
+1619  1A9A E1                   POP    HL
+1620  1A9B D5                   PUSH   DE
+1621  1A9C C4 DE 19             CALL   NZ,PMEM ; Call memory printing
+1622  1A9F D1                   POP    DE
+1623  1AA0 F7                   RST    30H ; Return to BASIC
+1624  1AA1              ; ***** FLOATING-POINT CONSTANTS *****
+1625  1AA1 F5 04        C2:      DEFW   04F5H ; 0.707107
+1626  1AA3 35 00                DEFW   0035H
+1627  1AA5 AE 56        C3:      DEFW   56AEH ; 0.598979
+1628  1AA7 19 00                DEFW   0019H
+1629  1AA9 F3 22        C4:      DEFW   22F3H ; 0.961471
+1630  1AAB 76 00                DEFW   0076H
+1631  1AAD 3D AA        C5:      DEFW   0AA3DH ; 2.88539
+1632  1AAF 38 01                DEFW   0138H
+1633  1AB1 D6 0F        CPI_:    DEFW   0FD6H ; 3.1415926
+1634  1AB3 49 01                DEFW   0149H
+1635  1AB5 D6 0F        PIPOLA:  DEFW   0FD6H ; PI/2
+1636  1AB7 C9 00                DEFW   00C9H
+1637  1AB9 D6 0F        PI2:     DEFW   0FD6H ; 2*PI
+1638  1ABB C9 01                DEFW   01C9H
+1639  1ABD 6D 12        X1EM3:   DEFW   126DH ; 1E-3
+1640  1ABF 83 7B                DEFW   7B83H
+1641  1AC1 00 00        CS1:     DEFW   0000H ; -6
+1642  1AC3 C0 81                DEFW   81C0H
+1643  1AC5 00 00        CS2:     DEFW   0000H ; 120
+1644  1AC7 F0 03                DEFW   03F0H
+1645  1AC9 00 80        CS3:     DEFW   8000H ; -5040
+1646  1ACB 9D 86                DEFW   869DH
+1647  1ACD 00 30        CS4:     DEFW   3000H ; 362880
+1648  1ACF B1 09                DEFW   09B1H
+1649  1AD1 13 72        CX2:     DEFW   7213H ; 0.693147
+1650  1AD3 31 00                DEFW   0031H
+1651  1AD5 4F F8        CE1:     DEFW   0F84FH ; 2.71828182
+1652  1AD7 2D 01                DEFW   012DH
+1653  1AD9 5C 0B        CE2:     DEFW   0B5CH ; 1.3888889E-3
+1654  1ADB B6 7B                DEFW   7BB6H
+1655  1ADD 85 88        CE3:     DEFW   8885H ; 8.333333E-3
+1656  1ADF 08 7D                DEFW   7D08H
+1657  1AE1 A8 AA        CE4:     DEFW   0AAA8H ; 0.0416667
+1658  1AE3 2A 7E                DEFW   7E2AH
+1659  1AE5 A9 AA        CE5:     DEFW   0AAA9H ; 0.166667
+1660  1AE7 2A 7F                DEFW   7F2AH
+1661  1AE9 00 00        C1:      DEFW   0 ; 0.5
+1662  1AEB 00 00                DEFW   0
+1663  1AED 00 00        C7:      DEFW   0 ; 1
+1664  1AEF 80 00                DEFW   80H
+1665  1AF1 00 00        CE8:     DEFW   0 ; 1
+1666  1AF3 80 00                DEFW   80H
+1667  1AF5 58 D7        CT1:     DEFW   0D758H ; 2.86623E-3
+1668  1AF7 3B 7C                DEFW   7C3BH
+1669  1AF9 EC 6D        CT2:     DEFW   6DECH ; -1.61657E-2
+1670  1AFB 84 FD                DEFW   0FD84H
+1671  1AFD F6 C1        CT3:     DEFW   0C1F6H ; 4.29096E-2
+1672  1AFF 2F 7E                DEFW   7E2FH
+1673  1B01 1C 31        CT4:     DEFW   311CH ; -7.5289E-2
+1674  1B03              ; 011104
+1675  1B03 9A FE                DEFW    0FE9AH
+1676  1B05 B1 3D        CT5:     DEFW    3DB1H ; 0.106563
+1677  1B07 DA 7E                DEFW    7EDAH
+1678  1B09 C6 7F        CT6:     DEFW    7FC6H ; -0.142089
+1679  1B0B 11 FF                DEFW    0FF11H
+1680  1B0D 03 BC        CT7:     DEFW    0BC03H ; 0.199936
+1681  1B0F 4C 7F                DEFW    7F4CH
+1682  1B11 7C AA        CT8:     DEFW    0AA7CH ; -0.333332
+1683  1B13 AA FF                DEFW    0FFAAH
+1684  1B15 DE 2E        RADDEG:  DEFW   2EDEH ; 57.29578
+1685  1B17 65 03                DEFW    0365H
+1686  1B19 21 B1 1A     PI:      LD      HL,CPI_ ; PI CONSTANT
+1687  1B1C C3 45 0A             JP      0A45H
+1688  1B1F CD 22 1B     DUBL2:   CALL    DUBLIX ; DUPLICATE IX IN ARITHMETIC STACK - TWICE
+1689  1B22 06 05        DUBLIX:  LD      B,5 ; DUPLICATE IX IN ARITHMETIC STACK - ONCE
+1690  1B24 DD 7E FB     MOVE5:   LD      A,(IX-5)
+1691  1B27 DD 77 00             LD      (IX),A
+1692  1B2A DD 23                INC     IX
+1693  1B2C 10 F6                DJNZ    MOVE5 ; MOVE 5 BYTES
+1694  1B2E C9                   RET
+1695  1B2F CD 22 1B     CP0:     CALL    DUBLIX ; *** COMPARE (IX) WITH ZERO
+1696  1B32 EF                   RST     28H ; THIS IS LD HL
+1697  1B33 CD BC 0A             CALL    0ABCH ; MOVE HL TO (IX)
+1698  1B36 18 0B                JR      COMP ; COMPARE (IX-5) WITH (IX)
+1699  1B38 21 ED 1A     CP1:     LD      HL,C7 ; *** COMPARE (IX) WITH ONE
+1700  1B3B E5           CPHL:    PUSH    HL
+1701  1B3C CD 22 1B             CALL    DUBLIX ; DUPLICATE (IX)
+1702  1B3F E1                   POP     HL
+1703  1B40 CD 45 0A     CPHL1:   CALL    0A45H ; STORE (HL) TO (IX)
+1704  1B43 C3 10 0B     COMP:    JP      0B10H ; COMPARE (IX-5) WITH (IX)
+1705  1B46 01 F6 FF     IXM10:   LD     BC,0FFFFH-9 ; IX = IX - 10
+1706  1B49 18 03                JR      SKRBC
+1707  1B4B 01 05 00     IX5:     LD      BC,5 ; IX = IX + 5
+1708  1B4E DD 09        SKRBC:   ADD     IX,BC
+1709  1B50 C9                   RET
+1710  1B51 21 F6 FF     ISPOD2:  LD    HL,0FFFFH-9 ; TAKE TWO NUMBERS FROM ARITHMETIC STACK...
+1711  1B54 18 03                JR      SKRISP ; ...BUT SAVE THE LAST ONE
+1712  1B56 21 F1 FF     ISPOD3:  LD    HL,0FFFFH-14 ; TAKE THREE NUMBERS FROM ARITHMETIC STACK...
+1713  1B59 D5           SKRISP:  PUSH   DE ; ...BUT SAVE THE LAST ONE
+1714  1B5A DD E5                PUSH    IX ; STORE HL/5 NUMBERS TO ARITHMETIC STACK...
+1715  1B5C D1                   POP     DE ; ...BUT SAVE THE LAST ONE
+1716  1B5D 19                   ADD     HL,DE
+1717  1B5E 01 05 00             LD      BC,5
+1718  1B61 ED B0                LDIR
+1719  1B63 D5                   PUSH    DE
+1720  1B64 DD E1                POP     IX
+1721  1B66 D1                   POP     DE
+1722  1B67 C9                   RET
+1723  1B68              LOG      EQU     $ ; NATURAL LOGARITHM
+1724  1B68 CD 81 07     LOGIT:   CALL    781H
+1725  1B6B CD 2F 1B     LOGIT2:  CALL   CP0
+1726  1B6E DA 5A 06             JP      C,65AH
+1727  1B71 CA 5A 06             JP      Z,65AH
+1728  1B74              ; 011105
+1729  1B74 DD 36 0F 00          LD    (IX+15),0 ; exponent = 0
+1730  1B78 CD 38 1B     CONT1:   CALL  CP1 ; less than 1?
+1731  1B7B 38 0B                JR    C,OVER1 ; yes, goto
+1732  1B7D 21 E9 1A             LD    HL,C1 ; multiply by 0.5
+1733  1B80 CD F3 1B             CALL  PUTAHL
+1734  1B83 DD 34 0F             INC   (IX+15) ; increase exponent
+1735  1B86 18 F0                JR    CONT1
+1736  1B88 21 E9 1A     OVER1:   LD    HL,C1 ; greater than 0.5?
+1737  1B8B CD 3B 1B             CALL  CPHL
+1738  1B8E 30 0B                JR    NC,OVER2 ; yes, goto
+1739  1B90 21 E9 1A             LD    HL,C1 ; multiply by 0.5 (*2)
+1740  1B93 CD 1C 1C             CALL  KROZHL
+1741  1B96 DD 35 0F             DEC   (IX+15) ; decrease exponent
+1742  1B99 18 ED                JR    OVER1
+1743  1B9B CD 22 1B     OVER2:   CALL  DUBLIX ; double arith
+1744  1B9E 21 A1 1A             LD    HL,C2 ; arith = arith - 0.707107
+1745  1BA1 CD 7B 1D             CALL  MINHL
+1746  1BA4 CD 51 1B             CALL  ISPOD2 ; compare arith
+1747  1BA7 21 A1 1A             LD    HL,C2 ; arith = arith + 0.707107
+1748  1BAA CD D4 1C             CALL  PLUSHL
+1749  1BAD CD F7 0A             CALL  KROZ ; division pregled(ix)
+1750  1BB0 CD C8 1C             CALL  MOVE0
+1751  1BB3 CD 1F 1B             CALL  DUBL2
+1752  1BB6 CD E6 0A             CALL  PUTA ; *
+1753  1BB9 21 A5 1A             LD    HL,C3 ; arith = arith * 0.508919
+1754  1BBC CD F3 1B             CALL  PUTAHL
+1755  1BBF 21 A9 1A             LD    HL,C4 ; arith = arith + 0.961471
+1756  1BC2 CD D4 1C             CALL  PLUSHL
+1757  1BC5 CD 51 1B             CALL  ISPOD2 ; compare arith
+1758  1BC8 CD 22 1B             CALL  DUBLIX
+1759  1BCB CD E6 0A             CALL  PUTA ; *
+1760  1BCE CD E6 0A             CALL  PUTA ; *
+1761  1BD1 21 AD 1A             LD    HL,C5 ; arith = arith + 2.88539
+1762  1BD4 CD D4 1C             CALL  PLUSHL
+1763  1BD7 CD E6 0A             CALL  PUTA ; *
+1764  1BDA DD 6E 0F             LD    L,(IX+15)
+1765  1BDD 26 00                LD    H,0 ; positive
+1766  1BDF CB 7D                BIT   7,L ; negative
+1767  1BE1 28 01                JR    Z,POZL
+1768  1BE3 25                   DEC   H
+1769  1BE4 CD BC 0A     POZL:    CALL  0ABCH ; (ix)->HL
+1770  1BE7 CD 32 0B             CALL  PLUS ; +
+1771  1BEA 21 E9 1A             LD    HL,C1
+1772  1BED CD 7B 1D             CALL  MINHL ; arith = arith - 0.5
+1773  1BF0 21 D1 1A             LD    HL,CX2
+1774  1BF3 CD 45 0A     PUTAHL:  CALL  0A45H ; arith = arith * 0.693147
+1775  1BF6 C3 E6 0A             JP    PUTA
+1776  1BF9 CD 81 07     ABS_:    CALL  781H ; ABSOLUTE VALUE
+1777  1BFC DD 7E FF     ABSA:    LD    A,(IX-1)
+1778  1BFF DD CB FF BE  ABS2:    RES   7,(IX-1)
+1779  1C03 C9                   RET
+1780  1C04 D5           TAN:     PUSH  DE ; TANGENT
+1781  1C05 CD 30 1C             CALL  SIN
+1782  1C08 D1                   POP   DE
+1783  1C09 CD 24 1C             CALL  COS
+1784  1C0C C3 F7 0A     ZAKROZ:  JP   KROZ
+1785  1C0F 01 FC 1B     ABSDEG:  LD   BC,ABSA ; TAKES ABSOLUTE VALUE OF EXPRESSION...
+1786  1C12 C5                   PUSH  BC ; ...DIVIDES IT WITH CONSTANT 57.29578...
+1787  1C13 DF                   RST   18H ; ...FOLLOWED BY LETTER D (DEGREE)
+1788  1C14 44                   DEFB  'D'
+1789  1C15 0B                   DEFB  NODEGR-$-1
+1790  1C16 CD 81 07             CALL  781H
+1791  1C19 21 15 1B             LD    HL,RADDEG
+1792  1C1C              ; 011106
+1793  1C1C CD 45 0A     KROZHL:  CALL   0A45H
+1794  1C1F 18 EB                JR     ZAKROZ
+1795  1C21 C3 81 07     NODEGR:  JP     781H
+1796  1C24 CD 0F 1C     COS:     CALL   ABSDEG ; COSINE
+1797  1C27 21 B5 1A             LD     HL,PIPOLA
+1798  1C2A CD D4 1C             CALL   PLUSHL
+1799  1C2D AF                   XOR    A
+1800  1C2E 18 04                JR     KAOSIN
+1801  1C30 CD 0F 1C     SIN:     CALL   ABSDEG ; SINE
+1802  1C33 07                   RLCA
+1803  1C34 DD 77 14     KAOSIN:  LD     (IX+20),A ; COSINE CONTINUES AS SINE
+1804  1C37 21 B9 1A             LD     HL,PI2
+1805  1C3A E5                   PUSH   HL
+1806  1C3B CD 3B 1B             CALL   CPHL
+1807  1C3E E1                   POP    HL
+1808  1C3F 38 14                JR     C,LTH2PI
+1809  1C41 E5                   PUSH   HL
+1810  1C42 CD 1C 1C             CALL   KROZHL
+1811  1C45 CD 22 1B             CALL   DUBLIX
+1812  1C48 CD 6D 0A             CALL   0A6DH
+1813  1C4B CD BC 0A             CALL   0ABCH
+1814  1C4E CD 1E 0B             CALL   MINUS
+1815  1C51 E1                   POP    HL
+1816  1C52 CD F3 1B             CALL   PUTAHL
+1817  1C55              LTH2PI   EQU    $
+1818  1C55 21 B1 1A             LD     HL,CPI_
+1819  1C58 E5                   PUSH   HL
+1820  1C59 CD 3B 1B             CALL   CPHL
+1821  1C5C E1                   POP    HL
+1822  1C5D 38 06                JR     C,LTHPI
+1823  1C5F CD 7B 1D             CALL   MINHL
+1824  1C62 DD 34 14             INC    (IX+20)
+1825  1C65              LTHPI    EQU    $
+1826  1C65 21 B5 1A             LD     HL,PIPOLA
+1827  1C68 CD 3B 1B             CALL   CPHL
+1828  1C6B 38 0F                JR     C,LTH90
+1829  1C6D CD 22 1B             CALL   DUBLIX
+1830  1C70 CD 46 1B             CALL   IXM10
+1831  1C73 CD 19 1B             CALL   PI
+1832  1C76 CD 4B 1B             CALL   IX5
+1833  1C79 CD 1E 0B             CALL   MINUS
+1834  1C7C              LTH90    EQU    $
+1835  1C7C 21 BD 1A             LD     HL,X1EM3
+1836  1C7F CD 3B 1B             CALL   CPHL
+1837  1C82 D8                   RET    C
+1838  1C83 CD 1F 1B             CALL   DUBL2
+1839  1C86 21 BD 1A             LD     HL,CS1-4
+1840  1C89 06 04                LD     B,4
+1841  1C8B C5           D04:     PUSH   BC
+1842  1C8C E5                   PUSH   HL
+1843  1C8D CD 56 1B             CALL   ISPOD3
+1844  1C90 CD 56 1B             CALL   ISPOD3
+1845  1C93 CD E6 0A             CALL   PUTA
+1846  1C96 CD 56 1B             CALL   ISPOD3
+1847  1C99 CD E6 0A             CALL   PUTA
+1848  1C9C DD E5                PUSH   IX
+1849  1C9E 01 EC FF             LD     BC,0FFFFH-19
+1850  1CA1 DD 09                ADD    IX,BC
+1851  1CA3 21 0F 00             LD     HL,15
+1852  1CA6 CD 59 1B             CALL   SKRISP
+1853  1CA9 DD E1                POP    IX
+1854  1CAB E1                   POP    HL
+1855  1CAC 23                   INC    HL
+1856  1CAD              ; 011107
+1857  1CAD 23                   INC    HL
+1858  1CAE 23                   INC    HL
+1859  1CAF 23                   INC    HL
+1860  1CB0 E5                   PUSH   HL
+1861  1CB1 CD 1C 1C             CALL   KROZHL
+1862  1CB4 CD 32 0B             CALL   PLUS
+1863  1CB7 E1                   POP    HL
+1864  1CB8 C1                   POP    BC
+1865  1CB9 10 D0                DJNZ   D04
+1866  1CBB DD CB 0A 46          BIT    0,(IX+10)
+1867  1CBF 28 04                JR     Z,MOVE02
+1868  1CC1 DD CB FF FE          SET    7,(IX-1)
+1869  1CC5 CD C8 1C     MOVE02:  CALL MOVE0
+1870  1CC8 CD 46 1B     MOVE0:   CALL IXM10 ; IX=IX-10
+1871  1CCB EF           MOVE:    RST   28H ; HL<-0
+1872  1CCC CD BC 0A             CALL   0ABCH ; HL on stack
+1873  1CCF CD 4B 1B             CALL   IX5 ; IX=IX+5
+1874  1CD2 18 03                JR     ZAPLUS
+1875  1CD4 CD 45 0A     PLUSHL:  CALL 0A45H
+1876  1CD7 C3 32 0B     ZAPLUS:  JP  PLUS
+1877  1CDA DF           POW:     RST    18H ; EXPONENTIATION
+1878  1CDB 28                   DEFB   '('
+1879  1CDC 58                   DEFB   WH-$-1
+1880  1CDD CD B2 0A             CALL   0AB2H
+1881  1CE0 CD 6B 1B             CALL   LOGIT2
+1882  1CE3 DF                   RST    18H
+1883  1CE4 2C                   DEFB   ','
+1884  1CE5 4F                   DEFB   WH-$-1
+1885  1CE6 CD B2 0A             CALL   0AB2H
+1886  1CE9 DF                   RST    18H
+1887  1CEA 29                   DEFB   ')'
+1888  1CEB 49                   DEFB   WH-$-1
+1889  1CEC CD E6 0A     FORSOR:  CALL PUTA
+1890  1CEF 18 2A                JR     EXP2
+1891  1CF1 CF           OUTP:    RST    8 ; *** OUTPUT ***
+1892  1CF2 E5                   PUSH   HL
+1893  1CF3 CD 05 00             CALL   5
+1894  1CF6 C1                   POP    BC
+1895  1CF7 ED 69                OUT    (C),L
+1896  1CF9 F7                   RST    30H
+1897  1CFA 4D           INP:     LD     C,L ; *** INPUT ***
+1898  1CFB 44                   LD     B,H
+1899  1CFC ED 68                IN     L,(C)
+1900  1CFE 18 03                JR     FORDBD
+1901  1D00 CD 1D 19     ASCII:   CALL   ASCX ; *** ASCII CHARACTER IN NUMERIC EXPRESSION ***
+1902  1D03 C3 BD 0D     FORDBD:  JP    0DBDH
+1903  1D06 CD 81 07     SQR:     CALL   781H ; SQUARE ROOT
+1904  1D09 CD 2F 1B             CALL   CP0
+1905  1D0C C8                   RET    Z
+1906  1D0D CD 6B 1B             CALL   LOGIT2
+1907  1D10 21 E9 1A             LD     HL,C1
+1908  1D13 CD 45 0A             CALL   0A45H
+1909  1D16 18 D4                JR     FORSOR
+1910  1D18 CD 81 07     EXP:     CALL   781H ; E TO THE POWER OF X
+1911  1D1B CD FC 1B     EXP2:    CALL   ABSA
+1912  1D1E 17                   RLA
+1913  1D1F F5                   PUSH   AF
+1914  1D20              ; 011108
+1915  1D20 CD 22 1B             CALL    DUBLIX
+1916  1D23 CD 6D 0A             CALL    0A6DH
+1917  1D26 E5                   PUSH    HL
+1918  1D27 CD BC 0A             CALL    0ABCH
+1919  1D2A CD 1E 0B             CALL    MINUS
+1920  1D2D EF                   RST     28H
+1921  1D2E 23                   INC     HL
+1922  1D2F CD BC 0A             CALL    0ABCH
+1923  1D32 E1                   POP     HL
+1924  1D33 7C                   LD      A,H
+1925  1D34 B7                   OR      A
+1926  1D35 C2 5A 06     WH:      JP      NZ,65AH
+1927  1D38 B5                   OR      L
+1928  1D39 28 0B                JR      Z,NOLOOP
+1929  1D3B E5           DOHL:    PUSH    HL
+1930  1D3C 21 D5 1A             LD      HL,CE1
+1931  1D3F CD F3 1B             CALL    PUTAHL
+1932  1D42 E1                   POP     HL
+1933  1D43 2D                   DEC     L
+1934  1D44 20 F5                JR      NZ,DOHL
+1935  1D46 21 D9 1A     NOLOOP:  LD      HL,CE2
+1936  1D49 E5                   PUSH    HL
+1937  1D4A CD 45 0A             CALL    0A45H
+1938  1D4D E1                   POP     HL
+1939  1D4E 06 06                LD      B,6
+1940  1D50 C5           EXP6:    PUSH    BC
+1941  1D51 23                   INC     HL
+1942  1D52 23                   INC     HL
+1943  1D53 23                   INC     HL
+1944  1D54 23                   INC     HL
+1945  1D55 E5                   PUSH    HL
+1946  1D56 CD 56 1B             CALL    ISPOD3
+1947  1D59 CD E6 0A             CALL    PUTA
+1948  1D5C E1                   POP     HL
+1949  1D5D E5                   PUSH    HL
+1950  1D5E CD D4 1C             CALL    PLUSHL
+1951  1D61 E1                   POP     HL
+1952  1D62 C1                   POP     BC
+1953  1D63 10 EB                DJNZ    EXP6
+1954  1D65 CD E6 0A             CALL    PUTA
+1955  1D68 F1                   POP     AF
+1956  1D69 D2 C8 1C             JP      NC,MOVE0
+1957  1D6C CD 46 1B             CALL    IXM10
+1958  1D6F 21 ED 1A             LD      HL,C7
+1959  1D72 CD 45 0A             CALL    0A45H
+1960  1D75 CD 4B 1B             CALL    IX5
+1961  1D78 C3 F7 0A             JP      KROZ
+1962  1D7B CD 45 0A     MINHL:   CALL    0A45H
+1963  1D7E C3 1E 0B             JP      MINUS
+1964  1D81 CD F9 1B     ATN:     CALL    ABS_ ; ARCTANGENT
+1965  1D84 17                   RLA
+1966  1D85 F5                   PUSH    AF
+1967  1D86 CD 2F 1B             CALL    CP0
+1968  1D89 CA 97 10             JP      Z,NCOPY
+1969  1D8C CD 38 1B             CALL    CP1
+1970  1D8F F5                   PUSH    AF
+1971  1D90 38 12                JR      C,NEKROZ
+1972  1D92 CD 22 1B             CALL    DUBLIX
+1973  1D95 CD 46 1B             CALL    IXM10
+1974  1D98 21 ED 1A             LD      HL,C7
+1975  1D9B CD 45 0A             CALL    0A45H
+1976  1D9E CD 4B 1B             CALL    IX5
+1977  1DA1 CD F7 0A             CALL    KROZ
+1978  1DA4 CD 1F 1B     NEKROZ:  CALL    DUBL2
+1979  1DA7              ; 011109
+1980  1DA7 CD E6 0A             CALL    PUTA
+1981  1DAA EF                   RST     28H
+1982  1DAB CD BC 0A             CALL    0ABCH
+1983  1DAE 21 F5 1A             LD      HL,CT1
+1984  1DB1 06 08                LD      B,8
+1985  1DB3 C5           TAYLB:   PUSH    BC
+1986  1DB4 E5                   PUSH    HL
+1987  1DB5 CD D4 1C             CALL    PLUSHL
+1988  1DB8 CD 51 1B             CALL    ISPOD2
+1989  1DBB CD E6 0A             CALL    PUTA
+1990  1DBE E1                   POP     HL
+1991  1DBF 23                   INC     HL
+1992  1DC0 23                   INC     HL
+1993  1DC1 23                   INC     HL
+1994  1DC2 23                   INC     HL
+1995  1DC3 C1                   POP     BC
+1996  1DC4 10 ED                DJNZ    TAYLB
+1997  1DC6 21 ED 1A             LD      HL,C7
+1998  1DC9 CD D4 1C             CALL    PLUSHL
+1999  1DCC CD 56 1B             CALL    ISPOD3
+2000  1DCF CD E6 0A             CALL    PUTA
+2001  1DD2 F1                   POP     AF
+2002  1DD3 38 12                JR      C,YLTH1
+2003  1DD5 CD 22 1B             CALL    DUBLIX
+2004  1DD8 CD 46 1B             CALL    IXM10
+2005  1DDB 21 B5 1A             LD      HL,PIPOLA
+2006  1DDE CD 45 0A             CALL    0A45H
+2007  1DE1 CD 4B 1B             CALL    IX5
+2008  1DE4 CD 1E 0B             CALL    MINUS
+2009  1DE7 F1           YLTH1:   POP     AF
+2010  1DE8 30 04                JR      NC,XGTH0
+2011  1DEA DD CB FF FE          SET     7,(IX-1)
+2012  1DEE C3 C5 1C     XGTH0:   JP      MOVE02
+2013  1DF1              TEXT1    EQU     $ ; New BASIC commands table
+2014  1DF1 4C 50 52 49          DEFM    'LPRINT'
+2014  1DF5 4E 54
+2015  1DF7 90                   DEFB    (LPRINT >> 8)|$80 ; High byte with bit 7 set ; LPRINT<-8+80H
+2016  1DF8 5C                   DEFB    LPRINT & $FF
+2017  1DF9 4C 4C 49 53          DEFM    'LLIST'
+2017  1DFD 54
+2018  1DFE 90                   DEFB    (LLIST >> 8)|$80 ; High byte with bit 7 set; LLIST<-8+80H
+2019  1DFF 66                   DEFB    LLIST & $FF
+2020  1E00 4F 55 54             DEFM    'OUT'
+2021  1E03 9C                   DEFB    (OUTP >> 8)|$80 ; OUTP<-8+80H
+2022  1E04 F1                   DEFB    OUTP & $FF
+2023  1E05 3C                   DEFM    '<'
+2024  1E06 90                   DEFB    (GOASS >> 8)|$80 ; GOASS<-8+80H
+2025  1E07 A7                   DEFB    GOASS & $FF
+2026  1E08 2F                   DEFM    '/'
+2027  1E09 9A                   DEFB    (FIND >> 8)|$80 ; FIND<-8+80H
+2028  1E0A 4A                   DEFB    FIND & $FF
+2029  1E0B 52 45 4E             DEFM    'REN'
+2030  1E0E 9A                   DEFB    (NAME >> 8)|$80 ; NAME<-8+80H
+2031  1E0F 1A                   DEFB    NAME & $FF
+2032  1E10              ; 011110
+2033  1E10 4C 44 55 4D          DEFM    'LDUMP'
+2033  1E14 50
+2034  1E15 9A                   DEFB    (LDUMP >> 8)|$80 ; LDUMP<-8+80H
+2035  1E16 90                   DEFB    LDUMP & $FF
+2036  1E17 44 55 4D 50          DEFM    'DUMP'
+2037  1E1B 9A                   DEFB    (DUMP >> 8) | $80 ; DUMP<-8+80H
+2038  1E1C 93                   DEFB    DUMP & $FF
+2039  1E1D 44 45 4C             DEFM    'DEL'
+2040  1E20 99                   DEFB    (DEL >> 8)|$80 ; DEL<-8+80H
+2041  1E21 FB                   DEFB    DEL & $FF
+2042  1E22 90                   DEFB    (KAO75B >> 8)|$80 ; KAO75B<-8+80H
+2043  1E23 1F                   DEFB    KAO75B & $FF
+2044  1E24 53 51 52     TEXT3:   DEFM    'SQR' ; TABLE OF NEW FUNCTIONS FOR BASIC
+2045  1E27 9D                   DEFB    (SQR >> 8)|$80 ; SQR<-8+80H
+2046  1E28 06                   DEFB    SQR & $FF
+2047  1E29 4C 4E                DEFM    'LN'
+2048  1E2B 9B                   DEFB    (LOG >> 8)|$80 ; LOG<-8+80H
+2049  1E2C 68                   DEFB    LOG & $FF
+2050  1E2D 41 42 53             DEFM    'ABS'
+2051  1E30 9B                   DEFB    (ABS_ >> 8)|$80 ; ABS_<-8+80H
+2052  1E31 F9                   DEFB    ABS_ & $FF
+2053  1E32 53 49 4E             DEFM    'SIN'
+2054  1E35 9C                   DEFB    (SIN >> 8)|$80 ; SIN<-8+80H
+2055  1E36 30                   DEFB    SIN & $FF
+2056  1E37 43 4F 53             DEFM    'COS'
+2057  1E3A 9C                   DEFB    (COS >> 8)|$80 ; COS<-8+80H
+2058  1E3B 24                   DEFB    COS & $FF
+2059  1E3C 54 47                DEFM    'TG'
+2060  1E3E 9C                   DEFB    (TAN >> 8)|$80 ; TAN<-8+80H
+2061  1E3F 04                   DEFB    TAN & $FF
+2062  1E40 41 52 43 54          DEFM    'ARCTG'
+2062  1E44 47
+2063  1E45 9D                   DEFB    (ATN >> 8)|$80 ; ATN<-8+80H
+2064  1E46 81                   DEFB    ATN & $FF
+2065  1E47 50 49                DEFM    'PI'
+2066  1E49 9B                   DEFB    (PI >> 8)|$80 ; PI<-8+80H
+2067  1E4A 19                   DEFB    PI & $FF
+2068  1E4B 45 58 50             DEFM    'EXP'
+2069  1E4E 9D                   DEFB    (EXP >> 8)|$80 ; EXP<-8+80H
+2070  1E4F 18                   DEFB    EXP & $FF
+2071  1E50 50 4F 57             DEFM    'POW'
+2072  1E53              ; 011111
+2073  1E53 9C                   DEFB    (POW >> 8)|$80 ; High byte with bit 7 set ; POW<-8+80H
+2074  1E54 DA                   DEFB    POW & $FF
+2075  1E55 49 4E 50             DEFM    'INP'
+2076  1E58 DC                   DEFB    (INP >> 8)|$80|$40 ; High byte with bits 7,6 set ; INP<-8+80H+40H
+2077  1E59 FA                   DEFB    INP & $FF
+2078  1E5A 22                   DEFM    '"'
+2079  1E5B 9D                   DEFB    (ASCII >> 8)|$80 ; High byte with bit 7 set ; ASCII<-8+80H
+2080  1E5C 00                   DEFB    ASCII & $FF
+2081  1E5D 90                   DEFB    (KAO777 >> 8)|$80 ; High byte with bit 7 set; KAO777<-8+80H
+2082  1E5E 59                   DEFB    KAO777 & $FF
+2083  1E5F 00 10        TAB4:    DEFW    1000H ; CPU Instructions
+2084  1E61 08 18                DEFW    1808H ; RRC RR
+2085  1E63 20 28                DEFW    2820H ; SLA SRA
+2086  1E65 38 40                DEFW    4038H ; SRL BIT
+2087  1E67 C0 80                DEFW    80C0H ; SET RES
+2088  1E69 00                   DEFB    0 ; Table Terminator
+2089  1E6A 80 88        TAB5:    DEFW    08880H ; 8-bit Arithmetic
+2090  1E6C 98 90                DEFW    09098H ; SBC SUB
+2091  1E6E A0 B0                DEFW    0B0A0H ; AND OR
+2092  1E70 A8 B8                DEFW    0B8A8H ; XOR CP
+2093  1E72 00                   DEFB    0 ; Table Terminator
+2094  1E73 09 4A        TAB6:    DEFW    4A09H ; 16-bit Arithmetic
+2095  1E75 42                   DEFB    42H ; SBC
+2096  1E76 10 00        TABJP:   DEFW    00010H ; Conditional and Unconditional Jumps
+2097  1E78 18 20                DEFW    02018H ; JR
+2098  1E7A C3 C2                DEFW    0C2C3H ; JP
+2099  1E7C CD C4                DEFW    0C4CDH ; CALL
+2100  1E7E 00 2F        TABY1:   DEFW    02F00H ; Simple Instructions
+2101  1E80 3F 37                DEFW    0373FH
+2102  1E82 76 F3                DEFW    0F376H
+2103  1E84 FB D9                DEFW    0D9FBH
+2104  1E86 07 17                DEFW    01707H
+2105  1E88 0F 1F                DEFW    01F0FH
+2106  1E8A 27                   DEFB    27H
+2107  1E8B B0 A0                DEFW    0A0B0H ; ED Instructions
+2108  1E8D B8 A8                DEFW    0A8B8H
+2109  1E8F B1 A1                DEFW    0A1B1H
+2110  1E91 B9 A9                DEFW    0A9B9H
+2111  1E93 B2 A2                DEFW    0A2B2H
+2112  1E95 BA AA                DEFW    0AABAH
+2113  1E97 B3 A3                DEFW    0A3B3H
+2114  1E99 BB AB                DEFW    0ABBBH
+2115  1E9B 44 4D                DEFW    04D44H
+2116  1E9D 45 6F                DEFW    06F45H
+2117  1E9F 67                   DEFB    67H
+2118  1EA0 00                   DEFB    0 ; Table Terminator
+2119  1EA1 0E 0F        TESTAB:  DEFW    0F0EH ; A,I (LOAD)
+2120  1EA3 57                   DEFB    57H
+2121  1EA4 0F 0E                DEFW    0E0FH ; I,A
+2122  1EA6 47                   DEFB    47H
+2123  1EA7 0E 10                DEFW    100EH ; A,R
+2124  1EA9 5F                   DEFB    5FH
+2125  1EAA 10 0E                DEFW    0E10H ; R,A
+2126  1EAC 4F                   DEFB    4FH
+2127  1EAD 0E 84                DEFW    840EH ; A,(BC)
+2128  1EAF 0A                   DEFB    0AH
+2129  1EB0              ; 011112
+2130  1EB0 0E 85                DEFW    850EH ; A,(DE)
+2131  1EB2 1A                   DEFB    1AH
+2132  1EB3 84 0E                DEFW    0E84H ; (BC),A
+2133  1EB5 02                   DEFB    02H
+2134  1EB6 85 0E                DEFW    0E85H ; (DE),A
+2135  1EB8 12                   DEFB    12H
+2136  1EB9 07 06                DEFW    0607H ; SP,HL
+2137  1EBB F9                   DEFB    0F9H
+2138  1EBC 0E C0                DEFW    0C00EH ; A,(NN)
+2139  1EBE 3A                   DEFB    3AH
+2140  1EBF C0 0E                DEFW    0EC0H ; (NN),A
+2141  1EC1 32                   DEFB    32H
+2142  1EC2 87 06        TEST2:   DEFW    687H ; (SP),HL     EXCHANGE
+2143  1EC4 E3                   DEFB    0E3H
+2144  1EC5 03 03                DEFW    303H ; AF,AF'
+2145  1EC7 08                   DEFB    008H
+2146  1EC8 05 06                DEFW    605H ; DE,HL
+2147  1ECA EB                   DEFB    0EBH
+2148  1ECB D2           TABEL1:  DEFB    'R'+80H ; GROUP 1: COMMANDS
+2149  1ECC 45 47                DEFM    'EG'
+2150  1ECE D4                   DEFB    'T'+80H
+2151  1ECF 45 58 54             DEFM    'EXT'
+2152  1ED2 D7                   DEFB    'W'+80H
+2153  1ED3 4F 52 44             DEFM    'ORD'
+2154  1ED6 C2                   DEFB    'B'+80H
+2155  1ED7 59 54 45             DEFM    'YTE'
+2156  1EDA CF                   DEFB    'O'+80H
+2157  1EDB 50 54                DEFM    'PT'
+2158  1EDD CF                   DEFB    'O'+80H
+2159  1EDE 52 47                DEFM    'RG'
+2160  1EE0 C5                   DEFB    'E'+80H
+2161  1EE1 51 55                DEFM    'QU'
+2162  1EE3 BE                   DEFB    '>'+80H
+2163  1EE4 CE                   DEFB    'N'+80H ; GROUP 2: SIMPLE INSTRUCTIONS
+2164  1EE5 4F 50                DEFM    'OP'
+2165  1EE7 C3                   DEFB    'C'+80H
+2166  1EE8 50 4C                DEFM    'PL'
+2167  1EEA C3                   DEFB    'C'+80H
+2168  1EEB 43 46                DEFM    'CF'
+2169  1EED D3                   DEFB    'S'+80H
+2170  1EEE 43 46                DEFM    'CF'
+2171  1EF0 C8                   DEFB    'H'+80H
+2172  1EF1 41 4C 54             DEFM    'ALT'
+2173  1EF4 C4                   DEFB    'D'+80H
+2174  1EF5 49                   DEFM    'I'
+2175  1EF6 C5                   DEFB    'E'+80H
+2176  1EF7 49                   DEFM    'I'
+2177  1EF8 C5                   DEFB    'E'+80H
+2178  1EF9              ; 011113
+2179  1EF9 58 58                DEFM    'XX'
+2180  1EFB D2                   DEFB    'R'+80H
+2181  1EFC 4C 43 41             DEFM    'LCA'
+2182  1EFF D2                   DEFB    'R'+80H
+2183  1F00 4C 41                DEFM    'LA'
+2184  1F02 D2                   DEFB    'R'+80H
+2185  1F03 52 43 41             DEFM    'RCA'
+2186  1F06 D2                   DEFB    'R'+80H
+2187  1F07 52 41                DEFM    'RA'
+2188  1F09 C4                   DEFB    'D'+80H
+2189  1F0A 41 41                DEFM    'AA'
+2190  1F0C CC                   DEFB    'L'+80H ; Group 3: ED+
+2191  1F0D 44 49 52             DEFM    'DIR'
+2192  1F10 CC                   DEFB    'L'+80H
+2193  1F11 44 49                DEFM    'DI'
+2194  1F13 CC                   DEFB    'L'+80H
+2195  1F14 44 44 52             DEFM    'DDR'
+2196  1F17 CC                   DEFB    'L'+80H
+2197  1F18 44 44                DEFM    'DD'
+2198  1F1A C3                   DEFB    'C'+80H
+2199  1F1B 50 49 52             DEFM    'PIR'
+2200  1F1E C3                   DEFB    'C'+80H
+2201  1F1F 50 49                DEFM    'PI'
+2202  1F21 C3                   DEFB    'C'+80H
+2203  1F22 50 44 52             DEFM    'PDR'
+2204  1F25 C3                   DEFB    'C'+80H
+2205  1F26 50 44                DEFM    'PD'
+2206  1F28 C9                   DEFB    'I'+80H
+2207  1F29 4E 49 52             DEFM    'NIR'
+2208  1F2C C9                   DEFB    'I'+80H
+2209  1F2D 4E 49                DEFM    'NI'
+2210  1F2F C9                   DEFB    'I'+80H
+2211  1F30 4E 44 52             DEFM    'NDR'
+2212  1F33 C9                   DEFB    'I'+80H
+2213  1F34 4E 44                DEFM    'ND'
+2214  1F36 CF                   DEFB    'O'+80H
+2215  1F37 54 49 52             DEFM    'TIR'
+2216  1F3A              ; 011114
+2217  1F3A CF                   DEFB    'O'+80H
+2218  1F3B 55 54 49             DEFM    'UTI'
+2219  1F3E CF                   DEFB    'O'+80H
+2220  1F3F 54 44 52             DEFM    'TDR'
+2221  1F42 CF                   DEFB    'O'+80H
+2222  1F43 55 54 44             DEFM    'UTD'
+2223  1F46 CE                   DEFB    'N'+80H
+2224  1F47 45 47                DEFM    'EG'
+2225  1F49 D2                   DEFB    'R'+80H
+2226  1F4A 45 54 49             DEFM    'ETI'
+2227  1F4D D2                   DEFB    'R'+80H
+2228  1F4E 45 54 4E             DEFM    'ETN'
+2229  1F51 D2                   DEFB    'R'+80H
+2230  1F52 4C 44                DEFM    'LD'
+2231  1F54 D2                   DEFB    'R'+80H
+2232  1F55 52 44                DEFM    'RD'
+2233  1F57 D2                   DEFB    'R'+80H ; GROUP 4: BIT ROTATION AND MANIPULATION
+2234  1F58 4C 43                DEFM    'LC'
+2235  1F5A D2                   DEFB    'R'+80H
+2236  1F5B 4C                   DEFM    'L'
+2237  1F5C D2                   DEFB    'R'+80H
+2238  1F5D 52 43                DEFM    'RC'
+2239  1F5F D2                   DEFB    'R'+80H
+2240  1F60 52                   DEFM    'R'
+2241  1F61 D3                   DEFB    'S'+80H
+2242  1F62 4C 41                DEFM    'LA'
+2243  1F64 D3                   DEFB    'S'+80H
+2244  1F65 52 41                DEFM    'RA'
+2245  1F67 D3                   DEFB    'S'+80H
+2246  1F68 52 4C                DEFM    'RL'
+2247  1F6A C2                   DEFB    'B'+80H
+2248  1F6B 49 54                DEFM    'IT'
+2249  1F6D D3                   DEFB    'S'+80H
+2250  1F6E 45 54                DEFM    'ET'
+2251  1F70 D2                   DEFB    'R'+80H
+2252  1F71 45 53                DEFM    'ES'
+2253  1F73 C1                   DEFB    'A'+80H ; GROUP 5: ARITHMETIC AND LOGIC
+2254  1F74 44 44                DEFM    'DD'
+2255  1F76 C1                   DEFB    'A'+80H
+2256  1F77 44 43                DEFM    'DC'
+2257  1F79 D3                   DEFB    'S'+80H
+2258  1F7A              ; 011115
+2259  1F7A 42 43                DEFM    'BC'
+2260  1F7C D3                   DEFB    'S'+80H
+2261  1F7D 55 42                DEFM    'UB'
+2262  1F7F C1                   DEFB    'A'+80H
+2263  1F80 4E 44                DEFM    'ND'
+2264  1F82 CF                   DEFB    'O'+80H
+2265  1F83 52                   DEFM    'R'
+2266  1F84 D8                   DEFB    'X'+80H
+2267  1F85 4F 52                DEFM    'OR'
+2268  1F87 C3                   DEFB    'C'+80H
+2269  1F88 50                   DEFM    'P'
+2270  1F89 C9                   DEFB    'I'+80H ; Group 6: Increment - Decrement
+2271  1F8A 4E 43                DEFM    'NC'
+2272  1F8C C4                   DEFB    'D'+80H
+2273  1F8D 45 43                DEFM    'EC'
+2274  1F8F CC                   DEFB    'L'+80H ; Group 7: Load and Exchange
+2275  1F90 44                   DEFM    'D'
+2276  1F91 C5                   DEFB    'E'+80H
+2277  1F92 58                   DEFM    'X'
+2278  1F93 C9                   DEFB    'I'+80H ; Group 8: Input - Output
+2279  1F94 4E                   DEFM    'N'
+2280  1F95 CF                   DEFB    'O'+80H
+2281  1F96 55 54                DEFM    'UT'
+2282  1F98 C4                   DEFB    'D'+80H ; Group 9: Jumps
+2283  1F99 4A 4E 5A             DEFM    'JNZ'
+2284  1F9C CA                   DEFB    'J'+80H
+2285  1F9D 52                   DEFM    'R'
+2286  1F9E CA                   DEFB    'J'+80H
+2287  1F9F 50                   DEFM    'P'
+2288  1FA0 C3                   DEFB    'C'+80H
+2289  1FA1 41 4C 4C             DEFM    'ALL'
+2290  1FA4 D2                   DEFB    'R'+80H
+2291  1FA5 45 54                DEFM    'ET'
+2292  1FA7 D2                   DEFB    'R'+80H ; Group 10: Return - Interrupt
+2293  1FA8 53 54                DEFM    'ST'
+2294  1FAA C9                   DEFB    'I'+80H
+2295  1FAB 4D                   DEFM    'M'
+2296  1FAC D0                   DEFB    'P'+80H ; Group 11: Push - Pop
+2297  1FAD 4F 50                DEFM    'OP'
+2298  1FAF D0                   DEFB    'P'+80H
+2299  1FB0 55 53 48             DEFM    'USH'
+2300  1FB3 80                   DEFB    80H
+2301  1FB4 C9           TABEL2:  DEFB    'I'+80H ; Table 2: OPERANDS
+2302  1FB5 58                   DEFM    'X'
+2303  1FB6 C9                   DEFB    'I'+80H
+2304  1FB7 59                   DEFM    'Y'
+2305  1FB8 C1                   DEFB    'A'+80H
+2306  1FB9 46                   DEFM    'F'
+2307  1FBA C2                   DEFB    'B'+80H
+2308  1FBB              ; 011116
+2309  1FBB 43                   DEFM    'C'
+2310  1FBC C4                   DEFB    'D'+80H
+2311  1FBD 45                   DEFM    'E'
+2312  1FBE C8                   DEFB    'H'+80H
+2313  1FBF 4C                   DEFM    'L'
+2314  1FC0 D3                   DEFB    'S'+80H
+2315  1FC1 50                   DEFM    'P'
+2316  1FC2 C2                   DEFB    'B'+80H
+2317  1FC3 C3                   DEFB    'C'+80H
+2318  1FC4 C4                   DEFB    'D'+80H
+2319  1FC5 C5                   DEFB    'E'+80H
+2320  1FC6 C8                   DEFB    'H'+80H
+2321  1FC7 CC                   DEFB    'L'+80H
+2322  1FC8 C1                   DEFB    'A'+80H
+2323  1FC9 C9                   DEFB    'I'+80H
+2324  1FCA D2                   DEFB    'R'+80H
+2325  1FCB CE                   DEFB    'N'+80H
+2326  1FCC 5A                   DEFM    'Z'
+2327  1FCD DA                   DEFB    'Z'+80H
+2328  1FCE CE                   DEFB    'N'+80H
+2329  1FCF 43                   DEFM    'C'
+2330  1FD0 C3                   DEFB    'C'+80H
+2331  1FD1 D0                   DEFB    'P'+80H
+2332  1FD2 4F                   DEFM    'O'
+2333  1FD3 D0                   DEFB    'P'+80H
+2334  1FD4 45                   DEFM    'E'
+2335  1FD5 D0                   DEFB    'P'+80H
+2336  1FD6 CD                   DEFB    'M'+80H
+2337  1FD7 80                   DEFB    80H
+2338  1FD8 20 20 41 46  NASLOV:  DEFM  '  AF   BC   DE   HL  IXIY SP()'
+2338  1FDC 20 20 20 42
+2338  1FE0 43 20 20 20
+2338  1FE4 44 45 20 20
+2338  1FE8 20 48 4C 20
+2338  1FEC 20 49 58 49
+2338  1FF0 59 20 53 50
+2338  1FF4 28 29
+2339  1FF6 0D                   DEFB    0DH
+2340  1FF7 3A DD 2B     EXTRA:   LD      A,(INS1)
+2341  1FFA FE 45                CP      45H ; Will it open JP?
+2342  1FFC              ; 011117
+2343  1FFC C8                   RET     Z ; RETURN IF IS STILL
+2344  1FFD 34                   INC     (HL)
+2345  1FFE C9                   RET ; AND IF NOT, INCREASE NUMBER OF BYTES
+2346  1FFF                      ORG     1FFFH
+2347  1FFF 05                   DEFB    5 ; VERSION 5
+2348  2000                      END
+# file closed: .//rom_b.asm
