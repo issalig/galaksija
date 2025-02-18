@@ -38,8 +38,8 @@ $normal_key_color = [ 0.95, 0.95, 0.95 ];
 $text_enabled = true; // characters on keys
 $key_space = 19;      // space between keys in pcb
 
-$fn_keys = 60;
-$fn_text = 60;
+$fn_keys = 40;
+$fn_text = 20;
 $fn = $fn_keys;
 
 $key_thickness = 1;
@@ -55,8 +55,11 @@ $grid_support = false; // if you plan to print it all together
 
 // main key function
 module key(width = 18, height = 18, deep = 7.2, x_diff = 5.2, y_diff = 4.5, z_diff = 0, slant = 0, y_off = 2,
-           rounded_corner = 0.5, thickness = $key_thickness, upper_bevel_radius = 0, slant = 0, base_height = 0.001)
+           rounded_corner = 0.5, rounded_corner2 = 3,  thickness = $key_thickness, upper_bevel_radius = 0, slant = 0, base_height = 0.001)
 {
+    //rounded_corner is radius on corner at bottom
+    //rounded_corner2 is radius on corner at top
+    
 	deep2 = deep + z_diff;
 	w_up = width - x_diff; // upper width
 
@@ -92,11 +95,11 @@ module key(width = 18, height = 18, deep = 7.2, x_diff = 5.2, y_diff = 4.5, z_di
 					{
 						cube(
 						    [
-							    width - x_diff - 2 * rounded_corner - 2 * upper_bevel_radius,
-							    height - y_diff - 2 * rounded_corner - 2 * upper_bevel_radius, 0.001
+							    width - x_diff - 2 * rounded_corner2 - 2 * upper_bevel_radius,
+							    height - y_diff - 2 * rounded_corner2 - 2 * upper_bevel_radius, 0.001
 						    ],
 						    center = true);
-						cylinder(r = rounded_corner, h = 0.001, $fn = $fn_keys);
+						cylinder(r = rounded_corner2, h = 0.001, $fn = $fn_keys);
 					}
 					sphere(r = upper_bevel_radius, $fn = $fn_keys);
 				}
@@ -125,11 +128,11 @@ module key(width = 18, height = 18, deep = 7.2, x_diff = 5.2, y_diff = 4.5, z_di
 					// inner rounded corner is halved
 					cube(
 					    [
-						    width - x_diff - 2 * thickness - rounded_corner - rounded_corner,
-						    height - y_diff - 2 * thickness - rounded_corner - rounded_corner, 0.001
+						    width - x_diff - 2 * thickness - rounded_corner2 - rounded_corner,
+						    height - y_diff - 2 * thickness - rounded_corner2 - rounded_corner, 0.001
 					    ],
 					    center = true);
-					cylinder(r = rounded_corner / 2, h = 0.001, $fn = $fn_keys);
+					cylinder(r = rounded_corner2 / 2, h = 0.001, $fn = $fn_keys);
 				}
 			}
 		}
