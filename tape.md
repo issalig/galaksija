@@ -10,7 +10,11 @@ The analog input consists of a pulse amplifier that acts as a simple analog-to-d
 
 An example of the input and output signal of the amplifier for a single input pulse is shown in Figure 23.
 
+![imagen](https://github.com/user-attachments/assets/116c5909-900b-4b44-9b0b-c850d4735e58)
+
 **Figure 22**: Tape Interface Output Signal (Measurement)
+
+![imagen](https://github.com/user-attachments/assets/e6964368-a0ec-4d04-894c-94a0a7103d5f)
 
 **Figure 23**: Pulse Amplifier Input and Output Signal (SPICE Simulation)
 
@@ -19,6 +23,8 @@ An example of the input and output signal of the amplifier for a single input pu
 Simple pulse modulation is used for storing data on the tape. The time diagram of the signal is shown in Figure 30, the information on the time intervals in Table 11, and the logical meaning of the individual stored bytes in Table 12.
 
 A data transfer rate of approximately 330 bit/s is typically achieved. The choice of a simple modulation and low transfer rate is most likely due to the limited space for modulation and demodulation routines in the EPROM memory, as microcomputers with the same hardware and larger ROM memory achieve significantly higher transfer rates (for example, Sinclair Spectrum typically 1500 bit/s).
+
+![imagen](https://github.com/user-attachments/assets/c14e8397-1778-408f-98d6-d34391841abf)
 
 **Figure 30**: Timing diagram of the modulation used for storing data on magnetic tape
 
