@@ -1,5 +1,5 @@
 # ROM listings
-There a 4 for ROMS, from A to D or 1 to 4, i. e., A corresponds to 1 and so on.
+There a 4 for ROMS, from A to D or 1 to 4.
 
 Here I provide asm files for roms A, B, and C. For D only some info from a magazine is included.
 
@@ -12,11 +12,11 @@ Using make_roms.sh will assemble roms A, B and C.
 ## ROM A
 ROM A has been downloaded from https://github.com/mejs/galaksija/tree/master/roms and comes from avian site https://web.archive.org/web/20221228104534/https://www.tablix.org/~avian/galaksija/rom/rom1.html 
 
-Assembled ROM A is the same as ROM_A_without_ROM_B_init_ver_28.bin
+Assembled ROM A is the same as  https://github.com/mejs/galaksija/blob/master/roms/ROM%20A/ROM_A_without_ROM_B_init_ver_28.bin
 
-ROM A may be patched by doing two changes. One is cosmetic and is increasing version number. The second change initializes ROM B at start-up to make its commands accessible. If there is no initialization patch, ROM B has to be inisialized at startup by typing A=USR(&1000)  
+ROM A may be patched for ROM B autostart by doing two changes. One is cosmetic and increases version number to 29. The second change initializes ROM B at start-up to make its commands accessible. If there is no initialization patch, ROM B has to be initialized at startup by typing A=USR(&1000)  
 
-Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_init_ver_29.bin is just:
+Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_init_ver_29.bin are just:
 
 ```
 46c46
@@ -30,9 +30,59 @@ Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_ini
 > 	call 01000h		;03f9
 ```
 
-Byte #0037 1D
-Byte #03f9 CD 00 10
-           CD D3 0C
+To check with version of ROMS you have you can try from BASIC
+```basic
+DUMP &0037, 1
+```
+1C means version 28
+1D means version 29
+
+```basic
+DUMP &03F9, 1
+```
+
+```CD D3 0C``` is for non ROM B init
+```CD 00 10``` is for ROM B init (call 01000h)
+
+The following table shows the BASIC commands and their descriptions for ROM A.
+
+| Command | Description |
+|---------|-------------|
+| `!...` | Like other BASICs REM - begins comment |
+| `#...` | Like other BASICs DATA & Use as prefix before number if it is written in hex |
+| `ARR$(x)` | Allocates array of strings. Can only allocate array A$ - with exactly this name |
+| `BYTE` | Universal PEEK/POKE tool. PEEK is like `PRINT BYTE(&33F9)`, POKE is like `BYTE &33F9,&C4` |
+| `CALL n` | Like other BASICs GOSUB. Allows to use variables for line numbers |
+| `CHR$(n)` | ASCII code to character |
+| `DOT x, y` | When used as command, draws dot at x,y (X in 0..63, Y in 0..47). Used as function- checks if there is a dot |
+| `DOT * ?` | Not specified |
+| `EDIT n` | Edit specified BASIC line |
+| `ELSE` | For IF |
+| `EQ` | Compare strings |
+| `FOR` | A typical FOR loop |
+| `GOTO` | A standard GOTO |
+| `HOME` | Clear screen. Optional argument (HOME x) preserves x characters |
+| `IF` | An IF, but there is no THEN! |
+| `INPUT` | Make user enter variable |
+| `INT(x)` | Return largest integer <=x |
+| `KEY(x)` | Is x key pressed? |
+| `LIST` | LISTs program. Optional argument specifies from which line |
+| `MEM` | How much memory is used? |
+| `NEW` | Clears program. Optional argument (NEW x) changes start of BASIC area for potential user data/code |
+| `OLD` | Load from tape. Optional argument loads to address (OLD x) |
+| `PTR` | Address of variable |
+| `PRINT` | Prints expression |
+| `RETURN` | Return from GOSUB |
+| `RND` | Returns a random float between 0 and 1 |
+| `RUN` | Runs a program |
+| `SAVE` | Save program to tape. Optional arguments: memory range to be saved (e.g. for data) |
+| `STEP` | For FOR |
+| `STOP` | Stops running of BASIC program |
+| `TAKE` | If the parameter is variable name, reads it. If number - clears data under pointer |
+| `UNDOT` | Inverse to DOT |
+| `UNDOT * ?` | Not specified |
+| `USR` | Calls user routine from memory |
+| `WORD` | Double byte PEEK/POKE (see BYTE) |
 
 
 
@@ -48,12 +98,39 @@ I have used this prompt in order to avoid short or uncomplete answers:
    full listing and do not miss any column'
 ```
 
-There are some differences in byte #1024 
-ROM_B_monitor_value_13.bin byte is 13(D)  
-ROM_B.bin is 12(C)
-ROM_B_monitor_fix.bin 11 (B)
+There are different vesions of ROM B and the difference resides in byte 0x1024 
+| ROM name | Byte value |
+|----------|------------|
+|ROM_B_monitor_value_13.bin | 13 (0xD) |
+|ROM_B.bin                  | 12 (0xC) |
+|ROM_B_monitor_fix.bin      | 11 (0xB) |
 
-I have added this to the .asm to change it if you want ```MONITOR  EQU     0CH```
+It is possible to generate each version by changing MONITOR value in https://github.com/issalig/galaksija/blob/c4fe2ca97ec3fee1fa63ec4eee6fe38ad49fcf26/roms/rom_b.asm#L63
+
+ROM B mainly includes mathematical functions. The table shows the list of ROM B functions.
+
+| Command | Description |
+|---------|-------------|
+| `SQR(x)` | Square root |
+| `POW(x,y)` | Power, values non-zero |
+| `PI` | 3.141... |
+| `EXP(x)` | e^x |
+| `LN(x)` | Logarithm |
+| `SIN/COS/TG` | Trigonometric functions |
+| `SIND/COSD/TGD` | Trigonometry for degree measure |
+| `ARCTG(x)` | Arctg |
+| `ABS(x)` | Absolute value |
+| `DEL x, y` | Delete BASIC lines x..y |
+| `REN x` | Renumber every X lines (e.g. REN 5 renames 5, 10, 15), but does not touch labels! |
+| `"-operator` | A = 10 + "X" - ASCII value of "X". Generally, first character in ""-string |
+| `PRINT% "x"` | Value of X in 4-character hex (&0058). PRINT% converts result to 4-digit hex value |
+| `DUMP x, y` | Display memory content from X, for Y rows (1 row: 8 bytes) |
+| `/word` | Search and show all program lines containing word |
+| `INP(x)` | Get content of x port |
+| `OUT(x, y)` | Emit byte y to port x. x,y 0..255, port 255 is Centronics expansion |
+| `L...` | LPRINT, LLIST, LDUMP - commands to Centronics printer expansion |
+
+Note: ROM B can be started with USR routine `X=USR(&1000)`. In some ROM versions it starts automatically.
 
 # ROM C
 This rom is converted from https://github.com/mejs/galaksija/blob/master/roms/ROM%20C/ROM%20C%20listing.pdf
