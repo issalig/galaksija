@@ -62,7 +62,7 @@ The following bytes correspond to this HELLO WORLD! program.
 ```
 First block contain name (this block is **optional** and this bytes are ignored until a5 in standard block is found.)
 - `10` -  Name Block
-- `06 00` - Length (6 bytes)
+- `06 00` - Length ( strlen("HELLO\0")=6)
 - `00 00` - Separator
 - `48 45 4c 4c 4f 00` - String terminated with \0 (HELLO)
 
