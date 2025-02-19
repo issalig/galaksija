@@ -72,7 +72,7 @@ Second block is a standard block with a program
 - `00 00` - Separator
 - `a5` - Magic byte
 - `36 2c` - Start data address 0x2c36 for BASIC
-- `51 2c` - End data address 0x2c51 (**next byte after program**)
+- `51 2c` - End data address 0x2c51 (**last byte +1**)
 - `3a 2c` - Start of code (0x2c36 + 0x04 (2 words = 4 bytes))
 - `51 2c` - End of code 0x2c36 + (0x21 - 0x06)
 - `0a` - Line number in decimal (10)
@@ -94,7 +94,7 @@ The previous dump confirms that BASIC start and end pointers are correctly set.
 |address | content |
 |-------|------|
 |2C36   | 2C3A |
-|2C38   | 2C51 (**next byte after program**) |
+|2C38   | 2C51 (**last byte +1**) |
 |2C3A .. 2C50 | 0A 00 .. 0D |
 
 Some operation tell us 0x2C51 - 0x2C3A =  0x17 -> 23 which is the program length
