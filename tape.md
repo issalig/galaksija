@@ -104,6 +104,7 @@ I compiled this information from several sources:
  - https://github.com/z88dk/z88dk/blob/master/src/appmake/galaksija.c
  - https://github.com/mamedev/mame/blob/master/src/lib/formats/gtp_cas.cpp
  - https://oldcomputer.info/8bit/galaksija/buildlog.htm
+ - https://fahrplan.events.ccc.de/congress/2012/Fahrplan/attachments/2250_prezentacija.pdf
  - gtpwav
 
 OLD (Output LoaD?) is the command for loading data. Thus, looking at the roms, "OLD" function code is found in ROM A https://github.com/issalig/galaksija/blob/ea546a2fea61937e64ce2bfd1ef2ee66332b27ea/roms/rom_a.asm#L5473 and it reads the data from the cassette that is mapped/wire to address 0x2000 https://github.com/issalig/galaksija/blob/ea546a2fea61937e64ce2bfd1ef2ee66332b27ea/roms/rom_a.asm#L5611
