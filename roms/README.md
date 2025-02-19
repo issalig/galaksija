@@ -107,7 +107,7 @@ There are different vesions of ROM B and the difference resides in byte 0x1024
 
 It is possible to generate these different versions by changing MONITOR value in https://github.com/issalig/galaksija/blob/c4fe2ca97ec3fee1fa63ec4eee6fe38ad49fcf26/roms/rom_b.asm#L63
 
-ROM B mainly includes mathematical functions. The table shows the list of available functions.
+ROM B includes mathematical functions, machine code utils and some BASIC extensions. The table shows the list of available functions.
 
 | Command | Description |
 |---------|-------------|
