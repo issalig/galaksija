@@ -60,12 +60,13 @@ The following bytes correspond to this HELLO WORLD! program.
 10 06 00 00 00 48 45 4c 4c 4f 00 00 21 00 00 00 a5 36 2c 51 2c 3a 2c 51 2c
 0a 00 50 52 49 4e 54 20 22 48 45 4c 4c 4f 20 57 4f 52 4c 44 21 22 0d 53
 ```
-First block contain name (this block is optional)
+First block contain name (this block is **optional** and this bytes are ignored until a5 in standard block is found.)
 - `10` -  Name Block
 - `06 00` - Length (6 bytes)
 - `00 00` - Separator
 - `48 45 4c 4c 4f 00` - String terminated with \0 (HELLO)
 
+Second block is a standard block with a program
 - `00` - Standard Block
 - `21 00` - Length (33 bytes from a5 to CRC)
 - `00 00` - Separator
