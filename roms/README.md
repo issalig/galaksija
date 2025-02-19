@@ -10,7 +10,7 @@ local folder is used to assemble the .asm files
 Using make_roms.sh will assemble roms A, B and C.
 
 ## ROM A
-ROM A has been downloaded from https://github.com/mejs/galaksija/tree/master/roms and comes from avian site https://web.archive.org/web/20221228104534/https://www.tablix.org/~avian/galaksija/rom/rom1.html 
+ROM A listing has been downloaded from https://github.com/mejs/galaksija/tree/master/roms and comes from avian site https://web.archive.org/web/20221228104534/https://www.tablix.org/~avian/galaksija/rom/rom1.html 
 
 Assembled ROM A is the same as  https://github.com/mejs/galaksija/blob/master/roms/ROM%20A/ROM_A_without_ROM_B_init_ver_28.bin
 
@@ -87,7 +87,7 @@ The following table shows the BASIC commands and their descriptions for ROM A.
 
 
 # ROM B
-ROM B has been downloaded from https://www.voja.rs/galaksija/ROM%20B%20Listing%20Scans/ROM_B_listing.htm, then it has been converted to text using and LLM. Of course an intense manual work has been necessary to polish ocr results.
+ROM B listing has been downloaded from https://www.voja.rs/galaksija/ROM%20B%20Listing%20Scans/ROM_B_listing.htm, then it has been converted to text using and LLM. Of course an intense manual work has been necessary to polish ocr results.
 
 I have used this prompt in order to avoid short or uncomplete answers:
 ```
@@ -105,9 +105,9 @@ There are different vesions of ROM B and the difference resides in byte 0x1024
 |ROM_B.bin                  | 12 (0xC) |
 |ROM_B_monitor_fix.bin      | 11 (0xB) |
 
-It is possible to generate each version by changing MONITOR value in https://github.com/issalig/galaksija/blob/c4fe2ca97ec3fee1fa63ec4eee6fe38ad49fcf26/roms/rom_b.asm#L63
+It is possible to generate these different versions by changing MONITOR value in https://github.com/issalig/galaksija/blob/c4fe2ca97ec3fee1fa63ec4eee6fe38ad49fcf26/roms/rom_b.asm#L63
 
-ROM B mainly includes mathematical functions. The table shows the list of ROM B functions.
+ROM B mainly includes mathematical functions. The table shows the list of available functions.
 
 | Command | Description |
 |---------|-------------|
@@ -133,10 +133,17 @@ ROM B mainly includes mathematical functions. The table shows the list of ROM B 
 Note: ROM B can be started with USR routine `X=USR(&1000)`. In some ROM versions it starts automatically.
 
 # ROM C
-This rom is converted from https://github.com/mejs/galaksija/blob/master/roms/ROM%20C/ROM%20C%20listing.pdf
-It includes an optional patch to match the original ROM_C.bin
+ROM C is targeted to Galaksija Plus which is an improved version of Galaksija, with 256x208 monochrome graphics mode, 3-voice sound based on AY-3-8910 and 48 KiB RAM. 
+This rom listing has been obtained from https://github.com/mejs/galaksija/blob/master/roms/ROM%20C/ROM%20C%20listing.pdf
+
+It is worth to mention that it differs from https://github.com/mejs/galaksija/blob/master/roms/ROM%20C/ROM_C.bin
+
+However the asm file includes an optional patch to match the original ROM_C.bin
 
 ```assembly
+...
+ROM_C_PATCH EQU 1 
+...
         ; BEGIN this part is from the ROM dump but was not in the listing
             IF ROM_C_PATCH        
         CP $FD
