@@ -27,7 +27,7 @@ A typical Galaksija tape file consists of one or more blocks (name, standard or 
 | 2            | `0000`                   |
 | 1            | `A5` Magic Byte          |
 | 2            | Start Address (typically 2C36)     |
-| 2            | End Address (Start + Data Length)|
+| 2            | End Address + 1 (Start + Data Length)|
 | 2            | BASIC (Start + 4)|
 | 2            | End Address (Start + Data Length)    |
 | Variable     | Program Data             |
