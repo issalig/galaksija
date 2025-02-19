@@ -956,11 +956,12 @@ VIDEO:
         DEC  A              
         RET  Z              ;if A=0, $return
         ADD  HL,DE          ;(multiply DE by the ordinal number of the text line)
-        JR   $E593    
-        DEFB   $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF ;BLANK - character table
+        JR   $E593
+	; character table
+        DEFB   $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF ;BLANK
         DEFB   $EF, $EF, $EF, $EF, $EF, $EF, $EF, $FF, $EF ;EXCLAMATION
         DEFB   $93, $93, $B7, $DB, $FF, $FF, $FF, $FF, $FF ;QUOTE
-        DEFB   $D7, $D7, $01, $D7, $D7, $D7, $01, $D7, $D7 ;TARABA
+        DEFB   $D7, $D7, $01, $D7, $D7, $D7, $01, $D7, $D7 ;HASH
         DEFB   $EF, $83, $ED, $ED, $83, $6F, $6F, $83, $EF ;DOLLAR
         DEFB   $FF, $B3, $B3, $DF, $EF, $F7, $9B, $9B, $FF ;PERCENT
         DEFB   $E3, $DD, $EB, $F7, $EB, $5D, $BD, $5D, $63 ;AND
@@ -1022,9 +1023,7 @@ VIDEO:
         DEFB   $00, $00, $10, $08, $64, $08, $10, $00, $00 ;LEFT ARROW
         DEFB   $00, $00, $10, $20, $4C, $20, $10, $00, $00 ;ARROW RIGHT
         DEFW $0C0C          ;text of the opening screen
-        DEFB "     *** GAL"     
-        DEFB "AKSIJA PLUS "  
-        DEFB "***"          
+        DEFB "     *** GALAKSIJA PLUS ***"          
         DEFW $DCDC          ;DC=down arrow - move to the next line
         DEFB 0              
         EX   (SP),HL        ;store HL, HL=return address - command link
