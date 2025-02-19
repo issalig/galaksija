@@ -13,7 +13,8 @@ A typical Galaksija tape file consists of one or more blocks (name, standard or 
 | Size (Bytes) | Description              |
 | ------------ | ------------------------ |
 | 1            | `10`                     |
-| 2            | Block Length             |
+| 2            | Data Length              |
+| 2            | '00 00' Separator        |
 | Variable     | File Name + `\0`         |
 
 
