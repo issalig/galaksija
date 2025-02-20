@@ -75,9 +75,9 @@ Second block is a standard block with a program
 - `51 2c` - End data address 0x2c51 (**last byte +1**)
 - `3a 2c` - Start of code (0x2c36 + 0x04 (2 words = 4 bytes))
 - `51 2c` - End of code 0x2c36 + (0x21 - 0x06)
-- `0a` - Line number in decimal (10)
-- `00 50 52 49 4e 54 20 22 48 45 4c 4c 4f 20 57 4f 52 4c 44 21 22 0d` - String (begins with \0 and ends with CR)
-- `\0 P  R  I  N  T     "  H  E  L  L  O     W  O  R  L  D  !  " \cr`
+- `0a 00` - Line number in decimal (0x000a -> 10)
+- `50 52 49 4e 54 20 22 48 45 4c 4c 4f 20 57 4f 52 4c 44 21 22 0d` - String (begins ends with CR)
+- `P  R  I  N  T     "  H  E  L  L  O     W  O  R  L  D  !  " \cr`
 - `53` - CRC
 
 Load it with OLD and type DUMP &2C36,4. This will dump 4*8 bytes starting at the given address and we can check if everything is correct.
