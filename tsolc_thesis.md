@@ -43,12 +43,15 @@ A comparison of **Galaksija**’s capabilities with similar foreign and domestic
 Initially, **Galaksija** was intended for self-assembly. To facilitate this, the designer, with the assistance of editor **Dejan Ristanović**, published a complete guide on how to build it in a **special edition of the magazine Galaksija**, released in January 1984【2】. This publication, which included a significant portion of the development documentation, ensured that much of the technical details were preserved. Due to high demand, the computer was later produced as a commercial product as well.
 
 ![imagen](https://github.com/user-attachments/assets/5e98ac0e-d437-44b5-8c16-c175136e4923)
+
 📌 Figure 1: Handmade Galaksija prototype (private collection of Damjan Lenarčič).
 
 ![imagen](https://github.com/user-attachments/assets/7542a1ea-37e5-4a8f-946b-b4bf0dca32ef)
+
 📌 Figure 2: Factory-produced Galaksija (manufactured by Zavod za udžbenike i nastavna sredstva).
 
 ![imagen](https://github.com/user-attachments/assets/d4a84cc0-b273-4d5b-994e-0ba4c7448707)
+
 📌 Figure 3: Top view of the original Galaksija PCB (private collection of Iztok Pušnar).
 
 ![imagen](https://github.com/user-attachments/assets/8f929285-d1e5-4068-8a5a-57e6f927fe5e)
@@ -82,8 +85,6 @@ Initially, **Galaksija** was intended for self-assembly. To facilitate this, the
 | **Color Support** | No | No | No | No |
 | **Sound** | No | Yes | Yes | Yes |
 
-📌 Table 1: Comparison of Galaksija with similar foreign computers.
-📌 Table 2: Comparison of Galaksija with other Yugoslavian microcomputers.
 ---
 
 ### **1.2 Motivation**
@@ -119,6 +120,7 @@ The main objectives of this work are:
 The block diagram of the **Galaksija** motherboard is shown in **Figure 5**. A facsimile of the original circuit diagram【2】is included in the appendix.
 
 ![imagen](https://github.com/user-attachments/assets/21af8ca3-42a5-40fd-839d-858358450f01)
+
 📌 Figure 5: Block diagram of Galaksija motherboard.
 
 ### **2.1 Address Space Utilization**
@@ -133,6 +135,7 @@ The **Galaksija motherboard** only utilizes the **memory address space**, both f
 ![imagen](https://github.com/user-attachments/assets/b4855b7d-06d2-482e-a6fe-92b7ac81609a)
 
 📌 Figure 6: Galaksija’s memory map and address space allocation.
+
 **Figure 6** illustrates the memory **layout** and how memory and peripheral devices are mapped into the address space (**memory map**). This layout is defined by the **address decoder circuit** and **cannot be changed via software** (except for control of the **A7 address line for RAM**, as shown in **Figure 9**). Unused parts of the address space are **reserved for future expansion**, and reading from these addresses returns **undefined values**.
 
 The **4 KB read-only memory (ROM A)**, which contains the **system software**, is mapped at address **0x0000** and occupies the **interrupt vectors** of the microprocessor. Another **4 KB read-only memory (ROM B)** is mapped at address **0x1000** and is reserved for **expansion**.
@@ -169,6 +172,7 @@ Writing to the **keyboard memory addresses** is **not allowed**.
 ![imagen](https://github.com/user-attachments/assets/1d0133cc-66a8-4a84-82f5-384109722d17)
 
 📌 Figure 9: A7 line control for RAM address remapping.
+
 ---
 
 #### **2.2.2 Cassette Interface**
@@ -211,7 +215,13 @@ The functions of the **individual bits** in the latch register are given in **Ta
 ---
 
 ### **2.3 A7 Address Line Control for RAM**
+
+![imagen](https://github.com/user-attachments/assets/a1dc8c27-de5b-4f54-bf49-f368afffd6ae)
+
 📌 Figure 10: Video synchronization timing.
+
+![imagen](https://github.com/user-attachments/assets/bc5a9d70-f7b9-418a-b31d-62aa1526b23d)
+
 📌 Figure 11: Processor timing during video signal generation.
 Setting the **A7CLMP bit** allows the **A7 address line** of RAM to be **forced to 1**, regardless of the address bus value from the processor. This allows the **processor to read values stored in odd-numbered 128-byte blocks**, even when accessing even-numbered addresses.
 
@@ -226,8 +236,17 @@ This feature is used in **video signal generation** due to a **peculiarity of th
 Due to the **simple hardware design**, **video signal generation** requires **active cooperation from the microprocessor**. Proper **synchronization** of software execution with the **movement of the electron beam** is essential.
 
 The **video driver** responsible for generating the video signal is located in **ROM A at address 0x0038**, which is the **interrupt vector for the INT interrupt** in **interrupt mode IM 1**.
+
+![imagen](https://github.com/user-attachments/assets/9120ac7b-78a6-4da7-b87b-e110ead9a1d7)
+
 📌 Figure 12: ASCII character ROM encoding structure.
+
+![imagen](https://github.com/user-attachments/assets/36ffa263-f8d6-43be-8a7c-b5edce8dee6b)
+![imagen](https://github.com/user-attachments/assets/d6a78e14-217d-4d96-aaf8-ef2d5919a607)
+
+
 📌 Figure 13: Galaksija’s character set table.
+
 ---
 
 #### **2.4.1 Synchronization**
@@ -239,8 +258,15 @@ The **visible screen area** consists of **208 lines**, with a **black border** s
 At the **56th horizontal sync pulse**, the **electron beam** begins moving to the **first visible scanline** of the screen. At this moment, the **video hardware triggers an interrupt (INT)** to **pause user program execution** and start video processing.
 
 Since the **processor’s response time** to an **interrupt** is **variable** (1–23 clock cycles), the **processor is paused** for **one full scanline (192 cycles)** using the **WAIT signal**. This ensures that **video processing remains perfectly synchronized** with the **electron beam**.
+
+![imagen](https://github.com/user-attachments/assets/5a98e382-98ab-4911-a742-ddf6c7d57053)
+
 📌 Figure 14: Video driver execution flowchart.
+
+![imagen](https://github.com/user-attachments/assets/12e3e710-b573-4093-9fea-7b97eaa91359)
+
 📌 Figure 15: Timing of the shift register during video output.
+
 ---
 
 # **3. The New Galaksija**
@@ -265,7 +291,15 @@ The **digital components** in the **new Galaksija** are built using **high-speed
 | **ROM (U2)** | 27C256 (32 KB EPROM) | Stores **ROM A**, **ROM B**, and additional space for expansions |
 | **RAM (U3)** | LH5164D (8 KB SRAM) | Stores program variables and system memory |
 
+![imagen](https://github.com/user-attachments/assets/3d0ae99c-00c3-4b8d-9c07-82696e2eee15)
+
+![imagen](https://github.com/user-attachments/assets/a84a43c4-7775-4087-bfa8-68d2dd602d1f)
+
+![imagen](https://github.com/user-attachments/assets/ddaa3e9d-cb0c-49a8-a334-217f92119608)
+
+
 📌 **Figures 16, 17, 18**: Show the **motherboard, keyboard, and full enclosure** of the new Galaksija.
+
 
 🔹 **Important modification**:  
 - In the **new design**, the **EPROM remains active during write attempts**.  
@@ -325,6 +359,8 @@ Even though **Galaksija’s horizontal frequency and number of scanlines differ 
 - The **video shift register (U6)** receives **parallel data** from the **character generator** and outputs it serially to create the **video signal**.
 - **Logic gates (U17)** detect the **fourth T-state of each machine cycle (M1)** and trigger **parallel data loading** into the shift register.
 
+![imagen](https://github.com/user-attachments/assets/1f60d456-33d7-4cad-80f7-02db9a8b6c95)
+
 📌 **Figure 19**: *Timing diagram of the shift register control circuit.*
 
 ---
@@ -335,6 +371,8 @@ Even though **Galaksija’s horizontal frequency and number of scanlines differ 
   - **Memory cell (U21)**
   - **Logic gates (U19)**
 - This circuit **detects the processor's response** to an **interrupt** and **synchronizes video execution** with the **horizontal sync pulse**.
+
+![imagen](https://github.com/user-attachments/assets/d6379007-582c-4490-aaa8-98e044f48ef5)
 
 📌 **Figure 20**: *Timing diagram of the interrupt synchronization circuit.*
 
@@ -373,6 +411,8 @@ Even though **Galaksija’s horizontal frequency and number of scanlines differ 
   - **Logic gates (U16)**
 - These signals are **combined** to form a **composite sync signal**.
 
+![imagen](https://github.com/user-attachments/assets/792eee0a-3e17-418f-b8df-9ce3f1f5719c)
+
 📌 **Figure 21**: *Bode plot of the video amplifier (SPICE simulation).*
 
 ---
@@ -385,7 +425,12 @@ Even though **Galaksija’s horizontal frequency and number of scanlines differ 
   - **A simple analog-to-digital converter (ADC)**
 - The **values of the circuit components** were recalculated due to **errors in the original Galaksija design**.
 
+![imagen](https://github.com/user-attachments/assets/eef3fcc6-91d2-436f-959d-cdf40375bc2d)
+
 📌 **Figure 22**: *Output waveform of the cassette interface (measured).*  
+
+![imagen](https://github.com/user-attachments/assets/a9bffebe-609e-4b31-b89f-18cbf81783ce)
+
 📌 **Figure 23**: *Input and output waveform of the impulse amplifier (SPICE simulation).*
 
 ---
@@ -423,7 +468,12 @@ The **original Galaksija hardware** relies on **two D flip-flops (U4, U5 in the 
 
 These **flip-flops depend on timing variations** in the **Z80 microprocessor**, which are **not officially documented by Zilog**. The circuit was designed assuming **consistent timing behavior across different Z80 chips**, but in reality, this **timing can vary between different Z80 models and manufacturing batches**.
 
+![imagen](https://github.com/user-attachments/assets/e2c8a1e7-6107-454d-8f35-9fc0e7899ab5)
+
 📌 **Figure 24**: *Timing diagram of the first D flip-flop (interrupt detection).*  
+
+![imagen](https://github.com/user-attachments/assets/9e5c9cde-e1ce-4476-8690-d2cf09862d90)
+
 📌 **Figure 25**: *Timing diagram of the second D flip-flop (M1 cycle detection).*
 
 #### **4.1.1 First Flip-Flop (Interrupt Detection)**
@@ -464,6 +514,8 @@ The **timing difference** between **old NMOS** and **modern CMOS** Z80s is the *
 
 The address decoder **only checks the upper address bits**, leading to **multiple addresses mapping to the same physical device**.
 
+![imagen](https://github.com/user-attachments/assets/43f516e5-9f2a-4252-b6f1-a8b99fe403e3)
+
 📌 **Figure 26**: *Memory layout of the original Galaksija.*  
 
 ### **Example of Decoding Issue**
@@ -479,6 +531,8 @@ The **keyboard matrix** in **Galaksija** uses a **non-standard wiring scheme**, 
 - **Each key is mapped to a specific memory address**.
 - **Pressing a key pulls the corresponding memory location low (0)**.
 - **Reading the keyboard matrix involves scanning a set of 32 possible base addresses**.
+
+![imagen](https://github.com/user-attachments/assets/97a9b28b-179a-4ff6-b2a6-a54c389233e3)
 
 📌 **Figure 27**: *Keyboard memory mapping diagram.*
 
