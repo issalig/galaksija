@@ -84,11 +84,11 @@ CASE1:   POP     AF
         JP      39AH ; RECOGNIZE NEW WORD; IF IT DOESN'T EXIST IN TABLE...
 KAO75B:  JP      75BH ; ...JUMP TO 10FH, THEN TO 75BH (SEE Z100)
 GOINI:   RST     20H
-; this byte #1023 changes in different versions of the ROM
+; byte #1024 changes in different versions of the ROM
 ; ROM_B_monitor_value_13.bin byte is 13(D)  
 ; ROM_B.bin is 12(C)
 ; ROM_B_monitor_fix.bin 11 (B)
-        LD      A, MONITOR; 0CH ; NEW HORIZONTAL POSITION
+        LD      A, MONITOR ; NEW HORIZONTAL POSITION
         LD      (2BA8H),A
         LD      HL,LINKS ; INSERT JP INSTEAD OF RET IN LINKS
         LD      DE,2BA9H
