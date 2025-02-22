@@ -42,9 +42,17 @@ A comparison of **Galaksija**’s capabilities with similar foreign and domestic
 
 Initially, **Galaksija** was intended for self-assembly. To facilitate this, the designer, with the assistance of editor **Dejan Ristanović**, published a complete guide on how to build it in a **special edition of the magazine Galaksija**, released in January 1984【2】. This publication, which included a significant portion of the development documentation, ensured that much of the technical details were preserved. Due to high demand, the computer was later produced as a commercial product as well.
 
+![imagen](https://github.com/user-attachments/assets/5e98ac0e-d437-44b5-8c16-c175136e4923)
 📌 Figure 1: Handmade Galaksija prototype (private collection of Damjan Lenarčič).
+
+![imagen](https://github.com/user-attachments/assets/7542a1ea-37e5-4a8f-946b-b4bf0dca32ef)
 📌 Figure 2: Factory-produced Galaksija (manufactured by Zavod za udžbenike i nastavna sredstva).
+
+![imagen](https://github.com/user-attachments/assets/d4a84cc0-b273-4d5b-994e-0ba4c7448707)
 📌 Figure 3: Top view of the original Galaksija PCB (private collection of Iztok Pušnar).
+
+![imagen](https://github.com/user-attachments/assets/8f929285-d1e5-4068-8a5a-57e6f927fe5e)
+
 📌 Figure 4: Bottom view of the original Galaksija PCB (private collection of Iztok Pušnar).
 
 #### **Table 1: Comparison of Galaksija with foreign microcomputers**  
