@@ -69,7 +69,7 @@ Initially, **Galaksija** was intended for self-assembly. To facilitate this, the
 | **Color Support** | No | No | 15 colors | 16 colors |
 | **Sound** | No | No | Software-based | MOS SID |
 
-#### **Table 2: Comparison of Galaksija with domestic microcomputers**  
+#### **Table 2: Comparison of Galaksija with other Yugoslavian microcomputers**  
 
 | Feature | Galaksija | Orao | Lola-8 | Galeb |
 |---------|----------|------|--------|-------|
@@ -82,6 +82,8 @@ Initially, **Galaksija** was intended for self-assembly. To facilitate this, the
 | **Color Support** | No | No | No | No |
 | **Sound** | No | Yes | Yes | Yes |
 
+📌 Table 1: Comparison of Galaksija with similar foreign computers.
+📌 Table 2: Comparison of Galaksija with other Yugoslavian microcomputers.
 ---
 
 ### **1.2 Motivation**
@@ -116,6 +118,9 @@ The main objectives of this work are:
 
 The block diagram of the **Galaksija** motherboard is shown in **Figure 5**. A facsimile of the original circuit diagram【2】is included in the appendix.
 
+![imagen](https://github.com/user-attachments/assets/21af8ca3-42a5-40fd-839d-858358450f01)
+📌 Figure 5: Block diagram of Galaksija motherboard.
+
 ### **2.1 Address Space Utilization**
 
 The **Z80 microprocessor**【6】has **two separate address spaces**:  
@@ -124,6 +129,8 @@ The **Z80 microprocessor**【6】has **two separate address spaces**:
 2. An **8-bit address space** for input/output (I/O) operations  
 
 The **Galaksija motherboard** only utilizes the **memory address space**, both for **memory access** and for **communication with peripherals** (a technique known as **memory-mapped I/O**).
+
+![imagen](https://github.com/user-attachments/assets/b4855b7d-06d2-482e-a6fe-92b7ac81609a)
 
 📌 Figure 6: Galaksija’s memory map and address space allocation.
 **Figure 6** illustrates the memory **layout** and how memory and peripheral devices are mapped into the address space (**memory map**). This layout is defined by the **address decoder circuit** and **cannot be changed via software** (except for control of the **A7 address line for RAM**, as shown in **Figure 9**). Unused parts of the address space are **reserved for future expansion**, and reading from these addresses returns **undefined values**.
@@ -136,15 +143,19 @@ At **0x2800**, **2 KB to 6 KB of static RAM (SRAM)** is mapped. This RAM does **
 
 The entire **I/O address space** is reserved for **expansion**, and reading from **unmapped** I/O addresses returns **undefined values**.
 
+![imagen](https://github.com/user-attachments/assets/5c135871-ac20-47db-bc5a-3454f4f776e9)
+
 📌 Figure 7: Keyboard memory address mapping.
-📌 Table 1: Comparison of Galaksija with similar foreign computers.
-📌 Table 2: Comparison of Galaksija with other Yugoslavian microcomputers.
+
 
 ---
 
 ### **2.2 Peripherals**
 
 The **processor accesses peripherals** through a **2 KB block** of the **memory address space**, starting at **0x2000**.
+
+![imagen](https://github.com/user-attachments/assets/7f9210f7-6d17-458f-bd31-32f683ee8488)
+
 📌 Figure 8: Latch register bit layout.
 
 #### **2.2.1 Keyboard**
@@ -154,6 +165,9 @@ The keyboard has **54 keys**, each of which is mapped to a **specific address in
 If the **least significant bit (LSB)** at a specific **keyboard address** is **0**, the key is **pressed**. If the bit is **1**, the key is **not pressed**. The **other bits** in the address return **undefined values**.
 
 Writing to the **keyboard memory addresses** is **not allowed**.
+
+![imagen](https://github.com/user-attachments/assets/1d0133cc-66a8-4a84-82f5-384109722d17)
+
 📌 Figure 9: A7 line control for RAM address remapping.
 ---
 
