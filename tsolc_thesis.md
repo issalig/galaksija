@@ -1,11 +1,11 @@
 ### The translation of this document is WIP.
 
-### **University of Ljubljana**  
+**University of Ljubljana**  
 **Faculty of Electrical Engineering**  
 
 **Tomaž Šolc**  
 
-**Replica of the Galaksija Microcomputer**  
+# Replica of the Galaksija Microcomputer
 
 **University Diploma Thesis**  
 
