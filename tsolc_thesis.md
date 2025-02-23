@@ -1,3 +1,5 @@
+### The translation of this document is WIP.
+
 ### **University of Ljubljana**  
 **Faculty of Electrical Engineering**  
 
@@ -285,6 +287,16 @@ The **processor** can access a **6-bit latch register** at **addresses in the ra
 
 The **processor can only write** 8-bit values to these addresses. **Reading from them returns undefined values**.
 
+
+| **AOUT0** | **AOUT1** | **Output Voltage (Ua) [V]** |
+|----------|----------|------------------|
+| 0        | 0        | 0.0 V            |
+| 1        | 0        | 0.5 V            |
+| 0        | 1        | 0.5 V            |
+| 1        | 1        | 1.0 V            |
+
+Table 3 **Cassette Interface Voltage Table**
+
 The functions of the **individual bits** in the latch register are given in **Table 4**:
 
 | **Bit Name** | **Function** |
@@ -292,6 +304,8 @@ The functions of the **individual bits** in the latch register are given in **Ta
 | **A7CLMP** | If set to **0**, forces the **A7 address line** of RAM to **1**, regardless of the processor’s address bus (**Figure 9**). |
 | **AOUT0–AOUT1** | Controls the **cassette interface’s digital-to-analog converter (DAC)**. |
 | **CHR0–CHR3** | Controls the **current scanline** being processed by the **character generator**. |
+
+Table 4
 
 ---
 
@@ -340,21 +354,62 @@ At the **56th horizontal sync pulse**, the **electron beam** begins moving to th
 
 Since the **processor’s response time** to an **interrupt** is **variable** (1–23 clock cycles), the **processor is paused** for **one full scanline (192 cycles)** using the **WAIT signal**. This ensures that **video processing remains perfectly synchronized** with the **electron beam**.
 
+
+#### **2.4.2 Character Generator**
+
+The information about the screen image is stored in a 512-byte section of RAM memory at address 0x2800. This section contains ASCII codes of characters (16 rows of 32 characters each) that are displayed on the screen with each screen refresh. The task of the video driver, which runs on the microprocessor during the refresh, is to sequentially read 8-bit ASCII codes from this memory section and transfer them to the character generator.
+
+The character generator is a 2 kB ROM (character generator ROM) that stores the mapping from the ASCII code of a character to its corresponding bitmap representation (i.e., the pattern of dots that form the character on the screen). The way a character is stored is shown in Figure 12. Bit 0 in the bitmap represents a bright dot on the screen, while bit 1 represents a dark dot.
+
+The lower 7 address lines of the ROM are connected to the microprocessor's data bus, while the upper 4 lines are connected to bits CHR0 to CHR3 in the latch. This allows the processor, by setting the latch and placing values on the data bus (e.g., by reading values from RAM), to retrieve any scanline of any character from the character generator.
+
+
+
+Figure 13 shows all 128 characters that the character generator can display on the screen. Since the D6 line of the data bus is not connected, each stored character corresponds to two 8-bit ASCII codes. The arrangement of characters is chosen so that the codes of the first 64 characters overlap with the central half of the standard ASCII character set (ASCII codes 20 to 5F). The remaining 64 characters consist of a set of pseudographic symbols, enabling a graphical display resolution of 64x48 pixels.
+
+On the screen, each character is composed of 13 rows (13 · 16 = 208). The video driver in the ROM uses only the first 12 scanlines out of the 16 stored in the ROM. The 13th scanline of each character is always blank (black) on the screen because, during the time the electron beam scans this line, the video driver prepares to draw the next row of characters, and the character generator is disabled.
+
+It is also important to note that the last scanline (address 0x0F) of all stored characters is blank (contains all ones). This line is set in the latch while the user's program is running. This ensures that the character generator is disabled when the content on the microprocessor's data bus is not under the direct control of the video driver. This also ensures that the beam intensity is minimized while the beam scans the black border of the screen and during the beam's diagonal retrace to the starting point.
+
+
+#### **2.4.3 Video Driver**
+
+The video driver must ensure that, as the electron beam scans the usable area of the screen, a byte corresponding to the ASCII code of the character to which the next 8 pixels belong appears on the data bus every 4 clock cycles (3072 kHz).
+
+The sequential reading of the video memory section is implemented using a Z80 microprocessor function [6], which is otherwise intended for refreshing dynamic memory. The driver, just before starting to draw a screen scanline, sets the microprocessor's I and R registers so that they form a pointer to the memory location where the beginning of the 32-character row is located. The microprocessor's internal logic then ensures that, during program execution, 1 byte is read from memory and the R register is incremented with each M1 cycle.
+
+To meet the requirement of transferring one byte every 4 clock cycles, the video driver must execute (any) 32 processor instructions that have only one M cycle (i.e., they consist only of an M1 cycle and last 4 clock cycles). After 32 M cycles, the current row is drawn, and the video driver can prepare to draw the next row while the beam scans the screen border.
+
+Before drawing each scanline, the CHRx bits in the latch must be correctly set to specify the current scanline number in the character generator. After drawing, the character generator is disabled by selecting scanline 0x0F.
+
+The microprocessor itself does not increment the I register or the highest bit of the R register. The driver sets the I register programmatically while preparing to draw a new row, and the highest bit of the R register is set together with the selection of the scanline via the A7CLMP bit in the latch.
+
 ![imagen](https://github.com/user-attachments/assets/5a98e382-98ab-4911-a742-ddf6c7d57053)
 
 📌 Figure 14: Video driver execution flowchart.
+
+
+Figure 14 shows a simplified diagram of the video driver's execution. The diagram does not show the driver code required for synchronizing memory reads with the electron beam, setting the A7 line, and writing the current scanline number to the latch.
+
+#### **2.4.4 Shift Register**
+
+The output of the character generator is connected to a parallel/serial shift register. This register loads 8 bits from the character generator at the right moment and serially sends them to the video output over 8 video clock cycles (6144 kHz). The serial loading occurs at the end of each M1 cycle of the microprocessor (Figure 15).
 
 ![imagen](https://github.com/user-attachments/assets/12e3e710-b573-4093-9fea-7b97eaa91359)
 
 📌 Figure 15: Timing of the shift register during video output.
 
+While the video driver is active and the beam scans the usable area of the screen, the shift register sequentially loads character bitmaps during M1 cycles. However, when the user's program is running, blank (dark) scanlines 0x0F are loaded into the register. This ensures that no random values from the data bus appear in the video signal during synchronization pulses and while the beam scans the black border of the screen.
+
+When executing instructions that have multiple M cycles (and thus last more than 4 processor clock cycles), the shift register is completely emptied (since more than 8 video clock cycles pass between two parallel loads). The serial input of the register is therefore connected to a logical 1. This ensures that nothing is displayed on the screen during the execution of longer processor instructions in the user's program.
+
 ---
 
-# **3. The New Galaksija**
+# **3. New Galaksija**
 
-The **new Galaksija** retains the **main features** of the original design while incorporating **modern components** where necessary. The **primary objective** was to maintain **software compatibility** while improving **hardware reliability** and **ease of use** with modern displays.
+The electronic circuit of the new Galaksija is largely similar to the original. However, certain parts have been modified due to the unavailability of equivalent components, making it impossible to implement them exactly as per the original design. During the design of the replica, **reliability of operation** was prioritized over manufacturing cost. As a result, all known shortcomings of the original circuit were addressed, provided that such fixes would not be detectable from a software perspective. The new circuit has also been adapted for easier connection to modern television receivers or monitors.  
 
-The **circuit schematic** and **PCB layout** are provided in the **appendix**.
+The wiring diagram of the circuit and the printed circuit board (PCB) layout are included in the appendix.  
 
 ---
 
@@ -366,11 +421,24 @@ The **digital components** in the **new Galaksija** are built using **high-speed
 
 ### **3.1.1 Microprocessor and Memory**
 
+The role of the central processing unit (CPU) in the new circuit is fulfilled by the **Z84C0008** integrated circuit from Zilog. This is a microprocessor manufactured in CMOS technology in a DIP40 package, which is fully hardware- and software-compatible with the **Z80** microprocessor used in the original Galaksija.  
+
+The **read-only memory (ROM)** (U2) is implemented using a single **32 kB EPROM** (27C256) in CMOS technology. The modern chip used here has sufficient capacity to store both the basic operating system and its first extension (thus, this integrated circuit occupies both the **ROM A** and **ROM B** positions in the microprocessor's address space, as shown in Figure 6). The upper **24 kB** of the memory remains unused.  
+
+Due to the implementation of the address decoder, the EPROM is enabled (outputs in a low-impedance state) even when the microprocessor attempts to write to the portion of the address space occupied by the EPROM. In this case, two devices with low-impedance outputs would be connected to the data bus, potentially causing a short-circuit current that could damage the microprocessor or the EPROM. To limit the current in such cases, resistors **R10-R17** are placed between the EPROM's data lines and the data bus.  
+
+The **working memory (RAM)** (U3) consists of an **8 kB SRAM** chip (LH5164D). The lower **2 kB** of the memory is unused (this portion of the address space is occupied by peripherals).  
+
+
 | **Component** | **Type** | **Function** |
 |--------------|---------|-------------|
 | **CPU (U1)** | Zilog Z84C0008 | CMOS version of Z80, fully compatible |
 | **ROM (U2)** | 27C256 (32 KB EPROM) | Stores **ROM A**, **ROM B**, and additional space for expansions |
 | **RAM (U3)** | LH5164D (8 KB SRAM) | Stores program variables and system memory |
+
+--- 
+
+
 
 ![imagen](https://github.com/user-attachments/assets/3d0ae99c-00c3-4b8d-9c07-82696e2eee15)
 
@@ -390,27 +458,41 @@ The **digital components** in the **new Galaksija** are built using **high-speed
 
 ### **3.1.2 Address Decoder**
 
-The **address decoder** consists of:
+The address decoder is composed of a dual **2/4 demultiplexer (U10)** and logic gates **(U18)**. It implements the addressing of the **EPROM**, **SRAM**, and peripherals in accordance with Figure 6.  
 
-- **Demultiplexers (U10)**
-- **Logic gates (U18)**
-
-These components ensure proper **memory mapping** between ROM, RAM, and **peripherals**.
+The addresses for the keys, comparator, and latch in the address space are a result of the keyboard matrix wiring, the demultiplexer **U7**, and the multiplexer **U6**.  
 
 ---
 
-### **3.1.3 Keyboard**
+### **3.1.3 Keyboard**  
 
-- The **new keyboard** is built on a **separate PCB** and connects to the **mainboard** via a **20-pin connector**.
-- The **original Galaksija keyboard required open-collector outputs**, which the **U7 demultiplexer** does not provide.
-  - To solve this, **diodes (D1-D7)** simulate **open-collector behavior**.
-- A **resistor (R30)** protects the output **multiplexer** from **short circuits**.
+The new Galaksija features a keyboard on a separate printed circuit board (PCB), connected to the mainboard via a **20-pin connector**.  
+
+The keyboard of the original Galaksija required open-collector outputs from the demultiplexer for its operation. Since the demultiplexer **U7** used here does not have such outputs, they are simulated by connecting diodes **D1** to **D7**.  
+
+The output of the multiplexer is protected against short circuits with resistor **R30**, for similar reasons as the EPROM outputs.  
 
 ---
 
-### **3.1.4 Clock Divider**
+### **3.1.4 Clock Divider**  
 
-The **clock divider** consists of **four 4-bit ripple counters (U12, U13)** that derive various **timing signals** from the **6.144 MHz system clock**:
+The clock divider consists of **4 4-bit ripple counters** in circuits **U12** and **U13**. These counters derive the necessary signals for generating the composite video from the oscillator signal with a frequency of **6144 kHz**, according to the following equations:  
+
+\[
+f_{\text{video}} = f_{\text{osc}} = 6144 \, \text{kHz}
+\]  
+\[
+f_{\text{cpu}} = \frac{f_{\text{osc}}}{2} = 3072 \, \text{kHz}
+\]  
+\[
+f_{\text{hsync}} = \frac{f_{\text{osc}}}{12 \cdot 16 \cdot 2} = 16 \, \text{kHz}
+\]  
+\[
+10 \cdot f_o = \frac{f_{\text{osc}}}{12 \cdot 16 \cdot 16 \cdot 4} = 500 \, \text{Hz}
+\]  
+
+Using the **10 · f₀** signal, the **Johnson counter (U14)** generates two phase-shifted signals with a frequency of **f₀ = 50 Hz** (the signal for processor interrupts and vertical synchronization pulses) in accordance with the requirements for generating a composite video signal (Figure 11).  
+
 
 | **Signal** | **Frequency Calculation** | **Result** |
 |------------|---------------------------|------------|
@@ -419,6 +501,10 @@ The **clock divider** consists of **four 4-bit ripple counters (U12, U13)** that
 | **Interrupt Frequency** | \( f_o = \frac{f_{osc}}{12 \times 16 \times 16 \times 4} \) | 50 Hz |
 
 📌 **Table 5**: *Comparison of Galaksija's video signal characteristics with the PAL B,G standard.*
+
+
+With the help of the 10 · f₀ signal, the Johnson counter U14 generates two phase-shifted signals with a frequency of f₀ = 50 Hz (the signal for processor interrupts and vertical synchronization pulses) in accordance with the requirements for generating a composite video signal (Figure 11).
+
 
 | **Characteristic** | **PAL B,G (Used in Slovenia)** | **Galaksija** |
 |------------------|--------------------------------|--------------|
@@ -437,8 +523,9 @@ Even though **Galaksija’s horizontal frequency and number of scanlines differ 
 
 ### **3.1.5 Shift Register**
 
-- The **video shift register (U6)** receives **parallel data** from the **character generator** and outputs it serially to create the **video signal**.
-- **Logic gates (U17)** detect the **fourth T-state of each machine cycle (M1)** and trigger **parallel data loading** into the shift register.
+The logic circuit, composed of the gate U17, detects the fourth T state of the M1 cycle and triggers the parallel loading of data into the shift register U6 (Figure 19).
+
+In the new circuit, the loading of data into the shift register occurs two video clock cycles earlier than in the original circuit (compare with Figure 15). The reason for this change is improved reliability (page 43), but the consequence is that the image is shifted two pixels to the left compared to the original Galaksija.
 
 ![imagen](https://github.com/user-attachments/assets/1f60d456-33d7-4cad-80f7-02db9a8b6c95)
 
@@ -448,10 +535,7 @@ Even though **Galaksija’s horizontal frequency and number of scanlines differ 
 
 ### **3.1.6 Interrupt Synchronization**
 
-- A **sequential logic circuit** consisting of:
-  - **Memory cell (U21)**
-  - **Logic gates (U19)**
-- This circuit **detects the processor's response** to an **interrupt** and **synchronizes video execution** with the **horizontal sync pulse**.
+A sequential logic circuit, composed of the memory cell U21 and the gates U19, detects the microprocessor's response to an interrupt and halts the execution of the first instruction of the video driver until the next horizontal synchronization pulse (Figure 20).
 
 ![imagen](https://github.com/user-attachments/assets/d6379007-582c-4490-aaa8-98e044f48ef5)
 
@@ -462,6 +546,13 @@ Even though **Galaksija’s horizontal frequency and number of scanlines differ 
 ## **3.2 Analog Section**
 
 ### **3.2.1 Power Supply**
+
+To power the computer from the 240V AC mains voltage, an external 12V DC adapter with a power rating of 5W is used. On the motherboard, the 12V DC voltage is further converted into +5V and −5V supply voltages.
+
+    The +5V voltage is used to power all digital and analog components and is obtained using the voltage regulator U9.
+
+    The −5V voltage is used to power the video amplifier and is obtained using a switching voltage inverter and the voltage regulator U22 (see Appendix, page 63).
+
 
 | **Power Supply** | **Voltage** | **Function** |
 |------------------|------------|-------------|
@@ -475,36 +566,58 @@ Even though **Galaksija’s horizontal frequency and number of scanlines differ 
 
 ### **3.2.2 Oscillator**
 
-- The **system clock (6.144 MHz)** is generated by a **crystal oscillator**, using **logic gates (U19)**.
-
----
+A crystal oscillator generates the base clock signal with a frequency of 6144 kHz. The active part of the oscillator consists of the logic gate U19.
 
 ### **3.2.3 Reset Circuit**
 
-- Ensures that the **CPU remains in reset mode** briefly after power-on, preventing **unwanted startup errors**.
-
----
+The reset circuit keeps the processor in a reset state for a short period after power is turned on. This ensures that, by the time the operating system starts, any transient phenomena in the supply voltages have subsided, which could otherwise cause operational errors.
 
 ### **3.2.4 Composite Video Output**
 
-- **Video sync signals** are generated using:
-  - **Two monostable multivibrators (U15)**
-  - **Logic gates (U16)**
-- These signals are **combined** to form a **composite sync signal**.
+From the clock signals generated by the clock divider, the horizontal and vertical synchronization pulses are generated using two monostable multivibrators (circuit U15). These pulses are then combined into a composite synchronization signal using an XOR logic function implemented by the logic gate U16.
+
+The synchronization signal and the video signal from the shift register are then fed into a mixer (Q4, Q5). The resistors R21 and R22 determine the ratio between the synchronization signal and the black level.
+
+The resulting composite video signal is first passed through a resistive divider (R24, R27) to adjust the signal amplitude, and then into a two-stage amplifier in a common-collector configuration (Q6, Q8). The generated signal has a peak-to-peak voltage of 2V with an output impedance of 75Ω.
 
 ![imagen](https://github.com/user-attachments/assets/792eee0a-3e17-418f-b8df-9ce3f1f5719c)
 
 📌 **Figure 21**: *Bode plot of the video amplifier (SPICE simulation).*
 
+Calculation of Video Signal Bandwidth [8][9]:  
+
+The bandwidth of the video signal is calculated as follows:  
+
+\[
+BW = \frac{1}{2} \cdot K \cdot N_{ht} \cdot N_{vt} \cdot f_o \cdot K_h \cdot K_v
+\]  
+
+Where:  
+- \( K \) is the Kell factor,  
+- \( N_{ht} \) and \( N_{vt} \) are the horizontal and vertical screen resolutions,  
+- \( f_o \) is the frame rate (50 Hz),  
+- \( K_h \) and \( K_v \) are the fractions of time occupied by horizontal and vertical synchronization.  
+
+Substituting the values:  
+
+\[
+BW = \frac{1}{2} \cdot 0.7 \cdot 256 \cdot 208 \cdot 50 \, \text{Hz} \cdot \frac{64 + 256 + 64}{256} \cdot \frac{56 + 208 + 56}{208} = 2.2 \, \text{MHz}
+\]  
+
+From the graph in Figure 21, we can see that the amplifier has sufficient bandwidth and exhibits approximately **0.5 dB of linear distortion** in the frequency range covered by the video signal.  
+
 ---
 
-### **3.2.5 Cassette Interface**
+### 3.2.5  **Tape Interface**  
 
-- The **cassette output** is generated by a **simple digital-to-analog converter (DAC)** using **resistors (R25, R26, R28)**.
-- The **cassette input** consists of:
-  - **An impulse amplifier**
-  - **A simple analog-to-digital converter (ADC)**
-- The **values of the circuit components** were recalculated due to **errors in the original Galaksija design**.
+The analog output of the tape interface uses a simple digital-to-analog converter (DAC), similar to the original Galaksija. The output voltages depend on the resistors **R25**, **R26**, and **R28**.  
+
+Figure 22 shows a recording of the output signal (in this case, one synchronization byte) made with an analog-to-digital converter at a sampling frequency of **44.1 kHz**.  
+
+The analog input consists of a pulse amplifier that acts as a simple analog-to-digital converter. The circuit topology is the same as in the original Galaksija, but the component values have been recalculated (see Appendix, page 65) due to an error in the original design.  
+
+An example of the input and output signals of the amplifier for a single input pulse is shown in Figure 23.  
+
 
 ![imagen](https://github.com/user-attachments/assets/eef3fcc6-91d2-436f-959d-cdf40375bc2d)
 
@@ -513,17 +626,6 @@ Even though **Galaksija’s horizontal frequency and number of scanlines differ 
 ![imagen](https://github.com/user-attachments/assets/a9bffebe-609e-4b31-b89f-18cbf81783ce)
 
 📌 **Figure 23**: *Input and output waveform of the impulse amplifier (SPICE simulation).*
-
----
-
-### **Cassette Interface Voltage Table**
-
-| **AOUT0** | **AOUT1** | **Output Voltage (Ua) [V]** |
-|----------|----------|------------------|
-| 0        | 0        | 0.0 V            |
-| 1        | 0        | 0.5 V            |
-| 0        | 1        | 0.5 V            |
-| 1        | 1        | 1.0 V            |
 
 ---
 
