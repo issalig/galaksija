@@ -1206,7 +1206,7 @@ The results of measurements of the output voltage as a function of the output cu
 
 ---
 
-### Calculation of the Pulse Amplifier  
+### B Calculation of the Pulse Amplifier  
 
 Assume that the input pulse is rectangular in shape and that the connected tape recorder has a low output impedance.  
 
@@ -1214,11 +1214,12 @@ First, calculate the **maximum collector current**, while also assuming the **mi
 
 
 The minimum collector current (**ICmin**) is calculated as:  
-
+$
 \[
 IC_{\text{min}} = \frac{U_{CC} - U_{CE_{\text{sat}}}}{R1}  
 \]  
 *(Equation 1)*  
+$
 
 Where:  
 - \( U_{CC} \) = Supply voltage  
@@ -1282,7 +1283,7 @@ C15 = \frac{t}{R33 \cdot \ln\left(\frac{U_{BE_{\text{start}}}}{U_{BE_{\text{stop
 
 For a resistor **R33 = 1 kΩ** and a pulse duration **t = 100 µs**, we obtain a value of **C15 ≈ 0.72 µF**, which is approximately **1 µF**. The minimum pulse duration of **45 µs** is derived from the **LOAD READ PULSE** loop at addresses **0x0EF9** to **0x0F05**. For greater reliability, a value approximately twice as large was used.  
 
-### Floating-Point Numbers  
+### C Floating-Point Numbers  
 
 Galaksija's operating system uses a stack-based calculator with **RPN (Reverse Polish Notation)** for evaluating mathematical expressions internally. For example, all BASIC expressions are internally converted into this form before calculation, and the complexity of expressions is limited only by the memory available for the arithmetic stack.  
 
