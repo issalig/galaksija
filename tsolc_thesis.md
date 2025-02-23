@@ -27,8 +27,6 @@ Additionally, this work includes the development of software tools for reverse e
 
 **Keywords:** Galaksija, microcomputers, microprocessor systems, operating system, reverse engineering  
 
----
-
 ### **Acknowledgments**
 
 I would like to express my gratitude to my mentor, Prof. Dr. Tadej Tuma, for his support in the preparation of this thesis.
@@ -104,9 +102,6 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
  - B Calculation of the Pulse Amplifier
  - C Floating-Point Numbers
 
-
----
-
 ## **1. Introduction**
 [Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#Index) [Next](#2-hardware-architecture)
 
@@ -163,7 +158,6 @@ Figure 4: Bottom view of the original Galaksija PCB (private collection of Iztok
 | **Color Support** | No | No | No | No |
 | **Sound** | No | Yes | Yes | Yes |
 
----
 
 ### **1.2 Motivation**
 
@@ -181,7 +175,6 @@ Additionally, teaching the **fundamentals of microprocessor systems** often face
 
 In contrast, **Galaksija** is made up of relatively **simple electronic circuits**, built from **low- and medium-scale integrated circuits** (with the exception of the **Z80 microprocessor**, for which detailed documentation is available). Additionally, the system's **low clock speed** allows for analysis using **affordable oscilloscopes**. Despite its simplicity, Galaksija remains a **fully functional microprocessor system**, containing the same core components as modern computers (CPU, memory, bus, peripherals, etc.).
 
----
 
 ### **1.3 Objectives**
 
@@ -191,7 +184,6 @@ The main objectives of this work are:
 - To **construct a fully functional replica** of **Galaksija**, using **modern electronic components** available on today’s market, while maintaining similarity to the original where practical.  
 - To **document the design techniques** used in the original system, making it easier to restore **other** microcomputer systems from the **1980s**.  
 
----
 
 ## **2. Hardware Architecture**
 [Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#1-introduction) [Next](#3-new-galaksija)
@@ -229,8 +221,6 @@ The entire **I/O address space** is reserved for **expansion**, and reading from
 
 Figure 7: Keyboard memory address mapping.
 
----
-
 ### **2.2 Peripherals**
 
 The **processor accesses peripherals** through a **2 KB block** of the **memory address space**, starting at **0x2000**.
@@ -252,7 +242,6 @@ Writing to the **keyboard memory addresses** is **not allowed**.
 
 Figure 9: A7 line control for RAM address remapping.
 
----
 
 #### **2.2.2 Cassette Interface**
 
@@ -283,8 +272,6 @@ The functions of the **individual bits** in the latch register are given in **Ta
 
 **Table 4:** Meanings of individual bits in the latch register.
 
----
-
 ### 2.2.3  **Latch**  
 
 The microprocessor can access a **6-bit register** (referred to as the "latch" in the original documentation) at addresses of the form **0x0010 0xxx xx11 1xxx** (the lowest such address is **0x2038**, and the highest is **0x27FF**). This register is used to control the character generator, the analog output, and the **A7** address line for the RAM memory.  
@@ -294,15 +281,11 @@ The microprocessor can access a **6-bit register** (referred to as the "latch" i
 
 The meanings of the individual bits (labeled in Figure 8) are provided in **Table 4**.  
 
---- 
-
 ### **2.3 A7 Address Line Control for RAM**
 
 Setting the **A7CLMP bit** allows the **A7 address line** of RAM to be **forced to 1**, regardless of the address bus value from the processor. This allows the **processor to read values stored in odd-numbered 128-byte blocks**, even when accessing even-numbered addresses.
 
 This feature is used in **video signal generation** due to a **peculiarity of the Z80 processor**, which **does not automatically increment the A7 line** during **memory refresh cycles**【6】.
-
----
 
 ### **2.4 Video Signal Generation**
 
@@ -311,8 +294,6 @@ This feature is used in **video signal generation** due to a **peculiarity of th
 Due to the **simple hardware design**, **video signal generation** requires **active cooperation from the microprocessor**. Proper **synchronization** of software execution with the **movement of the electron beam** is essential.
 
 The **video driver** responsible for generating the video signal is located in **ROM A at address 0x0038**, which is the **interrupt vector for the INT interrupt** in **interrupt mode IM 1**.
-
----
 
 ### 2.4.1  **Synchronization**  
 
@@ -384,8 +365,6 @@ While the video driver is active and the beam scans the usable area of the scree
 
 When executing instructions that have multiple M cycles (and thus last more than 4 processor clock cycles), the shift register is completely emptied (since more than 8 video clock cycles pass between two parallel loads). The serial input of the register is therefore connected to a logical 1. This ensures that nothing is displayed on the screen during the execution of longer processor instructions in the user's program.
 
----
-
 # **3. New Galaksija**
 [Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#2-hardware-architecture) [Next](#4-Specifics-of-the-Original-Galaksija-Circuit)
 
@@ -393,13 +372,11 @@ The electronic circuit of the new Galaksija is largely similar to the original. 
 
 The wiring diagram of the circuit and the printed circuit board (PCB) layout are included in the appendix.  
 
----
 
 ## **3.1 Digital Section**
 
 The **digital components** in the **new Galaksija** are built using **high-speed CMOS logic (74HC series).**
 
----
 
 ### **3.1.1 Microprocessor and Memory**
 
@@ -418,7 +395,6 @@ The **working memory (RAM)** (U3) consists of an **8 kB SRAM** chip (LH5164D). T
 | **ROM (U2)** | 27C256 (32 KB EPROM) | Stores **ROM A**, **ROM B**, and additional space for expansions |
 | **RAM (U3)** | LH5164D (8 KB SRAM) | Stores program variables and system memory |
 
---- 
 
 ![imagen](https://github.com/user-attachments/assets/3d0ae99c-00c3-4b8d-9c07-82696e2eee15)
 
@@ -432,15 +408,12 @@ The **working memory (RAM)** (U3) consists of an **8 kB SRAM** chip (LH5164D). T
 - In the **new design**, the **EPROM remains active during write attempts**.  
 - To **prevent short circuits**, **resistors (R10-R17)** limit current flow between the CPU and the EPROM.
 
----
 
 ### **3.1.2 Address Decoder**
 
 The address decoder is composed of a dual **2/4 demultiplexer (U10)** and logic gates **(U18)**. It implements the addressing of the **EPROM**, **SRAM**, and peripherals in accordance with Figure 6.  
 
 The addresses for the keys, comparator, and latch in the address space are a result of the keyboard matrix wiring, the demultiplexer **U7**, and the multiplexer **U6**.  
-
----
 
 ### **3.1.3 Keyboard**  
 
@@ -449,8 +422,6 @@ The new Galaksija features a keyboard on a separate printed circuit board (PCB),
 The keyboard of the original Galaksija required open-collector outputs from the demultiplexer for its operation. Since the demultiplexer **U7** used here does not have such outputs, they are simulated by connecting diodes **D1** to **D7**.  
 
 The output of the multiplexer is protected against short circuits with resistor **R30**, for similar reasons as the EPROM outputs.  
-
----
 
 ### **3.1.4 Clock Divider**  
 
@@ -486,8 +457,6 @@ With the help of the 10 · f₀ signal, the Johnson counter U14 generates two ph
 
 Even though **Galaksija’s horizontal frequency and number of scanlines differ from PAL standards**, most **TVs and monitors** can still **display its video signal correctly**.
 
----
-
 ### **3.1.5 Shift Register**
 
 The logic circuit, composed of the gate U17, detects the fourth T state of the M1 cycle and triggers the parallel loading of data into the shift register U6 (Figure 19).
@@ -498,8 +467,6 @@ In the new circuit, the loading of data into the shift register occurs two video
 
 **Figure 19**: *Timing diagram of the shift register control circuit.*
 
----
-
 ### **3.1.6 Interrupt Synchronization**
 
 A sequential logic circuit, composed of the memory cell U21 and the gates U19, detects the microprocessor's response to an interrupt and halts the execution of the first instruction of the video driver until the next horizontal synchronization pulse (Figure 20).
@@ -507,8 +474,6 @@ A sequential logic circuit, composed of the memory cell U21 and the gates U19, d
 ![imagen](https://github.com/user-attachments/assets/d6379007-582c-4490-aaa8-98e044f48ef5)
 
 **Figure 20**: *Timing diagram of the interrupt synchronization circuit.*
-
----
 
 ## **3.2 Analog Section**
 
@@ -528,7 +493,6 @@ To power the computer from the 240V AC mains voltage, an external 12V DC adapter
 
 - The **-5V supply** is generated by a **switching voltage inverter (U22)**.
 
----
 
 ### **3.2.2 Oscillator**
 
@@ -568,8 +532,6 @@ $$BW = \frac{1}{2} \cdot 0.7 \cdot 256 \cdot 208 \cdot 50 \, \text{Hz} \cdot \fr
 
 From the graph in Figure 21, we can see that the amplifier has sufficient bandwidth and exhibits approximately **0.5 dB of linear distortion** in the frequency range covered by the video signal.  
 
----
-
 ### 3.2.5  **Tape Interface**  
 
 The analog output of the tape interface uses a simple digital-to-analog converter (DAC), similar to the original Galaksija. The output voltages depend on the resistors **R25**, **R26**, and **R28**.  
@@ -588,8 +550,6 @@ An example of the input and output signals of the amplifier for a single input p
 ![imagen](https://github.com/user-attachments/assets/a9bffebe-609e-4b31-b89f-18cbf81783ce)
 
 **Figure 23**: *Input and output waveform of the impulse amplifier (SPICE simulation).*
-
----
 
 ### 4 **Specifics of the Original Galaksija Circuit**  
 [Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#3-new-galaksija) [Next](#5-Specifics-of-the-Operating-System)
@@ -696,8 +656,6 @@ The working memory organization is shown in Figure 26.
 **Figure 26**: Working Memory Organization (darkened fields are occupied by system variables)
 
 Literature suggests that the operating system is based on Microsoft Level 1 BASIC [12]. This is likely an error. Comparison with the only 4 KB BASIC interpreter from Microsoft (BASIC for the Altair microcomputer) shows that the program codes are very different: Altair BASIC uses only Intel 8080 microprocessor instructions, while essential parts of Galaksija's operating system also use instructions specific to the Zilog Z80 microprocessor. Additionally, Altair BASIC's code [13] takes advantage of the fact that it runs in RAM, making its operation dependent on the ability to modify code during program execution at certain points. The data structures used also differ significantly (for example, floating-point number notation, BASIC program notation, etc.). The only similarity between Galaksija's and Altair's code is restart 0x08 (on Galaksija 0x10), which performs a similar function and is similarly implemented.
-
-
 
 It's more likely that Galaksija's operating system is based on the Tandy TRS-80 Model I microcomputer operating system. The first version of the operating system (modified Tiny Basic by Li-Chen Wang) used a 4 KB ROM and has very similar characteristics to Galaksija's operating system: identical error messages ("HOW?", "WHAT?", "SORRY"), similar modulation for storing data on magnetic tape, partially identical machine code for performing floating-point operations, etc. In general, the TRS-80's hardware capabilities are similar to Galaksija (same pseudo-graphic mode, same keyboard connection to the processor bus, etc.).
 
@@ -832,8 +790,6 @@ Side effects of functions are also frequently used in the code. For example, the
 
 Note: For example, the **SAVE WORD** function is called to store a checksum at the end of the **SAVE** routine, even though calling **SAVE BYTE** would have been more appropriate, as it would not save an unnecessary byte to the tape.  
 
----
-
 ### 5.4  **Use of Processor Registers**  
 
 The relatively unstructured nature of the code results in consistent use of registers. The patterns in Table 10 are followed by the vast majority of the operating system's code.  
@@ -878,9 +834,6 @@ To maximize **execution speed**, the OS minimizes **memory accesses** by:
 
 This approach reduces **bus contention**, improving **execution speed**, but also makes **interrupt handling more complex**.
 
-
----
-
 ## **5.5 Processor Stack**  
 
 The operating system's code often directly modifies values on the processor stack, which is uncommon elsewhere. One example of stack manipulation is shown in Figure 28. Here, the function at address **0x0393** calls the function at **0x0C8F** by pushing its address onto the stack, while the next function (**0x2BA9**) is called using the **jp** instruction instead of **ret**. This way, the **ret** instruction in the function at **0x2BA9** jumps to the called function at **0x0C8F**, rather than returning execution to **0x0393**.  
@@ -906,8 +859,6 @@ add hl, hl       ;0138 Add HL to itself (HL = HL * 2)
 ```
 
 **Figure 29:** Example of using the stack to pass a pointer to function arguments.  
-
----
 
 ## **5.6 Cassette Tape Data Storage**
 
@@ -1054,8 +1005,6 @@ The results of measurements of the output voltage as a function of the output cu
 ![imagen](https://github.com/user-attachments/assets/d473a335-4486-4aa6-b385-0bc173bc48cc)
 
 **Figure 31:** Results of voltage measurements before (**Usw**) and after (**Uout**) the voltage regulator, as a function of the output current **Iout**.  
-
----
 
 ### B Calculation of the Pulse Amplifier  
 
