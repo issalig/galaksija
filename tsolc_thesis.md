@@ -3,8 +3,7 @@
 # Replica of the Galaksija Microcomputer
 
 **Tomaž Šolc**  
-**Mentor:**  
-Professor Dr. Tadej Tuma  
+**Mentor:** Professor Dr. Tadej Tuma  
 
 **University Diploma Thesis**  
 **University of Ljubljana**  
