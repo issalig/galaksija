@@ -246,7 +246,8 @@ The **processor accesses peripherals** through a **2 KB block** of the **memory 
 
 #### **2.2.1 Keyboard**
 
-The keyboard has **54 keys**, each of which is mapped to a **specific address in memory**, as shown in **Figure 7**. The base memory address for the keyboard is **0x2000**, with multiple address offsets for different keys. Due to **incomplete address decoding**, the **keyboard can be accessed from 32 base addresses** (e.g., 0x2000, 0x2040, …, 0x27C0). **Unused memory locations** behave as if **no key is pressed**.
+The keyboard has **54 keys**, each of which is mapped to a **specific address in memory**, as shown in **Figure 7**. The exception is the two **SHIFT** keys, which from the software perspective behave as a single key. This key is considered pressed if either of the physical **SHIFT** keys is pressed.  
+The base memory address for the keyboard is **0x2000**, with multiple address offsets for different keys. Due to **incomplete address decoding**, the **keyboard can be accessed from 32 base addresses** (e.g., 0x2000, 0x2040, …, 0x27C0). **Unused memory locations** behave as if **no key is pressed**.
 
 If the **least significant bit (LSB)** at a specific **keyboard address** is **0**, the key is **pressed**. If the bit is **1**, the key is **not pressed**. The **other bits** in the address return **undefined values**.
 
@@ -264,11 +265,10 @@ The **cassette interface** consists of an **analog input** and an **analog outpu
 
 - The **analog input** is implemented as a **simple comparator** with a **high-pass filter** at the input.  
 - If a pulse with an **amplitude greater than approximately 700 mV** (determined by the transistor **T2**) appears at the input, the **least significant bit (LSB)** at the **comparator addresses** in **Figure 7** is set to **0** for the duration of the pulse.  
-- The **maximum pulse length** is defined by the **filter** consisting of **C2** and **R14**【2】.
+- The **maximum pulse length** is defined by the **filter** consisting of **C2** and **R14**. The cutoff frequency of the filter, according to published data [2], is approximately **16 kHz**, which is too high considering the frequency response of an average audio cassette recorder. I conclude that this is likely a printing error.  
 
 The **analog output** is controlled through **two bits** in the **latch register** (**Figure 8**, **AOUT0 and AOUT1**), forming a **simple digital-to-analog converter (DAC)**. The output voltage is determined by the states of these two bits, as shown in **Table 3**.
 
-📌 Table 3: Analog output voltage levels for tape interface.
 | **AOUT0** | **AOUT1** | **Output Voltage (Ua) [V]** |
 |----------|----------|------------------|
 | 0        | 0        | 0.0 V            |
@@ -276,48 +276,35 @@ The **analog output** is controlled through **two bits** in the **latch register
 | 0        | 1        | 0.5 V            |
 | 1        | 1        | 1.0 V            |
 
----
-
-#### **2.2.3 Latch Register**
-
-The **processor** can access a **6-bit latch register** at **addresses in the range 0x2038 to 0x27FF**. The **latch register** is used for:  
-- **Character generator control**  
-- **Analog output control**  
-- **A7 address line control for RAM**  
-
-The **processor can only write** 8-bit values to these addresses. **Reading from them returns undefined values**.
-
-
-| **AOUT0** | **AOUT1** | **Output Voltage (Ua) [V]** |
-|----------|----------|------------------|
-| 0        | 0        | 0.0 V            |
-| 1        | 0        | 0.5 V            |
-| 0        | 1        | 0.5 V            |
-| 1        | 1        | 1.0 V            |
-
-Table 3 **Cassette Interface Voltage Table**
+**Table 3:** Analog output voltage levels for tape interface.
 
 The functions of the **individual bits** in the latch register are given in **Table 4**:
 
-| **Bit Name** | **Function** |
-|-------------|-------------|
-| **A7CLMP** | If set to **0**, forces the **A7 address line** of RAM to **1**, regardless of the processor’s address bus (**Figure 9**). |
-| **AOUT0–AOUT1** | Controls the **cassette interface’s digital-to-analog converter (DAC)**. |
-| **CHR0–CHR3** | Controls the **current scanline** being processed by the **character generator**. |
+| **Bit**       | **Description**                                                                 |
+|---------------|---------------------------------------------------------------------------------|
+| A7CLMP        | If this bit is set to 0, the address line A7 for RAM memory is set to 1, regardless of the value on the processor's address bus. See Figure 9. |
+| AOUT0-1       | Control of the digital-to-analog converter (DAC) for the tape interface.              |
+| CHR0-3        | Control of the current row (scanline) being displayed by the character generator.          |
 
-Table 4
+**Table 4:** Meanings of individual bits in the latch register.
+
 
 ---
 
+### 2.2.3  **Latch**  
+
+The microprocessor can access a **6-bit register** (referred to as the "latch" in the original documentation) at addresses of the form **0x0010 0xxx xx11 1xxx** (the lowest such address is **0x2038**, and the highest is **0x27FF**). This register is used to control the character generator, the analog output, and the **A7** address line for the RAM memory.  
+
+- **Writing:** Only 8-bit values can be written to these addresses.  
+- **Reading:** Reading from these addresses returns an undefined value.  
+
+The meanings of the individual bits (labeled in Figure 8) are provided in **Table 4**.  
+
+--- 
+
 ### **2.3 A7 Address Line Control for RAM**
 
-![imagen](https://github.com/user-attachments/assets/a1dc8c27-de5b-4f54-bf49-f368afffd6ae)
 
-📌 Figure 10: Video synchronization timing.
-
-![imagen](https://github.com/user-attachments/assets/bc5a9d70-f7b9-418a-b31d-62aa1526b23d)
-
-📌 Figure 11: Processor timing during video signal generation.
 Setting the **A7CLMP bit** allows the **A7 address line** of RAM to be **forced to 1**, regardless of the address bus value from the processor. This allows the **processor to read values stored in odd-numbered 128-byte blocks**, even when accessing even-numbered addresses.
 
 This feature is used in **video signal generation** due to a **peculiarity of the Z80 processor**, which **does not automatically increment the A7 line** during **memory refresh cycles**【6】.
@@ -332,27 +319,26 @@ Due to the **simple hardware design**, **video signal generation** requires **ac
 
 The **video driver** responsible for generating the video signal is located in **ROM A at address 0x0038**, which is the **interrupt vector for the INT interrupt** in **interrupt mode IM 1**.
 
-![imagen](https://github.com/user-attachments/assets/9120ac7b-78a6-4da7-b87b-e110ead9a1d7)
-
-📌 Figure 12: ASCII character ROM encoding structure.
-
-![imagen](https://github.com/user-attachments/assets/36ffa263-f8d6-43be-8a7c-b5edce8dee6b)
-![imagen](https://github.com/user-attachments/assets/d6a78e14-217d-4d96-aaf8-ef2d5919a607)
-
-
-📌 Figure 13: Galaksija’s character set table.
 
 ---
 
-#### **2.4.1 Synchronization**
+### 2.4.1  
+**Synchronization**  
 
-The **key timing intervals** required for **video signal generation** are shown in **Figure 10**. The **clock signals** for the processor (**3.072 MHz**) and the **video circuitry** (**6.144 MHz**) are synchronized.  
+The fundamental timing intervals important for generating the video signal are shown in **Figure 10**. The microprocessor's clock (3072 kHz) and the video signal circuit's clock (6144 kHz) are synchronized. The screen area is divided into a black border, which is not usable for displaying images, and the usable area in the center. Drawing one row on the screen always takes **128 microprocessor clock cycles**, and the entire usable area consists of **208 rows**. Horizontal and vertical synchronization pulses are generated by hardware.  
 
-The **visible screen area** consists of **208 lines**, with a **black border** surrounding it. **Each horizontal scanline** takes **128 processor clock cycles**, and the **horizontal and vertical sync pulses** are **generated by hardware**.
+![imagen](https://github.com/user-attachments/assets/a1dc8c27-de5b-4f54-bf49-f368afffd6ae)
 
-At the **56th horizontal sync pulse**, the **electron beam** begins moving to the **first visible scanline** of the screen. At this moment, the **video hardware triggers an interrupt (INT)** to **pause user program execution** and start video processing.
+📌 Figure 10: Video synchronization timing.
 
-Since the **processor’s response time** to an **interrupt** is **variable** (1–23 clock cycles), the **processor is paused** for **one full scanline (192 cycles)** using the **WAIT signal**. This ensures that **video processing remains perfectly synchronized** with the **electron beam**.
+When the electron beam begins moving to the start of the first row of the visible screen area at the **56th horizontal synchronization pulse**, the video circuit interrupts the execution of the user program via an **INT interrupt**.  
+
+The delay in the microprocessor's response to the interrupt is **non-deterministic**. It depends on the time the processor needs to complete the execution of the current instruction, which can range from **1 to 23 clock cycles**. However, since the video driver code must execute in perfect synchronization with the beam's movement across the screen, the microprocessor's execution is halted for the duration of one screen row (**192 clock cycles**) after responding to the interrupt. This is achieved by inserting a specific number of **HALT states** into the processor's operation, implemented via a circuit connected to the processor's **WAIT signal**. See **Figure 11**.  
+
+![imagen](https://github.com/user-attachments/assets/bc5a9d70-f7b9-418a-b31d-62aa1526b23d)
+
+📌 Figure 11: Processor timing during video signal generation.
+
 
 
 #### **2.4.2 Character Generator**
@@ -361,9 +347,16 @@ The information about the screen image is stored in a 512-byte section of RAM me
 
 The character generator is a 2 kB ROM (character generator ROM) that stores the mapping from the ASCII code of a character to its corresponding bitmap representation (i.e., the pattern of dots that form the character on the screen). The way a character is stored is shown in Figure 12. Bit 0 in the bitmap represents a bright dot on the screen, while bit 1 represents a dark dot.
 
+![imagen](https://github.com/user-attachments/assets/9120ac7b-78a6-4da7-b87b-e110ead9a1d7)
+
+📌 Figure 12: ASCII character ROM encoding structure.
+
 The lower 7 address lines of the ROM are connected to the microprocessor's data bus, while the upper 4 lines are connected to bits CHR0 to CHR3 in the latch. This allows the processor, by setting the latch and placing values on the data bus (e.g., by reading values from RAM), to retrieve any scanline of any character from the character generator.
 
+![imagen](https://github.com/user-attachments/assets/36ffa263-f8d6-43be-8a7c-b5edce8dee6b)
+![imagen](https://github.com/user-attachments/assets/d6a78e14-217d-4d96-aaf8-ef2d5919a607)
 
+📌 Figure 13: Galaksija’s character set table.
 
 Figure 13 shows all 128 characters that the character generator can display on the screen. Since the D6 line of the data bus is not connected, each stored character corresponds to two 8-bit ASCII codes. The arrangement of characters is chosen so that the codes of the first 64 characters overlap with the central half of the standard ASCII character set (ASCII codes 20 to 5F). The remaining 64 characters consist of a set of pseudographic symbols, enabling a graphical display resolution of 64x48 pixels.
 
