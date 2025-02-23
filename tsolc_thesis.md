@@ -669,101 +669,6 @@ The address decoder **only checks the upper address bits**, leading to **multipl
 
 ---
 
-## **4.3 Keyboard Wiring Anomalies**
-
-The **keyboard matrix** in **Galaksija** uses a **non-standard wiring scheme**, where:
-
-- **Each key is mapped to a specific memory address**.
-- **Pressing a key pulls the corresponding memory location low (0)**.
-- **Reading the keyboard matrix involves scanning a set of 32 possible base addresses**.
-
-![imagen](https://github.com/user-attachments/assets/97a9b28b-179a-4ff6-b2a6-a54c389233e3)
-
-**Figure 27**: *Keyboard memory mapping diagram.*
-
-### **Implication of This Design**
-- **Due to incomplete address decoding**, some **keyboard locations overlap with other memory-mapped devices**.
-- This results in **unexpected behavior** when certain keys are pressed while other I/O operations are happening.
-
----
-
-## **4.4 Usage of the R Register**
-
-The **Z80 processor** includes an **R register**, which is **intended for dynamic RAM refresh**. However, in **Galaksija**, it is used for a completely **different purpose**:
-
-- The **R register is used as a pseudo-random number generator** in the system.
-- Since the **R register increments with every memory access**, it behaves **semi-randomly** when executing certain loops.
-
-**Figure 28**: *Diagram showing unintended side effects of using the R register.*
-
-### **How This Affects the System**
-- Certain **Galaksija programs rely on the specific behavior of the R register**.
-- If a **different Z80 variant** is used (e.g., a modern Z80 clone), **programs that depend on this behavior might not work correctly**.
-
----
-
-## **Summary of Peculiarities in the Original Circuit**
-
-| **Design Feature** | **Effect** | **Issue** |
-|-------------------|----------|---------|
-| **Flip-Flops for Interrupts** | Saves components by detecting M1 cycles | Timing is unreliable across different Z80 chips |
-| **Minimal Address Decoding** | Reduces chip count | Causes address aliasing and unexpected behavior |
-| **Non-Standard Keyboard Wiring** | Simple circuit | Causes conflicts with other I/O devices |
-| **Use of R Register for Random Numbers** | Eliminates the need for a true RNG | Not portable across all Z80 variants |
-
----
-
-# **5. Peculiarities of the Operating System**
-
-The **Galaksija operating system (OS)** is a **minimalistic software environment** that provides:
-
-1. **Basic input/output functionality**
-2. **Video display control**
-3. **Cassette tape storage management**
-4. **A built-in BASIC interpreter**
-
-Due to **hardware limitations**, the OS employs **several unusual programming techniques** to optimize **speed and memory usage**.
-
----
-
-## **5.1 Self-Modifying Code**
-
-A significant portion of **Galaksija’s OS** consists of **self-modifying code**, meaning that:
-
-- The **program actively alters its own instructions while running**.
-- This allows the OS to **adapt dynamically** to different tasks.
-- However, it also **complicates debugging** and makes porting the OS to **new hardware more difficult**.
-
-**Figure 29**: *Example of a self-modifying routine in Galaksija’s OS.*
-
-### **Example: Dynamic Video Driver Configuration**
-- The **video display routine** writes new instructions **into its own code space** in **real time**.
-- This allows **efficient screen updates** but **prevents execution from ROM** (it must run in RAM).
-
----
-
-## **5.2 Memory Optimization via Code Overlap**
-
-To **save space**, many **routines in the OS overlap in memory**:
-
-| **Technique** | **Purpose** | **Example** |
-|-------------|----------|---------|
-| **Overlapping Code Segments** | Saves memory by reusing instruction blocks | Different functions share the same code region |
-| **Dual-Purpose Data Structures** | Uses the same memory region for different tasks | The stack also holds temporary variables |
-| **Jump Tables Instead of Function Calls** | Saves CPU cycles and RAM | Code execution is redirected dynamically |
-
-**Table 6**: *Examples of self-overlapping code in the OS.*
-
-| **Code Section** | **Overlapping Function** | **Effect** |
-|---------------|------------------|---------|
-| **Screen Refresh Routine** | **Cassette Tape Handler** | Limits available CPU cycles for video |
-| **Interrupt Handler** | **Keyboard Scanner** | Allows single-routine multitasking |
-| **Startup Code** | **RAM Test Function** | Uses the same memory region for different states |
-
-These optimizations allow **Galaksija’s OS** to fit into just **4 KB of ROM**, but they also make **modifying or expanding the OS difficult**.
-
----
-
 ### 4.3 Keyboard Connection
 
 The keys of the Galaksija keyboard are arranged in an 8 x 7 matrix so that their addresses in the microprocessor's address space correspond as closely as possible to the arrangement of corresponding characters in the ASCII code table (Figure 7). This way, the operating system code that converts the key scan code to the ASCII code character corresponding to the key can be significantly smaller, as relatively extensive tables are not needed for conversion.
@@ -775,6 +680,16 @@ The EPROM read-only memory is, besides the microprocessor and working memory, th
 ### 4.4 Use of R Register
 
 Using the microprocessor for screen display to reduce hardware complexity was a relatively common approach in early home computers. Similar approaches are used, for example, by Sinclair ZX80 and ZX81 computers. Galaksija's unique feature is that it uses the dynamic memory refresh function (second half of M1 cycle, R register) for this purpose. Sinclair computers, on the other hand, use the first half of the M1 cycle to transfer data from working memory to the shift register [11].
+
+## **Summary of Peculiarities in the Original Circuit**
+
+| **Design Feature** | **Effect** | **Issue** |
+|-------------------|----------|---------|
+| **Flip-Flops for Interrupts** | Saves components by detecting M1 cycles | Timing is unreliable across different Z80 chips |
+| **Minimal Address Decoding** | Reduces chip count | Causes address aliasing and unexpected behavior |
+| **Non-Standard Keyboard Wiring** | Simple circuit | Causes conflicts with other I/O devices |
+| **Use of R Register for Random Numbers** | Eliminates the need for a true RNG | Not portable across all Z80 variants |
+
 
 ### 5 Operating System Peculiarities
 
