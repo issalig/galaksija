@@ -30,6 +30,85 @@ Additionally, this work includes the development of software tools for reverse e
 
 ---
 
+### **Acknowledgments**
+
+I would like to express my gratitude to my mentor, Prof. Dr. Tadej Tuma, for his support in the preparation of this thesis.
+
+I would like to thank my parents and my sister Barbara for their support and help during critical moments. My mother for her scientific perspective on the world and my father, who served as a role model for me in the study of electronics.
+
+I would like to thank Mr. Jože Stepan for his assistance in gathering documentation and preserved articles about the Galaksija, for the creation of the printed circuit board, and last but not least, for the interesting conversations about old computer and electronic equipment.
+
+I would also like to thank Tomaž Kac for his collection of preserved software for the Galaksija and for occasional hints during the exploration of the Galaksija's functionality.
+
+I would like to thank Prof. Mateja Cvelbar for proofreading this work.
+
+Finally, I would like to thank the other members of the Kiberpipa Computer Museum team, who allowed me access to the hidden parts of old computers and whose interest in the Galaksija was actually the reason for the creation of this thesis.
+
+---
+
+### **Index**
+1 Introduction
+1.1 Galaksija
+1.2 Motivation
+1.3 Objectives
+
+2 Hardware Architecture
+2.1 Use of Address Space
+2.2 Peripherals
+2.2.1 Keyboard
+2.2.2 Tape Interface
+2.2.3 Latch
+2.3 Control of the A7 Line for RAM
+2.4 Video Signal Generation
+2.4.1 Synchronization
+2.4.2 Character Generator
+2.4.3 Video Driver
+2.4.4 Shift Register
+
+3 New Galaksija
+3.1 Digital Section
+3.1.1 Microprocessor and Memory
+3.1.2 Address Decoder
+3.1.3 Keyboard
+3.1.4 Clock Divider
+3.1.5 Shift Register
+3.1.6 Interrupt Synchronization
+3.2 Analog Section
+3.2.1 Power Supply
+3.2.2 Oscillator
+3.2.3 Reset Circuit
+3.2.4 Composite Video
+3.2.5 Tape Interface
+4 Specifics of the Original Galaksija Circuit
+4.1 Use of Undocumented Microprocessor Features
+4.1.1 First Memory Cell
+4.1.2 Second Memory Cell
+4.2 Microprocessor Bus Wiring
+4.3 Keyboard Wiring
+4.4 Use of the R Register
+5 Specifics of the Operating System
+5.1 Multilingual Program Code
+5.2 Multilingual Data Structures
+5.3 Organization of Program Code
+5.4 Use of Processor Registers
+5.5 Processor Stack
+5.6 Storing Data on Tape
+
+6 Conclusion
+
+7 References
+
+8 Appendices
+
+A Voltage Inverter
+
+B Calculation of the Pulse Amplifier
+
+C Floating-Point Numbers
+
+
+---
+
 ## **1. Introduction**
 
 ### **1.1 Galaksija**
