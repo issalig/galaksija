@@ -79,7 +79,7 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
  - 3.2.4 Composite Video
  - 3.2.5 Tape Interface
 
-[4 Peculiarities of the Original Galaksija Circuit](#4-peculiarities-of-the-original-galaksija-circuit)
+[4 Specifics of the Original Galaksija Circuit](#4-Specifics-of-the-Original-Galaksija-Circuit)
  - 4.1 Use of Undocumented Microprocessor Features
  - 4.1.1 First Memory Cell
  - 4.1.2 Second Memory Cell
@@ -87,7 +87,7 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
  - 4.3 Keyboard Wiring
  - 4.4 Use of the R Register
 
-[5 Peculiarities of the Operating System](#5-peculiarities-of-the-operating-system)
+[5 Specifics of the Operating System](#5-specifics-of-the-operating-system)
  - 5.1 Multilingual Program Code
  - 5.2 Multilingual Data Structures
  - 5.3 Organization of Program Code
@@ -194,7 +194,7 @@ The main objectives of this work are:
 ---
 
 ## **2. Hardware Architecture**
-[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#Index) [Next](#3-new-galaksija)
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#1-introduction) [Next](#3-new-galaksija)
 
 The block diagram of the **Galaksija** motherboard is shown in **Figure 5**. A facsimile of the original circuit diagram【2】is included in the appendix.
 
@@ -387,7 +387,7 @@ When executing instructions that have multiple M cycles (and thus last more than
 ---
 
 # **3. New Galaksija**
-[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#Index) [Next](#4-)
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#2-hardware-architecture) [Next](#4-Specifics-of-the-Original-Galaksija-Circuit)
 
 The electronic circuit of the new Galaksija is largely similar to the original. However, certain parts have been modified due to the unavailability of equivalent components, making it impossible to implement them exactly as per the original design. During the design of the replica, **reliability of operation** was prioritized over manufacturing cost. As a result, all known shortcomings of the original circuit were addressed, provided that such fixes would not be detectable from a software perspective. The new circuit has also been adapted for easier connection to modern television receivers or monitors.  
 
@@ -591,11 +591,9 @@ An example of the input and output signals of the amplifier for a single input p
 
 ---
 
-### 4  
-**Specifics of the Original Galaksija Circuit**  
-
-#### 4.1  
-**Use of Undocumented Microprocessor Features**  
+### 4 **Specifics of the Original Galaksija Circuit**  
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#3-new-galaksija) [Next](#5-Specifics-of-the-Operating-System)
+#### 4.1  **Use of Undocumented Microprocessor Features**  
 
 The original Galaksija has two **D flip-flops** (in the 74LS74 integrated circuit) in its electronic circuit, which are used to detect the state of the microprocessor:  
 - The first flip-flop detects the **interrupt request/acknowledge cycle** and is involved in the video synchronization circuit (page 23).  
@@ -678,7 +676,8 @@ Using the microprocessor for screen display to reduce hardware complexity was a 
 | **Use of R Register for Random Numbers** | Eliminates the need for a true RNG | Not portable across all Z80 variants |
 
 
-### 5 Peculiarities of the Operating System
+### 5 Specifics of the Operating System
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous]((#4-Specifics-of-the-Oiginal-Galaksija-Circuit)) [Next](#6-conclusion)
 
 As mentioned earlier, reducing the size of the operating system stored in EPROM memory was one of the effective methods of lowering the overall system cost. Because of this, the operating system contains many optimizations that reduce code size, but on the other hand make reverse engineering very difficult and reduce code readability. In particular, the usefulness of automatic disassembler programs is greatly reduced, as some of the described approaches cause the disassembler to lose synchronization with the code executed by the microprocessor. In this case, manual verification of results and disassembly of machine code in parts where the microprocessor entry point is known is required.
 
@@ -982,6 +981,7 @@ The basic memory of the Galaksija computer is not large, so recording on a casse
 | **Cassette Interface** | Analog | Improved ADC/DAC circuit |
 
 ### **6 Conclusion**  
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous]((#5-Specifics-of-the-Operating-System)) [Next](#bibliography)
 
 The creation of the Galaksija replica demonstrated that replicating even a small electronic system like the Galaksija is not a simple task. It requires knowledge of both analog and digital electronics, as well as assembly programming. On the other hand, this work proves that creating a functional replica is possible based solely on preserved documentation and software, even when a working original is unavailable for analysis.  
 
@@ -1000,6 +1000,8 @@ On the other hand, the results highlight the positive impact of exclusively usin
 The importance of publicly releasing documentation was also evident in this project. Many microcomputers from this era were lost primarily because their documentation disappeared along with the companies that carefully guarded it. Similarly, the absence of copy protection in software had a positive impact on its preservation, as such protections often led to the loss of a significant portion of software for similar microcomputers.  
 
 ### **Bibliography**
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#conclusion) [Next](#appendix)
+
 [^1] Hišni računalnik. Ljubljana, Mladinska knjiga, 1984, str. 42-46.
 
 [^2] Antonić, V.: Napravi i ti računar Galaksija. Računari u vašoj kuči,januar 1984, str. 50-56.
@@ -1033,6 +1035,8 @@ The importance of publicly releasing documentation was also evident in this proj
 [^16] Ristanović, D.: Galaksija bez tajni. Računari, July 1984, pages 53-63.
 
 ## **Appendix**
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#bibliography) [Next](#declaration)
+
 ### A **Voltage Inverter**  
 
 The voltage inverter must produce a stabilized supply voltage of **−5V** under all operating conditions of the video amplifier.  
@@ -1175,6 +1179,7 @@ The interpretation of individual bits in both formats is shown in **Tables 14** 
 **Table 15:** 4-byte floating-point number format.
 
 ### **Declaration**  
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#appendix) 
 
 I declare that I have prepared this thesis independently under the guidance of my mentor, Prof. Dr. Tadej Tuma, Univ. Dipl. Ing. El. Any assistance provided by other collaborators has been fully acknowledged in the acknowledgments section.  
 
