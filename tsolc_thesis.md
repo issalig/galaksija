@@ -1316,9 +1316,7 @@ Where:
 
 This format allows numbers to be represented in the following range:  
 
-$$
-N \in \left[ -1 \cdot (2^{24} - 1) \cdot 2^{127}, +1 \cdot (2^{24} - 1) \cdot 2^{127} \right]  
-$$  
+$$N \in \left[ -1 \cdot (2^{24} - 1) \cdot 2^{127}, +1 \cdot (2^{24} - 1) \cdot 2^{127} \right]$$  
 *(Equation 9)*  
 
 The format does not support non-numeric values (e.g., infinity, undefined values, etc.).  
