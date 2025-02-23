@@ -688,7 +688,7 @@ Using the microprocessor for screen display to reduce hardware complexity was a 
 | **Use of R Register for Random Numbers** | Eliminates the need for a true RNG | Not portable across all Z80 variants |
 
 
-### 5 Operating System Peculiarities
+### 5 Peculiarities of the Operating System
 
 As mentioned earlier, reducing the size of the operating system stored in EPROM memory was one of the effective methods of lowering the overall system cost. Because of this, the operating system contains many optimizations that reduce code size, but on the other hand make reverse engineering very difficult and reduce code readability. In particular, the usefulness of automatic disassembler programs is greatly reduced, as some of the described approaches cause the disassembler to lose synchronization with the code executed by the microprocessor. In this case, manual verification of results and disassembly of machine code in parts where the microprocessor entry point is known is required.
 
