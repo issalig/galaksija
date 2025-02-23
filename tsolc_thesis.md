@@ -1185,4 +1185,173 @@ The importance of publicly releasing documentation was also evident in this proj
 
 [16] Ristanović, D.: Galaksija bez tajni. Računari, July 1984, pages 53-63.
 
+### A  
+**Voltage Inverter**  
+
+The voltage inverter must produce a stabilized supply voltage of **−5V** under all operating conditions of the video amplifier.  
+
+SPICE simulations of the video amplifier in both extreme cases (a completely white screen and a completely black screen) showed that the video amplifier requires a current of **25 to 34 mA** for operation.  
+
+Due to its simple circuit and reliable operation, a **switched capacitor** implementation with a linear voltage regulator was chosen. The low output current minimizes the drawbacks of this approach (such as high losses compared to an inductor-based design).  
+
+The switching part (integrated circuit **U11**, capacitor **C4**, and diodes **D2** and **D3**) operates at a frequency of approximately **10 kHz** and produces an unstabilized voltage of approximately **−9V**. This voltage is then stabilized by the regulator in the integrated circuit **U22**.  
+
+The results of measurements of the output voltage as a function of the output current are shown in **Figure 31**.  
+
+![imagen](https://github.com/user-attachments/assets/92821ea7-12ba-445a-91f6-d1d359758f83)
+
+![imagen](https://github.com/user-attachments/assets/d473a335-4486-4aa6-b385-0bc173bc48cc)
+
+**Figure 31:** Results of voltage measurements before (**Usw**) and after (**Uout**) the voltage regulator, as a function of the output current **Iout**.  
+
+---
+
+### Calculation of the Pulse Amplifier  
+
+Assume that the input pulse is rectangular in shape and that the connected tape recorder has a low output impedance.  
+
+First, calculate the **maximum collector current**, while also assuming the **minimum current through R1** at which the amplifier output is at a logical **0**.  
+
+
+The minimum collector current (**ICmin**) is calculated as:  
+
+\[
+IC_{\text{min}} = \frac{U_{CC} - U_{CE_{\text{sat}}}}{R1}  
+\]  
+*(Equation 1)*  
+
+Where:  
+- \( U_{CC} \) = Supply voltage  
+- \( U_{CE_{\text{sat}}} \) = Collector-emitter saturation voltage  
+- \( R1 \) = Resistor value  
+
+
+The minimum base current (**IBmin**) required to achieve **ICmin** is:  
+
+\[
+IB_{\text{min}} = \frac{IC_{\text{min}}}{\beta}  
+\]  
+*(Equation 2)*  
+
+Where:  
+- \( \beta \) = Current gain of the transistor  
+
+If the above assumptions hold, the capacitor **C15** initially charges primarily through the base of transistor **Q7** after the first edge of the pulse. Once the voltage at the base drops to the base-emitter voltage (**UBE**) of transistor **Q7**, the capacitor continues to charge mainly through resistor **R33**.  
+
+The output pulse of the amplifier lasts as long as the base current exceeds **IBmin**.  
+
+![imagen](https://github.com/user-attachments/assets/9dd797d3-e29e-428d-b717-894cd4f416bc)
+
+
+Due to the exponential **IB (UBE)** characteristic of the transistor, the capacitor charges through the base in a very short time. The width of the output pulse is primarily determined by the charging through resistor **R33** and the resulting **RC time constant** of the **R33 C15** circuit.  
+
+Assume that the base current becomes negligible when it drops to approximately one-tenth of the current through the resistor. At this point, the base voltage is:  
+
+EQ 3 is missing
+
+\[
+U_{BE_{\text{start}}} = U_T \ln\left(\frac{U_{BE} \beta}{I_S R33 \cdot 10} + 1\right)  
+\]  
+*(Equation 4)*  
+
+Where:  
+- \( U_T \) = Thermal voltage  
+- \( I_S \) = Saturation current of the transistor  
+- \( \beta \) = Current gain of the transistor  
+
+Similarly, the base voltage when the minimum base current (**IBmin**) flows is:  
+
+\[
+U_{BE_{\text{stop}}} = U_T \ln\left(\frac{I_{B_{\text{min}}} \beta}{I_S} + 1\right)  
+\]  
+*(Equation 5)*  
+
+The duration of the pulse is then:  
+
+\[
+t = R33 \cdot C15 \cdot \ln\left(\frac{U_{BE_{\text{start}}}}{U_{BE_{\text{stop}}}}\right)  
+\]  
+*(Equation 6)*  
+
+The required capacitance **C15** for a known resistor value and pulse duration is:  
+
+\[
+C15 = \frac{t}{R33 \cdot \ln\left(\frac{U_{BE_{\text{start}}}}{U_{BE_{\text{stop}}}}\right)}  
+\]  
+*(Equation 7)*  
+
+For a resistor **R33 = 1 kΩ** and a pulse duration **t = 100 µs**, we obtain a value of **C15 ≈ 0.72 µF**, which is approximately **1 µF**. The minimum pulse duration of **45 µs** is derived from the **LOAD READ PULSE** loop at addresses **0x0EF9** to **0x0F05**. For greater reliability, a value approximately twice as large was used.  
+
+### Floating-Point Numbers  
+
+Galaksija's operating system uses a stack-based calculator with **RPN (Reverse Polish Notation)** for evaluating mathematical expressions internally. For example, all BASIC expressions are internally converted into this form before calculation, and the complexity of expressions is limited only by the memory available for the arithmetic stack.  
+
+The system uses **two different formats** for floating-point numbers:  
+1. **4-byte format:** Used for long-term storage of values (e.g., for BASIC variables and arrays).  
+2. **5-byte format:** Used for storing intermediate calculation results (e.g., values on the arithmetic stack). This format is more suitable for arithmetic operations due to its data layout.  
+
+This approach achieves a compromise between the speed of arithmetic operations and memory requirements.  
+
+Both formats always contain **normalized values** and use:  
+- **24 bits** for the mantissa,  
+- **8 bits** for the exponent, and  
+- **1 bit** for the sign.  
+
+The value of the number is determined by the following equation:  
+
+\[
+N = 
+\begin{cases} 
++1 \cdot M \cdot 2^{E-24} & \text{if } S = 0 \\
+0 & \text{if } E = -128 \\
+-1 \cdot M \cdot 2^{E-24} & \text{if } S \neq 0 
+\end{cases}
+\]  
+*(Equation 8)*  
+
+Where:  
+- \( M \) = Unsigned mantissa value,  
+- \( E \) = Signed exponent value,  
+- \( S \) = Sign bit value, and  
+- \( N \) = Represented number.  
+
+This format allows numbers to be represented in the following range:  
+
+\[
+N \in \left[ -1 \cdot (2^{24} - 1) \cdot 2^{127}, +1 \cdot (2^{24} - 1) \cdot 2^{127} \right]  
+\]  
+*(Equation 9)*  
+
+The format does not support non-numeric values (e.g., infinity, undefined values, etc.).  
+
+The interpretation of individual bits in both formats is shown in **Tables 14** and **15**. In the 4-byte format, the **most significant bit of the mantissa (M23)** is omitted because it is always **1** due to the mandatory normalization of numbers.  
+
+Here is the translation and rearrangement of the table:
+
+---
+
+| **Address** | **Bit** | **7** | **6** | **5** | **4** | **3** | **2** | **1** | **0** |         |
+|-------------|---------|-------|-------|-------|-------|-------|-------|-------|-------|---------|
+| IX - 5      | L’ E’   | M7    | M6    | M5    | M4    | M3    | M2    | M1    | M0    | mantisa |
+| IX - 4      | H’ D’   | M15   | M14   | M13   | M12   | M11   | M10   | M9    | M8    |         |
+| IX - 3      | C’ B’   | M23   | M22   | M21   | M20   | M19   | M18   | M17   | M16   |         |
+| IX - 2      | L E     | E7    | E6    | E5    | E4    | E3    | E2    | E1    | E0    | exponent|
+| IX - 1      | H D     | S     | S6    | S5    | S4    | S3    | S2    | S1    | S0    | predznak|
+
+**Table 14:** 5-byte floating-point number format.
+
+| **Bit** | **7** | **6** | **5** | **4** | **3** | **2** | **1** | **0** |
+|---------|-------|-------|-------|-------|-------|-------|-------|-------|
+| HL + 0  | M7    | M6    | M5    | M4    | M3    | M2    | M1    | M0    |
+| HL + 1  | M15   | M14   | M13   | M12   | M11   | M10   | M9    | M8    |
+| HL + 2  | E0    | M22   | M21   | M20   | M19   | M18   | M17   | M16   |
+| HL + 3  | S7    | E7    | E6    | E5    | E4    | E3    | E2    | E1    |
+
+**Table 15:** 4-byte floating-point number format.
+
+### **Declaration**  
+
+I declare that I have prepared this thesis independently under the guidance of my mentor, Prof. Dr. Tadej Tuma, Univ. Dipl. Ing. El. Any assistance provided by other collaborators has been fully acknowledged in the acknowledgments section.  
+
+
 
