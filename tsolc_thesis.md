@@ -1212,28 +1212,23 @@ Assume that the input pulse is rectangular in shape and that the connected tape 
 
 First, calculate the **maximum collector current**, while also assuming the **minimum current through R1** at which the amplifier output is at a logical **0**.  
 
-
 The minimum collector current (**ICmin**) is calculated as:  
-$$
-IC_{\text{min}} = \frac{U_{CC} - U_{CE_{\text{sat}}}}{R1}  
-$$  
+$$IC_{\text{min}} = \frac{U_{CC} - U_{CE_{\text{sat}}}}{R1}$$  
 *(Equation 1)*  
 
 Where:  
-- \( U_{CC} \) = Supply voltage  
-- \( U_{CE_{\text{sat}}} \) = Collector-emitter saturation voltage  
-- \( R1 \) = Resistor value  
+- $$ U_{CC} $$ = Supply voltage  
+- $$ U_{CE_{\text{sat}}} $$ = Collector-emitter saturation voltage  
+- $$ R1 $$ = Resistor value  
 
 
 The minimum base current (**IBmin**) required to achieve **ICmin** is:  
 
-$$
-IB_{\text{min}} = \frac{IC_{\text{min}}}{\beta}  
-$$  
+$$IB_{\text{min}} = \frac{IC_{\text{min}}}{\beta}$$  
 *(Equation 2)*  
 
 Where:  
-- $$\( \beta \)$$ = Current gain of the transistor  
+- $$\beta$$ = Current gain of the transistor  
 
 If the above assumptions hold, the capacitor **C15** initially charges primarily through the base of transistor **Q7** after the first edge of the pulse. Once the voltage at the base drops to the base-emitter voltage (**UBE**) of transistor **Q7**, the capacitor continues to charge mainly through resistor **R33**.  
 
@@ -1241,41 +1236,33 @@ The output pulse of the amplifier lasts as long as the base current exceeds **IB
 
 ![imagen](https://github.com/user-attachments/assets/9dd797d3-e29e-428d-b717-894cd4f416bc)
 
-
 Due to the exponential **IB (UBE)** characteristic of the transistor, the capacitor charges through the base in a very short time. The width of the output pulse is primarily determined by the charging through resistor **R33** and the resulting **RC time constant** of the **R33 C15** circuit.  
 
 Assume that the base current becomes negligible when it drops to approximately one-tenth of the current through the resistor. At this point, the base voltage is:  
 
 ![imagen](https://github.com/user-attachments/assets/b1ec3c73-bdb0-4217-bc5c-734c79bf951c)
 
-
-$$U_{BE_{\text{start}}} = U_T \ln\left(\frac{U_{BE} \beta}{I_S R33 \cdot 10} + 1\right)  $$ 
+$$U_{BE_{\text{start}}} = U_T \ln\left(\frac{U_{BE} \beta}{I_S R33 \cdot 10} + 1\right)$$
 *(Equation 4)*  
 
 Where:  
-- \( U_T \) = Thermal voltage  
-- \( I_S \) = Saturation current of the transistor  
-- \( \beta \) = Current gain of the transistor  
+- $$\( U_T \)$$ = Thermal voltage  
+- $$\( I_S \)$$ = Saturation current of the transistor  
+- $$\( \beta \)$$ = Current gain of the transistor  
 
 Similarly, the base voltage when the minimum base current (**IBmin**) flows is:  
 
-$$
-U_{BE_{\text{stop}}} = U_T \ln\left(\frac{I_{B_{\text{min}}} \beta}{I_S} + 1\right)  
-$$  
+$$U_{BE_{\text{stop}}} = U_T \ln\left(\frac{I_{B_{\text{min}}} \beta}{I_S} + 1\right)$$  
 *(Equation 5)*  
 
 The duration of the pulse is then:  
 
-$$
-t = R33 \cdot C15 \cdot \ln\left(\frac{U_{BE_{\text{start}}}}{U_{BE_{\text{stop}}}}\right)  
-$$  
+$$t = R33 \cdot C15 \cdot \ln\left(\frac{U_{BE_{\text{start}}}}{U_{BE_{\text{stop}}}}\right)$$  
 *(Equation 6)*  
 
 The required capacitance **C15** for a known resistor value and pulse duration is:  
 
-$$
-C15 = \frac{t}{R33 \cdot \ln\left(\frac{U_{BE_{\text{start}}}}{U_{BE_{\text{stop}}}}\right)}  
-$$  
+$$C15 = \frac{t}{R33 \cdot \ln\left(\frac{U_{BE_{\text{start}}}}{U_{BE_{\text{stop}}}}\right)}$$  
 *(Equation 7)*  
 
 For a resistor **R33 = 1 kΩ** and a pulse duration **t = 100 µs**, we obtain a value of **C15 ≈ 0.72 µF**, which is approximately **1 µF**. The minimum pulse duration of **45 µs** is derived from the **LOAD READ PULSE** loop at addresses **0x0EF9** to **0x0F05**. For greater reliability, a value approximately twice as large was used.  
@@ -1297,14 +1284,12 @@ Both formats always contain **normalized values** and use:
 
 The value of the number is determined by the following equation:  
 
-$$
-N = 
+$$N = 
 \begin{cases} 
 +1 \cdot M \cdot 2^{E-24} & \text{if } S = 0 \\
 0 & \text{if } E = -128 \\
 -1 \cdot M \cdot 2^{E-24} & \text{if } S \neq 0 
-\end{cases}
-$$  
+\end{cases}$$
 *(Equation 8)*  
 
 Where:  
