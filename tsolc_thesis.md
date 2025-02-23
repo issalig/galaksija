@@ -803,17 +803,17 @@ These optimizations allow **Galaksija’s OS** to fit into just **4 KB of ROM**,
 ---
 
 | Address | Hex    | Processor Interpretation |||
-|---------|--------|------------------------|||
-| 0x0390  | 0x2e   | 1 →ld l,0eh           | ||
-| 0x0391  | 0x0e   |            | ||
-| 0x0392  | 0x01   | ld bc,9b2eh||        | 
-| 0x0393  | 0x2e   | | 2 →ld l,9bh |           |
-| 0x0394  | 0x9b   |          |||
-| 0x0395  | 0x01   | | ld bc,ee2eh           |
-| 0x0396  | 0x2e   | | | 3 →ld l,eeh            |
-| 0x0397  | 0xee   |             |||
-| 0x0398  | 0x26   | ld h,0fh              | ld h,0fh | ld h,0fh |
-| 0x0399  | 0x0f   |                       | ||
+|---------|--------|------------------------|-|-|
+| 0x0390  | 0x2e   | 1 →ld l,0ehh |               |              | 
+| 0x0391  | 0x0e   |              |               |              | 
+| 0x0392  | 0x01   | ld bc,9b2eh  |               |              | 
+| 0x0393  | 0x2e   |              | 2 →ld l,9bh   |              |
+| 0x0394  | 0x9b   |              |               |              |
+| 0x0395  | 0x01   |              | ld bc,ee2eh   |              |
+| 0x0396  | 0x2e   |              |               | 3 →ld l,eeh  |
+| 0x0397  | 0xee   |              |               |              |
+| 0x0398  | 0x26   | ld h,0fh     | ld h,0fh      | ld h,0fh     |
+| 0x0399  | 0x0f   |              |               |              |
 
 
 **Table 6:** Example of machine code polymorphism in the Galaxy operating system. The HL register is set to different values depending on the entry point (→) of the microprocessor
