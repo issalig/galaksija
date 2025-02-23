@@ -50,65 +50,62 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
 
 ### **Index**
 [1 Introduction](#1-introduction)
-1.1 Galaksija
-1.2 Motivation
-1.3 Objectives
+ - 1.1 Galaksija
+ - 1.2 Motivation
+ - 1.3 Objectives
 
 [2 Hardware Architecture](#2-hardware-architecture)
-2.1 Use of Address Space
-2.2 Peripherals
-2.2.1 Keyboard
-2.2.2 Tape Interface
-2.2.3 Latch
-2.3 Control of the A7 Line for RAM
-2.4 Video Signal Generation
-2.4.1 Synchronization
-2.4.2 Character Generator
-2.4.3 Video Driver
-2.4.4 Shift Register
+ - 2.1 Use of Address Space
+ - 2.2 Peripherals
+ - 2.2.1 Keyboard
+ - 2.2.2 Tape Interface
+ - 2.2.3 Latch
+ - 2.3 Control of the A7 Line for RAM
+ - 2.4 Video Signal Generation
+ - 2.4.1 Synchronization
+ - 2.4.2 Character Generator
+ - 2.4.3 Video Driver
+ - 2.4.4 Shift Register
 
 [3 The New Galaksija](#3-the-new-galaksija)
-3.1 Digital Section
-3.1.1 Microprocessor and Memory
-3.1.2 Address Decoder
-3.1.3 Keyboard
-3.1.4 Clock Divider
-3.1.5 Shift Register
-3.1.6 Interrupt Synchronization
-3.2 Analog Section
-3.2.1 Power Supply
-3.2.2 Oscillator
-3.2.3 Reset Circuit
-3.2.4 Composite Video
-3.2.5 Tape Interface
+ - 3.1 Digital Section
+ - 3.1.1 Microprocessor and Memory
+ - 3.1.2 Address Decoder
+ - 3.1.3 Keyboard
+ - 3.1.4 Clock Divider
+ - 3.1.5 Shift Register
+ - 3.1.6 Interrupt Synchronization
+ - 3.2 Analog Section
+ - 3.2.1 Power Supply
+ - 3.2.2 Oscillator
+ - 3.2.3 Reset Circuit
+ - 3.2.4 Composite Video
+ - 3.2.5 Tape Interface
 
 [4 Peculiarities of the Original Galaksija Circuit](#4-peculiarities-of-the-original-galaksija-circuit)
-4.1 Use of Undocumented Microprocessor Features
-4.1.1 First Memory Cell
-4.1.2 Second Memory Cell
-4.2 Microprocessor Bus Wiring
-4.3 Keyboard Wiring
-4.4 Use of the R Register
+ - 4.1 Use of Undocumented Microprocessor Features
+ - 4.1.1 First Memory Cell
+ - 4.1.2 Second Memory Cell
+ - 4.2 Microprocessor Bus Wiring
+ - 4.3 Keyboard Wiring
+ - 4.4 Use of the R Register
 
 [5 Peculiarities of the Operating System](#5-peculiarities-of-the-operating-system)
-5.1 Multilingual Program Code
-5.2 Multilingual Data Structures
-5.3 Organization of Program Code
-5.4 Use of Processor Registers
-5.5 Processor Stack
-5.6 Storing Data on Tape
+ - 5.1 Multilingual Program Code
+ - 5.2 Multilingual Data Structures
+ - 5.3 Organization of Program Code
+ - 5.4 Use of Processor Registers
+ - 5.5 Processor Stack
+ - 5.6 Storing Data on Tape
 
 [6 Conclusion](#6-conclusion)
 
-[7 References](#7-references)
+[7 Bibliography](#7-bibliography)
 
 [8 Appendices](#8-appendices)
-
-A Voltage Inverter
-
-B Calculation of the Pulse Amplifier
-
-C Floating-Point Numbers
+ - A Voltage Inverter
+ - B Calculation of the Pulse Amplifier
+ - C Floating-Point Numbers
 
 
 ---
@@ -117,13 +114,13 @@ C Floating-Point Numbers
 
 ### **1.1 Galaksija**
 
-**Galaksija** is a home microcomputer designed in 1983 by **Voja Antonić**. Similar to other microcomputers developed in former Yugoslavia at the time, **Galaksija** was intended as a domestic alternative to foreign microcomputers produced by **Sinclair Research** (Sinclair ZX81, Sinclair ZX Spectrum) and **Commodore Business Machines** (Commodore 64). These foreign microcomputers, although highly sought after, were difficult to obtain legally due to strict import restrictions on Western technology and their relatively high prices【1】.
+**Galaksija** is a home microcomputer designed in 1983 by **Voja Antonić**. Similar to other microcomputers developed in former Yugoslavia at the time, **Galaksija** was intended as a domestic alternative to foreign microcomputers produced by **Sinclair Research** (Sinclair ZX81, Sinclair ZX Spectrum) and **Commodore Business Machines** (Commodore 64). These foreign microcomputers, although highly sought after, were difficult to obtain legally due to strict import restrictions on Western technology and their relatively high prices[^1].
 
 To make the computer as affordable as possible and accessible to the widest range of people, its electronic circuitry was designed to be as simple as possible, including only components that were either readily available in electronic stores at the time or could be easily imported from neighboring countries. Since cost reduction was the highest priority in its design, many compromises had to be made in hardware. For example, the computer's operation depends on certain undocumented features of the microprocessor, along with other design choices that would be unacceptable in modern systems. The development of system software was also heavily influenced by the goal of keeping hardware costs low.
 
 A comparison of **Galaksija**’s capabilities with similar foreign and domestic microcomputers from the same era is shown in **Tables 1 and 2**.
 
-Initially, **Galaksija** was intended for self-assembly. To facilitate this, the designer, with the assistance of editor **Dejan Ristanović**, published a complete guide on how to build it in a **special edition of the magazine Galaksija**, released in January 1984【2】. This publication, which included a significant portion of the development documentation, ensured that much of the technical details were preserved. Due to high demand, the computer was later produced as a commercial product as well.
+Initially, **Galaksija** was intended for self-assembly. To facilitate this, the designer, with the assistance of editor **Dejan Ristanović**, published a complete guide on how to build it in a **special edition of the magazine Galaksija**, released in January 1984 [^2]. This publication, which included a significant portion of the development documentation, ensured that much of the technical details were preserved. Due to high demand, the computer was later produced as a commercial product as well.
 
 ![imagen](https://github.com/user-attachments/assets/5e98ac0e-d437-44b5-8c16-c175136e4923)
 
@@ -318,8 +315,7 @@ The **video driver** responsible for generating the video signal is located in *
 
 ---
 
-### 2.4.1  
-**Synchronization**  
+### 2.4.1  **Synchronization**  
 
 The fundamental timing intervals important for generating the video signal are shown in **Figure 10**. The microprocessor's clock (3072 kHz) and the video signal circuit's clock (6144 kHz) are synchronized. The screen area is divided into a black border, which is not usable for displaying images, and the usable area in the center. Drawing one row on the screen always takes **128 microprocessor clock cycles**, and the entire usable area consists of **208 rows**. Horizontal and vertical synchronization pulses are generated by hardware.  
 
@@ -1119,37 +1115,37 @@ The importance of publicly releasing documentation was also evident in this proj
 ---
 
 ### **7 Bibliography**
-[1] Hišni računalnik. Ljubljana, Mladinska knjiga, 1984, str. 42-46.
+[^1] Hišni računalnik. Ljubljana, Mladinska knjiga, 1984, str. 42-46.
 
-[2] Antonić, V.: Napravi i ti računar Galaksija. Računari u vašoj kuči,januar 1984, str. 50-56.
+[^2] Antonić, V.: Napravi i ti računar Galaksija. Računari u vašoj kuči,januar 1984, str. 50-56.
 
-[3] ZX81 Assembly Instructions. Sinclair Research Ltd, 1981.
+[^3] ZX81 Assembly Instructions. Sinclair Research Ltd, 1981.
 
-[4] Servicing Manual for ZX Spectrum. Thorn Datatech Ltd, Sinclair Research Ltd, 1984.
+[^4] Servicing Manual for ZX Spectrum. Thorn Datatech Ltd, Sinclair Research Ltd, 1984.
 
-[5] Commodore 64 Service Manual. Commodore Business Machines Inc,1985.
+[^5] Commodore 64 Service Manual. Commodore Business Machines Inc,1985.
 
-[6] Z80 Family CPU User Manual. San Jose, ZiLOG Inc., 2005.
+[^6] Z80 Family CPU User Manual. San Jose, ZiLOG Inc., 2005.
 
-[7] Benson, K. B.: Television Engineering Handbook. McGraw-Hill Inc., 1985.
+[^7] Benson, K. B.: Television Engineering Handbook. McGraw-Hill Inc., 1985.
 
-[8] Wedam, A.: Radiotehnika: ojačevalniki in sprejemniki. Ljubljana,Državna založba Slovenije, 1955.
+[^8] Wedam, A.: Radiotehnika: ojačevalniki in sprejemniki. Ljubljana,Državna založba Slovenije, 1955.
 
-[9] Bandwidth Versus Video Resolution. Maxim Integrated Products, Dallas Semiconductor,2005. http://www.maxim-ic.com/appnotes.cfm/appnote number/750
+[^9] Bandwidth Versus Video Resolution. Maxim Integrated Products, Dallas Semiconductor,2005. http://www.maxim-ic.com/appnotes.cfm/appnote number/750
 
-[10] Z8400/Z84C00 NMOS/CMOS Z80 CPU Central Processing Unit: Product specification. ZiLOG Inc.
+[^10] Z8400/Z84C00 NMOS/CMOS Z80 CPU Central Processing Unit: Product specification. ZiLOG Inc.
 
-[11] Rigter, W.: ZX81 Video Display System. 1996. http://home.germany.net/nils.eilers/zx81/wilfvid.htm
+[^11] Rigter, W.: ZX81 Video Display System. 1996. http://home.germany.net/nils.eilers/zx81/wilfvid.htm
 
-[12] Ristanović, D.: Računar Galaksija. http://user.sezampro.yu/ dejanr/galaks.htm
+[^12] Ristanović, D.: Računar Galaksija. http://user.sezampro.yu/ dejanr/galaks.htm
 
-[13] Harris, R.: Altair BASIC 3.2 (4K) - Annotated Disassembly. http://www.interact-sw.co.uk/altair/index2.html
+[^13] Harris, R.: Altair BASIC 3.2 (4K) - Annotated Disassembly. http://www.interact-sw.co.uk/altair/index2.html
 
-[14] Dinu, C.: Decoding Z80 opcodes. http://z80.info/decoding.htm
+[^14] Dinu, C.: Decoding Z80 opcodes. http://z80.info/decoding.htm
 
-[15] Ristanović, D.: Računar Galaksija Uputstvo za upotrebu.
+[^15] Ristanović, D.: Računar Galaksija Uputstvo za upotrebu.
 
-[16] Ristanović, D.: Galaksija bez tajni. Računari, July 1984, pages 53-63.
+[^16] Ristanović, D.: Galaksija bez tajni. Računari, July 1984, pages 53-63.
 
 ### A  
 **Voltage Inverter**  
