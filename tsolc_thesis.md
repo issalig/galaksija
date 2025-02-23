@@ -127,19 +127,19 @@ Initially, **Galaksija** was intended for self-assembly. To facilitate this, the
 
 ![imagen](https://github.com/user-attachments/assets/5e98ac0e-d437-44b5-8c16-c175136e4923)
 
-📌 Figure 1: Handmade Galaksija prototype (private collection of Damjan Lenarčič).
+Figure 1: Handmade Galaksija prototype (private collection of Damjan Lenarčič).
 
 ![imagen](https://github.com/user-attachments/assets/7542a1ea-37e5-4a8f-946b-b4bf0dca32ef)
 
-📌 Figure 2: Factory-produced Galaksija (manufactured by Zavod za udžbenike i nastavna sredstva).
+Figure 2: Factory-produced Galaksija (manufactured by Zavod za udžbenike i nastavna sredstva).
 
 ![imagen](https://github.com/user-attachments/assets/d4a84cc0-b273-4d5b-994e-0ba4c7448707)
 
-📌 Figure 3: Top view of the original Galaksija PCB (private collection of Iztok Pušnar).
+Figure 3: Top view of the original Galaksija PCB (private collection of Iztok Pušnar).
 
 ![imagen](https://github.com/user-attachments/assets/8f929285-d1e5-4068-8a5a-57e6f927fe5e)
 
-📌 Figure 4: Bottom view of the original Galaksija PCB (private collection of Iztok Pušnar).
+Figure 4: Bottom view of the original Galaksija PCB (private collection of Iztok Pušnar).
 
 #### **Table 1: Comparison of Galaksija with foreign microcomputers**  
 
@@ -204,7 +204,7 @@ The block diagram of the **Galaksija** motherboard is shown in **Figure 5**. A f
 
 ![imagen](https://github.com/user-attachments/assets/21af8ca3-42a5-40fd-839d-858358450f01)
 
-📌 Figure 5: Block diagram of Galaksija motherboard.
+Figure 5: Block diagram of Galaksija motherboard.
 
 ### **2.1 Address Space Utilization**
 
@@ -217,7 +217,7 @@ The **Galaksija motherboard** only utilizes the **memory address space**, both f
 
 ![imagen](https://github.com/user-attachments/assets/b4855b7d-06d2-482e-a6fe-92b7ac81609a)
 
-📌 Figure 6: Galaksija’s memory map and address space allocation.
+Figure 6: Galaksija’s memory map and address space allocation.
 
 **Figure 6** illustrates the memory **layout** and how memory and peripheral devices are mapped into the address space (**memory map**). This layout is defined by the **address decoder circuit** and **cannot be changed via software** (except for control of the **A7 address line for RAM**, as shown in **Figure 9**). Unused parts of the address space are **reserved for future expansion**, and reading from these addresses returns **undefined values**.
 
@@ -231,8 +231,7 @@ The entire **I/O address space** is reserved for **expansion**, and reading from
 
 ![imagen](https://github.com/user-attachments/assets/5c135871-ac20-47db-bc5a-3454f4f776e9)
 
-📌 Figure 7: Keyboard memory address mapping.
-
+Figure 7: Keyboard memory address mapping.
 
 ---
 
@@ -242,7 +241,7 @@ The **processor accesses peripherals** through a **2 KB block** of the **memory 
 
 ![imagen](https://github.com/user-attachments/assets/7f9210f7-6d17-458f-bd31-32f683ee8488)
 
-📌 Figure 8: Latch register bit layout.
+Figure 8: Latch register bit layout.
 
 #### **2.2.1 Keyboard**
 
@@ -255,7 +254,7 @@ Writing to the **keyboard memory addresses** is **not allowed**.
 
 ![imagen](https://github.com/user-attachments/assets/1d0133cc-66a8-4a84-82f5-384109722d17)
 
-📌 Figure 9: A7 line control for RAM address remapping.
+Figure 9: A7 line control for RAM address remapping.
 
 ---
 
@@ -288,7 +287,6 @@ The functions of the **individual bits** in the latch register are given in **Ta
 
 **Table 4:** Meanings of individual bits in the latch register.
 
-
 ---
 
 ### 2.2.3  **Latch**  
@@ -304,7 +302,6 @@ The meanings of the individual bits (labeled in Figure 8) are provided in **Tabl
 
 ### **2.3 A7 Address Line Control for RAM**
 
-
 Setting the **A7CLMP bit** allows the **A7 address line** of RAM to be **forced to 1**, regardless of the address bus value from the processor. This allows the **processor to read values stored in odd-numbered 128-byte blocks**, even when accessing even-numbered addresses.
 
 This feature is used in **video signal generation** due to a **peculiarity of the Z80 processor**, which **does not automatically increment the A7 line** during **memory refresh cycles**【6】.
@@ -319,7 +316,6 @@ Due to the **simple hardware design**, **video signal generation** requires **ac
 
 The **video driver** responsible for generating the video signal is located in **ROM A at address 0x0038**, which is the **interrupt vector for the INT interrupt** in **interrupt mode IM 1**.
 
-
 ---
 
 ### 2.4.1  
@@ -329,7 +325,7 @@ The fundamental timing intervals important for generating the video signal are s
 
 ![imagen](https://github.com/user-attachments/assets/a1dc8c27-de5b-4f54-bf49-f368afffd6ae)
 
-📌 Figure 10: Video synchronization timing.
+Figure 10: Video synchronization timing.
 
 When the electron beam begins moving to the start of the first row of the visible screen area at the **56th horizontal synchronization pulse**, the video circuit interrupts the execution of the user program via an **INT interrupt**.  
 
@@ -337,9 +333,7 @@ The delay in the microprocessor's response to the interrupt is **non-determinist
 
 ![imagen](https://github.com/user-attachments/assets/bc5a9d70-f7b9-418a-b31d-62aa1526b23d)
 
-📌 Figure 11: Processor timing during video signal generation.
-
-
+Figure 11: Processor timing during video signal generation.
 
 #### **2.4.2 Character Generator**
 
@@ -349,14 +343,14 @@ The character generator is a 2 kB ROM (character generator ROM) that stores the 
 
 ![imagen](https://github.com/user-attachments/assets/9120ac7b-78a6-4da7-b87b-e110ead9a1d7)
 
-📌 Figure 12: ASCII character ROM encoding structure.
+Figure 12: ASCII character ROM encoding structure.
 
 The lower 7 address lines of the ROM are connected to the microprocessor's data bus, while the upper 4 lines are connected to bits CHR0 to CHR3 in the latch. This allows the processor, by setting the latch and placing values on the data bus (e.g., by reading values from RAM), to retrieve any scanline of any character from the character generator.
 
 ![imagen](https://github.com/user-attachments/assets/36ffa263-f8d6-43be-8a7c-b5edce8dee6b)
 ![imagen](https://github.com/user-attachments/assets/d6a78e14-217d-4d96-aaf8-ef2d5919a607)
 
-📌 Figure 13: Galaksija’s character set table.
+Figure 13: Galaksija’s character set table.
 
 Figure 13 shows all 128 characters that the character generator can display on the screen. Since the D6 line of the data bus is not connected, each stored character corresponds to two 8-bit ASCII codes. The arrangement of characters is chosen so that the codes of the first 64 characters overlap with the central half of the standard ASCII character set (ASCII codes 20 to 5F). The remaining 64 characters consist of a set of pseudographic symbols, enabling a graphical display resolution of 64x48 pixels.
 
@@ -379,8 +373,7 @@ The microprocessor itself does not increment the I register or the highest bit o
 
 ![imagen](https://github.com/user-attachments/assets/5a98e382-98ab-4911-a742-ddf6c7d57053)
 
-📌 Figure 14: Video driver execution flowchart.
-
+Figure 14: Video driver execution flowchart.
 
 Figure 14 shows a simplified diagram of the video driver's execution. The diagram does not show the driver code required for synchronizing memory reads with the electron beam, setting the A7 line, and writing the current scanline number to the latch.
 
@@ -390,7 +383,7 @@ The output of the character generator is connected to a parallel/serial shift re
 
 ![imagen](https://github.com/user-attachments/assets/12e3e710-b573-4093-9fea-7b97eaa91359)
 
-📌 Figure 15: Timing of the shift register during video output.
+Figure 15: Timing of the shift register during video output.
 
 While the video driver is active and the beam scans the usable area of the screen, the shift register sequentially loads character bitmaps during M1 cycles. However, when the user's program is running, blank (dark) scanlines 0x0F are loaded into the register. This ensures that no random values from the data bus appear in the video signal during synchronization pulses and while the beam scans the black border of the screen.
 
@@ -431,17 +424,13 @@ The **working memory (RAM)** (U3) consists of an **8 kB SRAM** chip (LH5164D). T
 
 --- 
 
-
-
 ![imagen](https://github.com/user-attachments/assets/3d0ae99c-00c3-4b8d-9c07-82696e2eee15)
 
 ![imagen](https://github.com/user-attachments/assets/a84a43c4-7775-4087-bfa8-68d2dd602d1f)
 
 ![imagen](https://github.com/user-attachments/assets/ddaa3e9d-cb0c-49a8-a334-217f92119608)
 
-
-📌 **Figures 16, 17, 18**: Show the **motherboard, keyboard, and full enclosure** of the new Galaksija.
-
+**Figures 16, 17, 18**: Show the **motherboard, keyboard, and full enclosure** of the new Galaksija.
 
 🔹 **Important modification**:  
 - In the **new design**, the **EPROM remains active during write attempts**.  
@@ -471,21 +460,12 @@ The output of the multiplexer is protected against short circuits with resistor 
 
 The clock divider consists of **4 4-bit ripple counters** in circuits **U12** and **U13**. These counters derive the necessary signals for generating the composite video from the oscillator signal with a frequency of **6144 kHz**, according to the following equations:  
 
-\[
-f_{\text{video}} = f_{\text{osc}} = 6144 \, \text{kHz}
-\]  
-\[
-f_{\text{cpu}} = \frac{f_{\text{osc}}}{2} = 3072 \, \text{kHz}
-\]  
-\[
-f_{\text{hsync}} = \frac{f_{\text{osc}}}{12 \cdot 16 \cdot 2} = 16 \, \text{kHz}
-\]  
-\[
-10 \cdot f_o = \frac{f_{\text{osc}}}{12 \cdot 16 \cdot 16 \cdot 4} = 500 \, \text{Hz}
-\]  
+$$f_{\text{video}} = f_{\text{osc}} = 6144 \, \text{kHz}$$  
+$$f_{\text{cpu}} = \frac{f_{\text{osc}}}{2} = 3072 \, \text{kHz}$$  
+$$f_{\text{hsync}} = \frac{f_{\text{osc}}}{12 \cdot 16 \cdot 2} = 16 \, \text{kHz}$$
+$$10 \cdot f_o = \frac{f_{\text{osc}}}{12 \cdot 16 \cdot 16 \cdot 4} = 500 \, \text{Hz}$$  
 
 Using the **10 · f₀** signal, the **Johnson counter (U14)** generates two phase-shifted signals with a frequency of **f₀ = 50 Hz** (the signal for processor interrupts and vertical synchronization pulses) in accordance with the requirements for generating a composite video signal (Figure 11).  
-
 
 | **Signal** | **Frequency Calculation** | **Result** |
 |------------|---------------------------|------------|
@@ -493,11 +473,9 @@ Using the **10 · f₀** signal, the **Johnson counter (U14)** generates two pha
 | **Horizontal Sync** | \( f_{hsync} = \frac{f_{osc}}{12 \times 16 \times 2} \) | 16 kHz |
 | **Interrupt Frequency** | \( f_o = \frac{f_{osc}}{12 \times 16 \times 16 \times 4} \) | 50 Hz |
 
-📌 **Table 5**: *Comparison of Galaksija's video signal characteristics with the PAL B,G standard.*
-
+**Table 5**: *Comparison of Galaksija's video signal characteristics with the PAL B,G standard.*
 
 With the help of the 10 · f₀ signal, the Johnson counter U14 generates two phase-shifted signals with a frequency of f₀ = 50 Hz (the signal for processor interrupts and vertical synchronization pulses) in accordance with the requirements for generating a composite video signal (Figure 11).
-
 
 | **Characteristic** | **PAL B,G (Used in Slovenia)** | **Galaksija** |
 |------------------|--------------------------------|--------------|
@@ -522,7 +500,7 @@ In the new circuit, the loading of data into the shift register occurs two video
 
 ![imagen](https://github.com/user-attachments/assets/1f60d456-33d7-4cad-80f7-02db9a8b6c95)
 
-📌 **Figure 19**: *Timing diagram of the shift register control circuit.*
+**Figure 19**: *Timing diagram of the shift register control circuit.*
 
 ---
 
@@ -532,7 +510,7 @@ A sequential logic circuit, composed of the memory cell U21 and the gates U19, d
 
 ![imagen](https://github.com/user-attachments/assets/d6379007-582c-4490-aaa8-98e044f48ef5)
 
-📌 **Figure 20**: *Timing diagram of the interrupt synchronization circuit.*
+**Figure 20**: *Timing diagram of the interrupt synchronization circuit.*
 
 ---
 
@@ -545,7 +523,6 @@ To power the computer from the 240V AC mains voltage, an external 12V DC adapter
     The +5V voltage is used to power all digital and analog components and is obtained using the voltage regulator U9.
 
     The −5V voltage is used to power the video amplifier and is obtained using a switching voltage inverter and the voltage regulator U22 (see Appendix, page 63).
-
 
 | **Power Supply** | **Voltage** | **Function** |
 |------------------|------------|-------------|
@@ -575,15 +552,13 @@ The resulting composite video signal is first passed through a resistive divider
 
 ![imagen](https://github.com/user-attachments/assets/792eee0a-3e17-418f-b8df-9ce3f1f5719c)
 
-📌 **Figure 21**: *Bode plot of the video amplifier (SPICE simulation).*
+**Figure 21**: *Bode plot of the video amplifier (SPICE simulation).*
 
 Calculation of Video Signal Bandwidth [8][9]:  
 
 The bandwidth of the video signal is calculated as follows:  
 
-\[
-BW = \frac{1}{2} \cdot K \cdot N_{ht} \cdot N_{vt} \cdot f_o \cdot K_h \cdot K_v
-\]  
+$$BW = \frac{1}{2} \cdot K \cdot N_{ht} \cdot N_{vt} \cdot f_o \cdot K_h \cdot K_v$$
 
 Where:  
 - \( K \) is the Kell factor,  
@@ -593,9 +568,7 @@ Where:
 
 Substituting the values:  
 
-\[
-BW = \frac{1}{2} \cdot 0.7 \cdot 256 \cdot 208 \cdot 50 \, \text{Hz} \cdot \frac{64 + 256 + 64}{256} \cdot \frac{56 + 208 + 56}{208} = 2.2 \, \text{MHz}
-\]  
+$$BW = \frac{1}{2} \cdot 0.7 \cdot 256 \cdot 208 \cdot 50 \, \text{Hz} \cdot \frac{64 + 256 + 64}{256} \cdot \frac{56 + 208 + 56}{208} = 2.2 \, \text{MHz}$$  
 
 From the graph in Figure 21, we can see that the amplifier has sufficient bandwidth and exhibits approximately **0.5 dB of linear distortion** in the frequency range covered by the video signal.  
 
@@ -614,11 +587,11 @@ An example of the input and output signals of the amplifier for a single input p
 
 ![imagen](https://github.com/user-attachments/assets/eef3fcc6-91d2-436f-959d-cdf40375bc2d)
 
-📌 **Figure 22**: *Output waveform of the cassette interface (measured).*  
+**Figure 22**: *Output waveform of the cassette interface (measured).*  
 
 ![imagen](https://github.com/user-attachments/assets/a9bffebe-609e-4b31-b89f-18cbf81783ce)
 
-📌 **Figure 23**: *Input and output waveform of the impulse amplifier (SPICE simulation).*
+**Figure 23**: *Input and output waveform of the impulse amplifier (SPICE simulation).*
 
 ---
 
@@ -646,11 +619,11 @@ These **flip-flops depend on timing variations** in the **Z80 microprocessor**, 
 
 ![imagen](https://github.com/user-attachments/assets/e2c8a1e7-6107-454d-8f35-9fc0e7899ab5)
 
-📌 **Figure 24**: *Timing diagram of the first D flip-flop (interrupt detection).*  
+**Figure 24**: *Timing diagram of the first D flip-flop (interrupt detection).*  
 
 ![imagen](https://github.com/user-attachments/assets/9e5c9cde-e1ce-4476-8690-d2cf09862d90)
 
-📌 **Figure 25**: *Timing diagram of the second D flip-flop (M1 cycle detection).*
+**Figure 25**: *Timing diagram of the second D flip-flop (M1 cycle detection).*
 
 #### **4.1.1 First Flip-Flop (Interrupt Detection)**
 
@@ -670,7 +643,7 @@ In order for this to work correctly, the **transition delay between IORQ and M1 
 
 The goal of this circuit is to **ensure precise timing for video synchronization**. However, just like the **first flip-flop**, this circuit depends on **specific timing characteristics of the Z80**, which **were not guaranteed by Zilog**.
 
-📌 **Table 6**: *Comparison of undocumented timing characteristics across Z80 variants.*
+**Table 6**: *Comparison of undocumented timing characteristics across Z80 variants.*
 
 | **Z80 Variant** | **Typical M1 Delay** | **Maximum M1 Delay** |
 |---------------|------------------|------------------|
@@ -692,7 +665,7 @@ The address decoder **only checks the upper address bits**, leading to **multipl
 
 ![imagen](https://github.com/user-attachments/assets/43f516e5-9f2a-4252-b6f1-a8b99fe403e3)
 
-📌 **Figure 26**: *Memory layout of the original Galaksija.*  
+**Figure 26**: *Memory layout of the original Galaksija.*  
 
 ### **Example of Decoding Issue**
 - **Memory mapped I/O registers (e.g., the keyboard matrix)** can be accessed **at multiple different addresses** due to **incomplete decoding**.
@@ -710,7 +683,7 @@ The **keyboard matrix** in **Galaksija** uses a **non-standard wiring scheme**, 
 
 ![imagen](https://github.com/user-attachments/assets/97a9b28b-179a-4ff6-b2a6-a54c389233e3)
 
-📌 **Figure 27**: *Keyboard memory mapping diagram.*
+**Figure 27**: *Keyboard memory mapping diagram.*
 
 ### **Implication of This Design**
 - **Due to incomplete address decoding**, some **keyboard locations overlap with other memory-mapped devices**.
@@ -725,7 +698,7 @@ The **Z80 processor** includes an **R register**, which is **intended for dynami
 - The **R register is used as a pseudo-random number generator** in the system.
 - Since the **R register increments with every memory access**, it behaves **semi-randomly** when executing certain loops.
 
-📌 **Figure 28**: *Diagram showing unintended side effects of using the R register.*
+**Figure 28**: *Diagram showing unintended side effects of using the R register.*
 
 ### **How This Affects the System**
 - Certain **Galaksija programs rely on the specific behavior of the R register**.
@@ -765,7 +738,7 @@ A significant portion of **Galaksija’s OS** consists of **self-modifying code*
 - This allows the OS to **adapt dynamically** to different tasks.
 - However, it also **complicates debugging** and makes porting the OS to **new hardware more difficult**.
 
-📌 **Figure 29**: *Example of a self-modifying routine in Galaksija’s OS.*
+**Figure 29**: *Example of a self-modifying routine in Galaksija’s OS.*
 
 ### **Example: Dynamic Video Driver Configuration**
 - The **video display routine** writes new instructions **into its own code space** in **real time**.
@@ -783,7 +756,7 @@ To **save space**, many **routines in the OS overlap in memory**:
 | **Dual-Purpose Data Structures** | Uses the same memory region for different tasks | The stack also holds temporary variables |
 | **Jump Tables Instead of Function Calls** | Saves CPU cycles and RAM | Code execution is redirected dynamically |
 
-📌 **Table 6**: *Examples of self-overlapping code in the OS.*
+**Table 6**: *Examples of self-overlapping code in the OS.*
 
 | **Code Section** | **Overlapping Function** | **Effect** |
 |---------------|------------------|---------|
@@ -794,7 +767,6 @@ To **save space**, many **routines in the OS overlap in memory**:
 These optimizations allow **Galaksija’s OS** to fit into just **4 KB of ROM**, but they also make **modifying or expanding the OS difficult**.
 
 ---
-
 
 ### 4.3 Keyboard Connection
 
@@ -846,12 +818,8 @@ In certain cases, the Z80 microprocessor's machine code is also interpreted as a
 
 The first such example can be found at address 0x0098 (Table 7), where the code is also interpreted as an ASCII string. Characters from the upper half of the ASCII code table are interpreted exclusively as 8-bit load (ld) instructions with register operands [14], which simplifies the selection of a text string that matches the microprocessor code.
 
-
-
-
-
-| Address | Hex    | Processor Interpretation |||
-|---------|--------|------------------------|-|-|
+| Address | Hex    | Processor Interpretation    ||              |
+|---------|--------|--------------|---------------|--------------|
 | 0x0390  | 0x2e   | 1 →ld l,0ehh |               |              | 
 | 0x0391  | 0x0e   |              |               |              | 
 | 0x0392  | 0x01   | ld bc,9b2eh  |               |              | 
@@ -955,11 +923,9 @@ Here is the information rearranged into a table with four columns: **Adr.**, **H
 | 0x0d98  | 0x0c | 0x33   | FF NUL |    |
 | 0x0d99  | 0x00 |        |     |       |
 
-
 **Table 9:** Example of multifunctionality of data structures. A portion of memory is interpreted as the content of two different tables.
 
 --- 
-
 
 ## 5.3  **Organization of Program Code**  
 
