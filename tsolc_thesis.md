@@ -97,9 +97,9 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
 
 [6 Conclusion](#6-conclusion)
 
-[7 Bibliography](#7-bibliography)
+[Bibliography](#bibliography)
 
-[8 Appendix](#8-appendix)
+[Appendix](#appendix)
  - A Voltage Inverter
  - B Calculation of the Pulse Amplifier
  - C Floating-Point Numbers
@@ -1007,7 +1007,7 @@ On the other hand, the results highlight the positive impact of exclusively usin
 
 The importance of publicly releasing documentation was also evident in this project. Many microcomputers from this era were lost primarily because their documentation disappeared along with the companies that carefully guarded it. Similarly, the absence of copy protection in software had a positive impact on its preservation, as such protections often led to the loss of a significant portion of software for similar microcomputers.  
 
-### **7. Bibliography**
+### **Bibliography**
 [^1] Hišni računalnik. Ljubljana, Mladinska knjiga, 1984, str. 42-46.
 
 [^2] Antonić, V.: Napravi i ti računar Galaksija. Računari u vašoj kuči,januar 1984, str. 50-56.
@@ -1040,7 +1040,7 @@ The importance of publicly releasing documentation was also evident in this proj
 
 [^16] Ristanović, D.: Galaksija bez tajni. Računari, July 1984, pages 53-63.
 
-## ** Appendix **
+## **Appendix**
 ### A **Voltage Inverter**  
 
 The voltage inverter must produce a stabilized supply voltage of **−5V** under all operating conditions of the video amplifier.  
