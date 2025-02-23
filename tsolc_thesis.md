@@ -1215,11 +1215,9 @@ First, calculate the **maximum collector current**, while also assuming the **mi
 
 The minimum collector current (**ICmin**) is calculated as:  
 $$
-\[
 IC_{\text{min}} = \frac{U_{CC} - U_{CE_{\text{sat}}}}{R1}  
-\]  
+$$  
 *(Equation 1)*  
-$$
 
 Where:  
 - \( U_{CC} \) = Supply voltage  
@@ -1229,13 +1227,13 @@ Where:
 
 The minimum base current (**IBmin**) required to achieve **ICmin** is:  
 
-\[
+$$
 IB_{\text{min}} = \frac{IC_{\text{min}}}{\beta}  
-\]  
+$$  
 *(Equation 2)*  
 
 Where:  
-- \( \beta \) = Current gain of the transistor  
+- $$\( \beta \)$$ = Current gain of the transistor  
 
 If the above assumptions hold, the capacitor **C15** initially charges primarily through the base of transistor **Q7** after the first edge of the pulse. Once the voltage at the base drops to the base-emitter voltage (**UBE**) of transistor **Q7**, the capacitor continues to charge mainly through resistor **R33**.  
 
@@ -1250,9 +1248,9 @@ Assume that the base current becomes negligible when it drops to approximately o
 
 EQ 3 is missing
 
-\[
+$$
 U_{BE_{\text{start}}} = U_T \ln\left(\frac{U_{BE} \beta}{I_S R33 \cdot 10} + 1\right)  
-\]  
+$$ 
 *(Equation 4)*  
 
 Where:  
@@ -1262,23 +1260,23 @@ Where:
 
 Similarly, the base voltage when the minimum base current (**IBmin**) flows is:  
 
-\[
+$$
 U_{BE_{\text{stop}}} = U_T \ln\left(\frac{I_{B_{\text{min}}} \beta}{I_S} + 1\right)  
-\]  
+$$  
 *(Equation 5)*  
 
 The duration of the pulse is then:  
 
-\[
+$$
 t = R33 \cdot C15 \cdot \ln\left(\frac{U_{BE_{\text{start}}}}{U_{BE_{\text{stop}}}}\right)  
-\]  
+$$  
 *(Equation 6)*  
 
 The required capacitance **C15** for a known resistor value and pulse duration is:  
 
-\[
+$$
 C15 = \frac{t}{R33 \cdot \ln\left(\frac{U_{BE_{\text{start}}}}{U_{BE_{\text{stop}}}}\right)}  
-\]  
+$$  
 *(Equation 7)*  
 
 For a resistor **R33 = 1 kΩ** and a pulse duration **t = 100 µs**, we obtain a value of **C15 ≈ 0.72 µF**, which is approximately **1 µF**. The minimum pulse duration of **45 µs** is derived from the **LOAD READ PULSE** loop at addresses **0x0EF9** to **0x0F05**. For greater reliability, a value approximately twice as large was used.  
@@ -1300,14 +1298,14 @@ Both formats always contain **normalized values** and use:
 
 The value of the number is determined by the following equation:  
 
-\[
+$$
 N = 
 \begin{cases} 
 +1 \cdot M \cdot 2^{E-24} & \text{if } S = 0 \\
 0 & \text{if } E = -128 \\
 -1 \cdot M \cdot 2^{E-24} & \text{if } S \neq 0 
 \end{cases}
-\]  
+$$  
 *(Equation 8)*  
 
 Where:  
@@ -1318,18 +1316,15 @@ Where:
 
 This format allows numbers to be represented in the following range:  
 
-\[
+$$
 N \in \left[ -1 \cdot (2^{24} - 1) \cdot 2^{127}, +1 \cdot (2^{24} - 1) \cdot 2^{127} \right]  
-\]  
+$$  
 *(Equation 9)*  
 
 The format does not support non-numeric values (e.g., infinity, undefined values, etc.).  
 
 The interpretation of individual bits in both formats is shown in **Tables 14** and **15**. In the 4-byte format, the **most significant bit of the mantissa (M23)** is omitted because it is always **1** due to the mandatory normalization of numbers.  
 
-Here is the translation and rearrangement of the table:
-
----
 
 | **Address** | **Bit** | **7** | **6** | **5** | **4** | **3** | **2** | **1** | **0** |         |
 |-------------|---------|-------|-------|-------|-------|-------|-------|-------|-------|---------|
