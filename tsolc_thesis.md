@@ -802,7 +802,6 @@ These optimizations allow **Galaksija’s OS** to fit into just **4 KB of ROM**,
 
 ---
 
-I'll translate this Serbian/Croatian text to English. It appears to be documentation about a computer system called Galaksija:
 
 ### 4.3 Keyboard Connection
 
