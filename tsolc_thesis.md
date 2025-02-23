@@ -802,16 +802,50 @@ These optimizations allow **Galaksija’s OS** to fit into just **4 KB of ROM**,
 
 ---
 
-## **5.3 Use of Uninitialized Memory**
+### 5.3  **Organization of Program Code**  
 
-The OS **assumes certain RAM regions contain valid data at startup**, without explicitly initializing them.
+The operating system, due to optimization, is not strictly divided into closed units—program functions. Instead of standard function calls using **call** and **ret** instructions, a combination of **call** instructions and jumps (**jp** or **jr**) is used. This approach saved a large number of **ret** instructions that would otherwise be needed to end functions, and it also improved the operating system's speed (as fewer stack operations are required).  
 
-- Some variables are **"randomly" set** at boot, leading to **unpredictable behavior**.
-- Programs sometimes **work differently on different Galaksija units**, depending on **RAM contents at startup**.
+Figure 27 shows a typical arrangement of functions:  
+- **Multiple Entry Points:** A function often has multiple entry points. Depending on the entry point, the function's behavior changes slightly. For example, the first entry point performs an operation on the string at address **DE+1**, while the second entry point performs the same operation at address **DE+0** (see **f1a**, **f1b**, and **f1c** in Figure 27).  
+- **Function Chaining:** Function **f2** calls function **f1a** just before its end. Instead of using a **call f1a** instruction, function **f2** is placed in ROM memory immediately before function **f1**. This allows the microprocessor to continue execution into the next function without a jump. The final **ret** instruction then returns execution to the code that called function **f2**. This saves an entire **call** instruction (3 bytes in the best case) and is sometimes used even when the called function is not the most suitable.  
+- **Shared Code:** Functions often share the same ending code (just before the **ret** instruction). Instead of repeating this code in every function, it is written only once (see **fend** in Figure 27). Other functions are either placed in ROM memory so that the microprocessor reaches this code without a jump (**f1** and **f2**) or jump to it using **jp** or **jr** instructions (**f3**).  
 
-📌 **Figure 30**: *Diagram illustrating unpredictable behavior caused by uninitialized memory.*
+Side effects of functions are also frequently used in the code. For example, the **CLEAR LINE** function, whose main task is to clear one screen line, is also used in some cases to move the pointer in the **HL** register.  
+
+Note: For example, the **SAVE WORD** function is called to store a checksum at the end of the **SAVE** routine, even though calling **SAVE BYTE** would have been more appropriate, as it would not save an unnecessary byte to the tape.  
 
 ---
+
+### 5.4  
+**Use of Processor Registers**  
+
+The relatively unstructured nature of the code results in consistent use of registers. The patterns in Table 10 are followed by the vast majority of the operating system's code.  
+
+
+![imagen](https://github.com/user-attachments/assets/18b3b216-782c-4e6e-b50e-3d8880a3690d)
+
+Figure 27
+
+
+| **Register** | **Description**                                                                 |
+|--------------|---------------------------------------------------------------------------------|
+| DE           | Pointer to the current character in the BASIC interpreter                        |
+| HL           | Pointer to a BASIC variable                                                     |
+| IX           | Pointer to the top of the arithmetic stack                                       |
+| IY           | Pointer to the function executed during a video interrupt                        |
+| HL’, C’, HL  | First operand for floating-point operations                                      |
+| DE’, B’, DE  | Second operand for floating-point operations                                     |
+
+**Table 10:** Typical use of processor registers in the operating system.
+
+--- 
+
+Let me know if you need further adjustments!
+
+![imagen](https://github.com/user-attachments/assets/8c9ac02f-67d6-495e-8015-40eab3a2d56d)
+
+Figure 28
 
 ## **5.4 Register-Based Processing**
 
@@ -832,6 +866,7 @@ To maximize **execution speed**, the OS minimizes **memory accesses** by:
 | **IX/IY** | Interrupt service routines |
 
 This approach reduces **bus contention**, improving **execution speed**, but also makes **interrupt handling more complex**.
+
 
 ---
 
