@@ -1214,12 +1214,12 @@ First, calculate the **maximum collector current**, while also assuming the **mi
 
 
 The minimum collector current (**ICmin**) is calculated as:  
-$`
+$$
 \[
 IC_{\text{min}} = \frac{U_{CC} - U_{CE_{\text{sat}}}}{R1}  
 \]  
 *(Equation 1)*  
-$
+$$
 
 Where:  
 - \( U_{CC} \) = Supply voltage  
