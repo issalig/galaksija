@@ -835,15 +835,31 @@ This approach reduces **bus contention**, improving **execution speed**, but als
 
 ---
 
-## **5.5 Stack Manipulation Tricks**
+## **5.5 Processor Stack**  
 
-The OS frequently **manipulates the stack pointer directly**, using **non-standard calling conventions**.
+The operating system's code often directly modifies values on the processor stack, which is uncommon elsewhere. One example of stack manipulation is shown in Figure 28. Here, the function at address **0x0393** calls the function at **0x0C8F** by pushing its address onto the stack, while the next function (**0x2BA9**) is called using the **jp** instruction instead of **ret**. This way, the **ret** instruction in the function at **0x2BA9** jumps to the called function at **0x0C8F**, rather than returning execution to **0x0393**.  
 
-📌 **Figure 31**: *Example of direct stack pointer manipulation.*
+The stack is also used to pass pointers to arguments for certain functions. An example is shown in Figure 29. Here, the **READ PAR** function uses the address saved at the top of the stack by the **rst** instruction as the address of two operands (at addresses **0x0134** and **0x0135**).  
 
-### **Example: Custom Return Address Handling**
-- The **OS dynamically modifies return addresses** in function calls.
-- This allows **multiple execution paths from a single function**, but also **breaks standard debugging tools**.
+At the end of execution, the function adds **2** to the pointer it initially read from the top of the stack and returns it to the top of the stack. This way, the **ret** instruction at the end returns processor execution to address **0x0136**.  
+
+A similar implementation is used for the **BASIC ERROR** function, where the value at the top of the stack points to an error message.  
+
+This approach saves additional machine code that would otherwise be needed to load function arguments into registers or to load a pointer to a data structure. This simplification, in the case of a large number of calls to a specific function, more than compensates for the additional code required in the function itself.  
+
+Such interweaving of machine code and function arguments is one of the main reasons for the aforementioned difficulties with automatic disassembler programs. Unusual uses of the processor stack also greatly complicate the use of software simulators for exploring operating system functions, as they obscure the function call trace (backtrace).  
+
+```asm
+rst 18h          ;0133  Call the READ_PAR function
+db '('           ;0134 Define byte: ASCII '('
+db l015dh-$-1    ;0135 Define byte: Calculate offset to label l015dh
+
+rst 08           ;0136 Call routine at address 08h
+inc hl           ;0137 Increment HL register
+add hl, hl       ;0138 Add HL to itself (HL = HL * 2)
+```
+
+**Figure 29:** Example of using the stack to pass a pointer to function arguments.  
 
 ---
 
@@ -908,27 +924,6 @@ As an illustration of the reliability/speed problem, let a quote from the instru
 The basic memory of the Galaksija computer is not large, so recording on a cassette does not take too long, and the verification of the recording eliminates all other potential problems.
 
 --- 
-
-
-
-The **Galaksija OS** uses a **custom data encoding method** for storing programs on **cassette tapes**.
-
-📌 **Figure 32**: *Cassette tape waveform modulation.*
-
-### **Encoding Process**
-- Each **bit** is stored as a **specific tone frequency**.
-- The system **modulates audio signals** in a way that reduces **dropout errors**.
-
-📌 **Table 8**: *Cassette tape byte structure.*
-
-| **Byte Component** | **Bit Pattern** | **Function** |
-|------------------|--------------|-----------|
-| **Start Marker** | `10101010` | Synchronization signal |
-| **Data Byte** | Variable | Encoded program data |
-| **Checksum** | Computed value | Ensures data integrity |
-
-This method allows **reliable data storage on standard audio cassette recorders**, but it is **sensitive to tape speed variations**.
-
 
 
 📌 **Table 9**: *Comparison of original and replica Galaksija hardware.*
