@@ -802,6 +802,62 @@ These optimizations allow **Galaksija’s OS** to fit into just **4 KB of ROM**,
 
 ---
 
+I'll translate this Serbian/Croatian text to English. It appears to be documentation about a computer system called Galaksija:
+
+### 4.3 Keyboard Connection
+
+The keys of the Galaksija keyboard are arranged in an 8 x 7 matrix so that their addresses in the microprocessor's address space correspond as closely as possible to the arrangement of corresponding characters in the ASCII code table (Figure 7). This way, the operating system code that converts the key scan code to the ASCII code character corresponding to the key can be significantly smaller, as relatively extensive tables are not needed for conversion.
+
+Since the physical arrangement of keys generally does not correspond to the arrangement of characters in the ASCII table, this feature significantly increased the complexity of the keyboard's printed circuit board. In its original version, it was single-sided and therefore required many manually made jumpers.
+
+The EPROM read-only memory is, besides the microprocessor and working memory, the only highly integrated circuit and as such one of the more expensive parts of Galaksija. From this perspective, it becomes understandable that the increased manufacturing complexity was a good compromise for a smaller operating system footprint, which allowed the use of cheaper EPROM circuits with lower capacity. Additionally, the required manual creation of jumpers did not affect the selling price of computer self-assembly kits, which was the only planned sales method when designing the computer.
+
+### 4.4 Use of R Register
+
+Using the microprocessor for screen display to reduce hardware complexity was a relatively common approach in early home computers. Similar approaches are used, for example, by Sinclair ZX80 and ZX81 computers. Galaksija's unique feature is that it uses the dynamic memory refresh function (second half of M1 cycle, R register) for this purpose. Sinclair computers, on the other hand, use the first half of the M1 cycle to transfer data from working memory to the shift register [11].
+
+### 5 Operating System Peculiarities
+
+As mentioned earlier, reducing the size of the operating system stored in EPROM memory was one of the effective methods of lowering the overall system cost. Because of this, the operating system contains many optimizations that reduce code size, but on the other hand make reverse engineering very difficult and reduce code readability. In particular, the usefulness of automatic disassembler programs is greatly reduced, as some of the described approaches cause the disassembler to lose synchronization with the code executed by the microprocessor. In this case, manual verification of results and disassembly of machine code in parts where the microprocessor entry point is known is required.
+
+The Galaksija operating system (ROM A) can be divided into the following components:
+- Hardware initialization routines
+- Video driver
+- Keyboard driver and basic terminal emulation
+- Magnetic tape signal modulation and demodulation code
+- Floating-point arithmetic routines
+- BASIC interpreter
+
+The working memory organization is shown in Figure 26.
+
+Literature suggests that the operating system is based on Microsoft Level 1 BASIC [12]. This is likely an error. Comparison with the only 4 KB BASIC interpreter from Microsoft (BASIC for the Altair microcomputer) shows that the program codes are very different: Altair BASIC uses only Intel 8080 microprocessor instructions, while essential parts of Galaksija's operating system also use instructions specific to the Zilog Z80 microprocessor. Additionally, Altair BASIC's code [13] takes advantage of the fact that it runs in RAM, making its operation dependent on the ability to modify code during program execution at certain points. The data structures used also differ significantly (for example, floating-point number notation, BASIC program notation, etc.). The only similarity between Galaksija's and Altair's code is restart 0x08 (on Galaksija 0x10), which performs a similar function and is similarly implemented.
+
+![imagen](https://github.com/user-attachments/assets/96bc202c-4ba8-4490-ad19-eb2148374b7e)
+
+**Figure 26**: Working Memory Organization (darkened fields are occupied by system variables)
+
+It's more likely that Galaksija's operating system is based on the Tandy TRS-80 Model I microcomputer operating system. The first version of the operating system (modified Tiny Basic by Li-Chen Wang) used a 4 KB ROM and has very similar characteristics to Galaksija's operating system: identical error messages ("HOW?", "WHAT?", "SORRY"), similar modulation for storing data on magnetic tape, partially identical machine code for performing floating-point operations, etc. In general, the TRS-80's hardware capabilities are similar to Galaksija (same pseudo-graphic mode, same keyboard connection to the processor bus, etc.).
+
+For the purposes of reverse engineering Galaksija's operating system, a new disassembler program z80dasm was created, which is included in the appendix. The contents of ROM A in the form of assembly source code, created with z80dasm, is included in the appendix.
+
+Below are descriptions of some of the optimization approaches used with examples from ROM A's contents.
+
+### 5.1 Program Code Polymorphism
+
+Some parts of the machine code stored in EPROM memory are interpreted differently by the microprocessor on different occasions.
+
+Certain sequences of machine instructions, for example, are interpreted differently depending on the jump address. Table 6 shows an example of such code that is interpreted in three different ways in three different cases. When jumping to address 0x0390, the value 0x0f0e is written to register HL, when jumping to address 0x0393, the value 0x0f9b, and when jumping to 0x0396, the value 0x0fee.
+
+Similarly, code is shortened in several places in the operating system code. In most cases, this involves replacing a jump over an unwanted instruction with a load instruction to an unused register. This way, one byte of program code is saved for each execution branch compared to using the processor's jr instruction.
+
+In certain cases, the Z80 microprocessor's machine code is also interpreted as a data structure.
+
+The first such example can be found at address 0x0098 (Table 7), where the code is also interpreted as an ASCII string. Characters from the upper half of the ASCII code table are interpreted exclusively as 8-bit load (ld) instructions with register operands [14], which simplifies the selection of a text string that matches the microprocessor code.
+
+
+
+
+
 | Address | Hex    | Processor Interpretation |||
 |---------|--------|------------------------|-|-|
 | 0x0390  | 0x2e   | 1 →ld l,0ehh |               |              | 
