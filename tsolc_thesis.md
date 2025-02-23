@@ -1,4 +1,4 @@
-### The translation of this document is WIP.
+This document is a transtlation from slovene to english from the thesis of Tomaž Šolc.
 
 # Replica of the Galaksija Microcomputer
 
@@ -1165,7 +1165,7 @@ The interpretation of individual bits in both formats is shown in **Tables 14** 
 | IX - 4      | H’ D’   | M15   | M14   | M13   | M12   | M11   | M10   | M9    | M8    |         |
 | IX - 3      | C’ B’   | M23   | M22   | M21   | M20   | M19   | M18   | M17   | M16   |         |
 | IX - 2      | L E     | E7    | E6    | E5    | E4    | E3    | E2    | E1    | E0    | exponent|
-| IX - 1      | H D     | S     | S6    | S5    | S4    | S3    | S2    | S1    | S0    | predznak|
+| IX - 1      | H D     | S     | S6    | S5    | S4    | S3    | S2    | S1    | S0    | sign    |
 
 **Table 14:** 5-byte floating-point number format.
 
