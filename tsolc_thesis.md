@@ -588,53 +588,23 @@ An example of the input and output signals of the amplifier for a single input p
 
 ---
 
-# **4. Peculiarities of the Original Galaksija Circuit**
+### 4  
+**Specifics of the Original Galaksija Circuit**  
 
-The **original Galaksija circuit** contained **several design peculiarities** due to the need to keep the hardware **simple and cost-effective**. These peculiarities include:
+#### 4.1  
+**Use of Undocumented Microprocessor Features**  
 
-1. **Utilization of undocumented microprocessor behaviors**
-2. **Minimalistic address decoding**
-3. **Unusual keyboard wiring**
-4. **Creative usage of processor registers**
+The original Galaksija has two **D flip-flops** (in the 74LS74 integrated circuit) in its electronic circuit, which are used to detect the state of the microprocessor:  
+- The first flip-flop detects the **interrupt request/acknowledge cycle** and is involved in the video synchronization circuit (page 23).  
+- The second flip-flop detects the end of the **M1 cycle** and controls the loading of data into the video shift register (page 30).  
 
-This chapter examines these **unique design decisions** and their implications.
+In both cases, proper operation depends on the **minimum delays** of certain output signals of the Z80 microprocessor, which are **not guaranteed** by the manufacturer in the documentation. This approach was most likely chosen to save on the number of components on the printed circuit board, as more reliable implementations would require at least one additional integrated circuit.  
 
----
+The signal delays critical for the correct operation of the original Galaksija circuit depend on variations in the manufacturing of the microprocessor integrated circuit. Typically, delays within a single batch of circuits are similar, but they can vary significantly between batches (within the tolerances specified by the manufacturer).  
 
-## **4.1 Use of Undocumented Microprocessor Features**
+This circuit characteristic is one of the main factors preventing the construction of Galaksija according to the original plans. With modern CMOS integrated circuits, which are otherwise equivalent to the original NMOS circuits according to the manufacturer's specifications, the circuit does not function correctly because the delays in modern circuits are significantly shorter than in the original ones (specifications in most cases only provide maximum values for certain delays).  
 
-The **original Galaksija hardware** relies on **two D flip-flops (U4, U5 in the original circuit, 74LS74 ICs)** to detect **specific processor states**:
-
-- **The first flip-flop** is used for detecting the **interrupt request/acknowledge cycle**. This is important for **video synchronization**.
-- **The second flip-flop** detects the **end of an M1 cycle** and is responsible for **timing video shift register operations**.
-
-These **flip-flops depend on timing variations** in the **Z80 microprocessor**, which are **not officially documented by Zilog**. The circuit was designed assuming **consistent timing behavior across different Z80 chips**, but in reality, this **timing can vary between different Z80 models and manufacturing batches**.
-
-![imagen](https://github.com/user-attachments/assets/e2c8a1e7-6107-454d-8f35-9fc0e7899ab5)
-
-**Figure 24**: *Timing diagram of the first D flip-flop (interrupt detection).*  
-
-![imagen](https://github.com/user-attachments/assets/9e5c9cde-e1ce-4476-8690-d2cf09862d90)
-
-**Figure 25**: *Timing diagram of the second D flip-flop (M1 cycle detection).*
-
-#### **4.1.1 First Flip-Flop (Interrupt Detection)**
-
-- The **D input** of the **flip-flop** is connected to the **M1 signal**.
-- The **clock input** is connected to the **IORQ signal**.
-- The output of the **flip-flop** must transition to **low (0)** **at the correct moment** in the **interrupt cycle**.
-
-In order for this to work correctly, the **transition delay between IORQ and M1 must be within a specific range**. **Zilog’s official documentation** only specifies the **maximum delay**, while the **minimum delay is undefined**, making the circuit **unreliable with some Z80 chips**.
-
----
-
-#### **4.1.2 Second Flip-Flop (M1 Cycle Detection)**
-
-- The **D input** is connected to **MREQ (memory request)**.
-- The **reset input** is connected to **RFSH (refresh cycle)**.
-- The **flip-flop clock signal is shared with the processor clock**.
-
-The goal of this circuit is to **ensure precise timing for video synchronization**. However, just like the **first flip-flop**, this circuit depends on **specific timing characteristics of the Z80**, which **were not guaranteed by Zilog**.
+The Galaksija replica resolves this issue at the cost of a more complex circuit.  
 
 **Table 6**: *Comparison of undocumented timing characteristics across Z80 variants.*
 
@@ -646,25 +616,42 @@ The goal of this circuit is to **ensure precise timing for video synchronization
 
 The **timing difference** between **old NMOS** and **modern CMOS** Z80s is the **main reason why original Galaksija designs do not work properly with modern processors**.
 
----
+### 4.1.1  
+**First Memory Cell**  
 
-## **4.2 Address Decoding Peculiarities**
+In the third **T state** of the interrupt cycle, a logical **0** must be written to this memory cell. For this purpose, the **D input** of the cell is connected to the **/M1 line** of the microprocessor, and the clock signal of the cell is connected to **/IORQ**. From **Figure 24**, it is evident that for proper operation, the clock signal of the cell must have a positive edge while the **D signal** is still at a logical **0**.  
 
-- **The original address decoding circuit is extremely minimalistic**.  
-- **It does not differentiate between read (RD) and write (WR) signals**.  
-- **As a result, writing to certain memory addresses can cause unintended effects.**
+![imagen](https://github.com/user-attachments/assets/e2c8a1e7-6107-454d-8f35-9fc0e7899ab5)
 
-The address decoder **only checks the upper address bits**, leading to **multiple addresses mapping to the same physical device**.
+**Figure 24:** Timing diagram of the operation of the first D flip-flop from the perspective of the microprocessor signals (response times shown are for the 4 MHz NMOS version of the Z8400 integrated circuit [10]).  
+
+However, the microprocessor manufacturer only guarantees **maximum timing intervals** between the positive edge of the processor clock and the transitions of the **/M1** and **/IORQ** signals.  
+
+### 4.1.2  
+**Second Memory Cell**  
+
+The memory cell for detecting the second part of the **/M1 cycle** must have a logical **0** at its output exactly at the time of one positive edge of the video clock. This is achieved by connecting the processor's **/MREQ** signal to the **D input** and the **/RFSH** signal to the **reset input** of the memory cell. In this case, the processor and the memory cell share the clock signal.  
+
+From **Figure 25**, it is clear that the correct operation of the circuit depends on the delay between the positive edge of the processor clock and the **/RFSH** signal. Here too, the manufacturer only guarantees a **maximum delay**, while a **minimum delay** is also critical for proper operation.  
+
+
+![imagen](https://github.com/user-attachments/assets/9e5c9cde-e1ce-4476-8690-d2cf09862d90)
+
+**Figure 25**: *Timing diagram of the second D flip-flop (M1 cycle detection).*
+
+
+### 4.2  **Microprocessor Bus Wiring**  
+
+The original circuit has a very simple address decoder. In addition to the incomplete decoding of addresses for the latch and keyboard, which has already been mentioned, it also has the characteristic of not considering the **RD** and **WR** signals, which are used to distinguish between the microprocessor's read and write requests to the address space.  
+
+If a program running on the microprocessor attempts to write to a part of the address space occupied by a device that does not support writing (e.g., ROM or keyboard), two devices with low-impedance outputs are connected to the data bus. Due to the technology of the integrated circuits used in the original circuit (NMOS for the microprocessor and EPROM, the rest being low-power Schottky), this flaw did not pose a risk to the circuit's lifespan. The outputs of the integrated circuits in these technologies have a relatively high output impedance (on the order of kiloohms) in the logical **1** state, which limits the short-circuit currents that could flow on the bus in such cases.  
+
+On the other hand, the outputs of modern CMOS circuits have low output impedance in both defined states. Therefore, the Galaksija replica includes isolation resistors (**R10-R17** and **R30**) connected to the data bus, which limit the current on the bus in the mentioned cases.  
 
 ![imagen](https://github.com/user-attachments/assets/43f516e5-9f2a-4252-b6f1-a8b99fe403e3)
 
 **Figure 26**: *Memory layout of the original Galaksija.*  
 
-### **Example of Decoding Issue**
-- **Memory mapped I/O registers (e.g., the keyboard matrix)** can be accessed **at multiple different addresses** due to **incomplete decoding**.
-- This leads to **aliasing**, where **one physical register appears at multiple memory locations**.
-
----
 
 ### 4.3 Keyboard Connection
 
@@ -702,11 +689,13 @@ The Galaksija operating system (ROM A) can be divided into the following compone
 
 The working memory organization is shown in Figure 26.
 
-Literature suggests that the operating system is based on Microsoft Level 1 BASIC [12]. This is likely an error. Comparison with the only 4 KB BASIC interpreter from Microsoft (BASIC for the Altair microcomputer) shows that the program codes are very different: Altair BASIC uses only Intel 8080 microprocessor instructions, while essential parts of Galaksija's operating system also use instructions specific to the Zilog Z80 microprocessor. Additionally, Altair BASIC's code [13] takes advantage of the fact that it runs in RAM, making its operation dependent on the ability to modify code during program execution at certain points. The data structures used also differ significantly (for example, floating-point number notation, BASIC program notation, etc.). The only similarity between Galaksija's and Altair's code is restart 0x08 (on Galaksija 0x10), which performs a similar function and is similarly implemented.
-
 ![imagen](https://github.com/user-attachments/assets/96bc202c-4ba8-4490-ad19-eb2148374b7e)
 
 **Figure 26**: Working Memory Organization (darkened fields are occupied by system variables)
+
+Literature suggests that the operating system is based on Microsoft Level 1 BASIC [12]. This is likely an error. Comparison with the only 4 KB BASIC interpreter from Microsoft (BASIC for the Altair microcomputer) shows that the program codes are very different: Altair BASIC uses only Intel 8080 microprocessor instructions, while essential parts of Galaksija's operating system also use instructions specific to the Zilog Z80 microprocessor. Additionally, Altair BASIC's code [13] takes advantage of the fact that it runs in RAM, making its operation dependent on the ability to modify code during program execution at certain points. The data structures used also differ significantly (for example, floating-point number notation, BASIC program notation, etc.). The only similarity between Galaksija's and Altair's code is restart 0x08 (on Galaksija 0x10), which performs a similar function and is similarly implemented.
+
+
 
 It's more likely that Galaksija's operating system is based on the Tandy TRS-80 Model I microcomputer operating system. The first version of the operating system (modified Tiny Basic by Li-Chen Wang) used a 4 KB ROM and has very similar characteristics to Galaksija's operating system: identical error messages ("HOW?", "WHAT?", "SORRY"), similar modulation for storing data on magnetic tape, partially identical machine code for performing floating-point operations, etc. In general, the TRS-80's hardware capabilities are similar to Galaksija (same pseudo-graphic mode, same keyboard connection to the processor bus, etc.).
 
