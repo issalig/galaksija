@@ -47,12 +47,12 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
 ---
 
 ### **Index**
-1 Introduction
+[1 Introduction](#1-introduction)
 1.1 Galaksija
 1.2 Motivation
 1.3 Objectives
 
-2 Hardware Architecture
+[2 Hardware Architecture](#2-hardware-architecture)
 2.1 Use of Address Space
 2.2 Peripherals
 2.2.1 Keyboard
@@ -65,7 +65,7 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
 2.4.3 Video Driver
 2.4.4 Shift Register
 
-3 New Galaksija
+[3 The New Galaksija](#3-the-new-galaksija)
 3.1 Digital Section
 3.1.1 Microprocessor and Memory
 3.1.2 Address Decoder
@@ -79,14 +79,16 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
 3.2.3 Reset Circuit
 3.2.4 Composite Video
 3.2.5 Tape Interface
-4 Specifics of the Original Galaksija Circuit
+
+[4 Peculiarities of the Original Galaksija Circuit](#4-peculiarities-of-the-original-galaksija-circuit)
 4.1 Use of Undocumented Microprocessor Features
 4.1.1 First Memory Cell
 4.1.2 Second Memory Cell
 4.2 Microprocessor Bus Wiring
 4.3 Keyboard Wiring
 4.4 Use of the R Register
-5 Specifics of the Operating System
+
+[5 Peculiarities of the Operating System](#5-peculiarities-of-the-operating-system)
 5.1 Multilingual Program Code
 5.2 Multilingual Data Structures
 5.3 Organization of Program Code
@@ -94,11 +96,11 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
 5.5 Processor Stack
 5.6 Storing Data on Tape
 
-6 Conclusion
+[6 Conclusion](#6-conclusion)
 
-7 References
+[7 References](#7-references)
 
-8 Appendices
+[8 Appendices](#8-appendices)
 
 A Voltage Inverter
 
