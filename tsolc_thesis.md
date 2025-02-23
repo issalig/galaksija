@@ -108,6 +108,7 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
 ---
 
 ## **1. Introduction**
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#Index) [Next](#2-hardware-architecture)
 
 ### **1.1 Galaksija**
 
@@ -193,6 +194,7 @@ The main objectives of this work are:
 ---
 
 ## **2. Hardware Architecture**
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#Index) [Next](#3-new-galaksija)
 
 The block diagram of the **Galaksija** motherboard is shown in **Figure 5**. A facsimile of the original circuit diagram【2】is included in the appendix.
 
@@ -385,6 +387,7 @@ When executing instructions that have multiple M cycles (and thus last more than
 ---
 
 # **3. New Galaksija**
+[Up](#Replica-of-the-Galaksija-Microcomputer) [Previous](#Index) [Next](#4-)
 
 The electronic circuit of the new Galaksija is largely similar to the original. However, certain parts have been modified due to the unavailability of equivalent components, making it impossible to implement them exactly as per the original design. During the design of the replica, **reliability of operation** was prioritized over manufacturing cost. As a result, all known shortcomings of the original circuit were addressed, provided that such fixes would not be detectable from a software perspective. The new circuit has also been adapted for easier connection to modern television receivers or monitors.  
 
