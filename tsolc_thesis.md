@@ -1165,7 +1165,7 @@ The importance of publicly releasing documentation was also evident in this proj
 
 [6] Z80 Family CPU User Manual. San Jose, ZiLOG Inc., 2005.
 
-[7] Benson, K. B.: Television Engineering Handbook. McGraw-Hill Inc.,1985.
+[7] Benson, K. B.: Television Engineering Handbook. McGraw-Hill Inc., 1985.
 
 [8] Wedam, A.: Radiotehnika: ojačevalniki in sprejemniki. Ljubljana,Državna založba Slovenije, 1955.
 
@@ -1183,6 +1183,6 @@ The importance of publicly releasing documentation was also evident in this proj
 
 [15] Ristanović, D.: Računar Galaksija Uputstvo za upotrebu.
 
-[16] Ristanović, D.: Galaksija bez tajni. Računari, julij 1984, str. 53-63.
+[16] Ristanović, D.: Galaksija bez tajni. Računari, July 1984, pages 53-63.
 
 
