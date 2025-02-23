@@ -751,123 +751,6 @@ The **Z80 processor** includes an **R register**, which is **intended for dynami
 
 ---
 
-I will now proceed with **Chapter 4: Peculiarities of the Original Galaksija Circuit**, including references to **figures and tables**.
-
----
-
-# **4. Peculiarities of the Original Galaksija Circuit**
-
-The **original Galaksija circuit** contained **several design peculiarities** due to the need to keep the hardware **simple and cost-effective**. These peculiarities include:
-
-1. **Utilization of undocumented microprocessor behaviors**
-2. **Minimalistic address decoding**
-3. **Unusual keyboard wiring**
-4. **Creative usage of processor registers**
-
-This chapter examines these **unique design decisions** and their implications.
-
----
-
-## **4.1 Use of Undocumented Microprocessor Features**
-
-The **original Galaksija hardware** relies on **two D flip-flops (U4, U5 in the original circuit, 74LS74 ICs)** to detect **specific processor states**:
-
-- **The first flip-flop** is used for detecting the **interrupt request/acknowledge cycle**. This is important for **video synchronization**.
-- **The second flip-flop** detects the **end of an M1 cycle** and is responsible for **timing video shift register operations**.
-
-These **flip-flops depend on timing variations** in the **Z80 microprocessor**, which are **not officially documented by Zilog**. The circuit was designed assuming **consistent timing behavior across different Z80 chips**, but in reality, this **timing can vary between different Z80 models and manufacturing batches**.
-
-📌 **Figure 24**: *Timing diagram of the first D flip-flop (interrupt detection).*  
-📌 **Figure 25**: *Timing diagram of the second D flip-flop (M1 cycle detection).*
-
-#### **4.1.1 First Flip-Flop (Interrupt Detection)**
-
-- The **D input** of the **flip-flop** is connected to the **M1 signal**.
-- The **clock input** is connected to the **IORQ signal**.
-- The output of the **flip-flop** must transition to **low (0)** **at the correct moment** in the **interrupt cycle**.
-
-In order for this to work correctly, the **transition delay between IORQ and M1 must be within a specific range**. **Zilog’s official documentation** only specifies the **maximum delay**, while the **minimum delay is undefined**, making the circuit **unreliable with some Z80 chips**.
-
----
-
-#### **4.1.2 Second Flip-Flop (M1 Cycle Detection)**
-
-- The **D input** is connected to **MREQ (memory request)**.
-- The **reset input** is connected to **RFSH (refresh cycle)**.
-- The **flip-flop clock signal is shared with the processor clock**.
-
-The goal of this circuit is to **ensure precise timing for video synchronization**. However, just like the **first flip-flop**, this circuit depends on **specific timing characteristics of the Z80**, which **were not guaranteed by Zilog**.
-
-📌 **Table 6**: *Comparison of undocumented timing characteristics across Z80 variants.*
-
-| **Z80 Variant** | **Typical M1 Delay** | **Maximum M1 Delay** |
-|---------------|------------------|------------------|
-| **Original NMOS Z80 (Z8400, 4 MHz)** | ~100 ns | 250 ns |
-| **CMOS Z80 (Z84C0008, 8 MHz)** | ~50 ns | 150 ns |
-| **Modern Z80 Clones** | Varies | Undefined |
-
-The **timing difference** between **old NMOS** and **modern CMOS** Z80s is the **main reason why original Galaksija designs do not work properly with modern processors**.
-
----
-
-## **4.2 Address Decoding Peculiarities**
-
-- **The original address decoding circuit is extremely minimalistic**.  
-- **It does not differentiate between read (RD) and write (WR) signals**.  
-- **As a result, writing to certain memory addresses can cause unintended effects.**
-
-The address decoder **only checks the upper address bits**, leading to **multiple addresses mapping to the same physical device**.
-
-📌 **Figure 26**: *Memory layout of the original Galaksija.*  
-
-### **Example of Decoding Issue**
-- **Memory mapped I/O registers (e.g., the keyboard matrix)** can be accessed **at multiple different addresses** due to **incomplete decoding**.
-- This leads to **aliasing**, where **one physical register appears at multiple memory locations**.
-
----
-
-## **4.3 Keyboard Wiring Anomalies**
-
-The **keyboard matrix** in **Galaksija** uses a **non-standard wiring scheme**, where:
-
-- **Each key is mapped to a specific memory address**.
-- **Pressing a key pulls the corresponding memory location low (0)**.
-- **Reading the keyboard matrix involves scanning a set of 32 possible base addresses**.
-
-📌 **Figure 27**: *Keyboard memory mapping diagram.*
-
-### **Implication of This Design**
-- **Due to incomplete address decoding**, some **keyboard locations overlap with other memory-mapped devices**.
-- This results in **unexpected behavior** when certain keys are pressed while other I/O operations are happening.
-
----
-
-## **4.4 Usage of the R Register**
-
-The **Z80 processor** includes an **R register**, which is **intended for dynamic RAM refresh**. However, in **Galaksija**, it is used for a completely **different purpose**:
-
-- The **R register is used as a pseudo-random number generator** in the system.
-- Since the **R register increments with every memory access**, it behaves **semi-randomly** when executing certain loops.
-
-📌 **Figure 28**: *Diagram showing unintended side effects of using the R register.*
-
-### **How This Affects the System**
-- Certain **Galaksija programs rely on the specific behavior of the R register**.
-- If a **different Z80 variant** is used (e.g., a modern Z80 clone), **programs that depend on this behavior might not work correctly**.
-
----
-
-## **Summary of Peculiarities in the Original Circuit**
-
-| **Design Feature** | **Effect** | **Issue** |
-|-------------------|----------|---------|
-| **Flip-Flops for Interrupts** | Saves components by detecting M1 cycles | Timing is unreliable across different Z80 chips |
-| **Minimal Address Decoding** | Reduces chip count | Causes address aliasing and unexpected behavior |
-| **Non-Standard Keyboard Wiring** | Simple circuit | Causes conflicts with other I/O devices |
-| **Use of R Register for Random Numbers** | Eliminates the need for a true RNG | Not portable across all Z80 variants |
-
----
-
 # **5. Peculiarities of the Operating System**
 
 The **Galaksija operating system (OS)** is a **minimalistic software environment** that provides:
@@ -965,6 +848,68 @@ The OS frequently **manipulates the stack pointer directly**, using **non-standa
 ---
 
 ## **5.6 Cassette Tape Data Storage**
+
+Simple pulse modulation is used for storing data on tape. The timing diagram of the signal is shown in Figure 30, the timing intervals are detailed in Table 11, and the logical meaning of individual stored bytes is provided in Table 12.  
+
+The typical data transfer rate achieved is approximately **330 bits/s**. The choice of simple modulation and low transfer speed is most likely due to the limited space for modulation and demodulation routines in the EPROM memory. Microcomputers with similar hardware but larger ROM capacities achieve significantly higher transfer speeds (for example, the Sinclair Spectrum typically achieves **1500 bits/s**).  
+
+![imagen](https://github.com/user-attachments/assets/315be561-2034-4f66-b087-1c76c9ae1553)
+
+📌 **Figure 30:** *Timing diagram of the modulation used for storing data on magnetic tape.*
+
+
+### Table 11: Values of symbols (for Figure 30)
+
+| Symbol  | Comment | Min | Typical | Max | Unit |
+|---------|---------|-----|---------|-----|------|
+| tpos    | Duration of positive pulse | 140 | 650 | - | T us |
+|         | | 45 | 210 | - | T us |
+| tneg    | Duration of negative pulse | 650 | - | T us |
+|         | | 210 | - | T us |
+| tbase   | Duration of recording one bit | 7800 | 9200 | 16000 | T ms |
+|         | | 2.5 | 3.0 | 5.2 | ms |
+| tone    | Delay between 1st and 2nd pulse | 4400 | 4600 | 7400 | T ms |
+|         | | 1.4 | 1.5 | 2.4 | ms |
+| tbyte   | Duration of recording one byte | - | 74000 | - | T ms |
+|         | | - | 24.0 | - | ms |
+| tinterbyte | Delay between 2 bytes | 8200 | 13000 | - | T ms |
+|         | | 2.7 | 4.3 | - | ms |
+
+### Table 12: Meaning of individual bytes in the data record for storage on tape recorder
+
+| Offset | Length | Comment |
+|--------|--------|---------|
+| 0x00   | 0x01   | Start byte (0xa5) (1010 0101) |
+| 0x01   | 0x02   | Address of the first data byte (lowest address byte first) |
+| 0x03   | 0x02   | Address of the last data byte + 1 (lowest address byte first) |
+| 0x05   | N      | Data bytes |
+| 0x05+N | 0x01   | Checksum (the number that needs to be added to the sum of previous bytes modulo 256 to get 0xff) |
+
+### Table 13: Data part of the record when storing a BASIC program on tape recorder
+
+| Address | Length | Content | Comment |
+|---------|--------|---------|---------|
+| 0x2c36  | 0x02   | 0x2c3a  | Address of the first byte of the BASIC program (lowest address byte first) |
+| 0x2c38  | 0x02   | 0x2c3a+N | Address of the last byte of the BASIC program + 1 (lowest address byte first) |
+| 0x2c3a  | N      | -       | BASIC program |
+
+The operating system does not distinguish between storing data, machine code, and BASIC programs. The data structure in Table 12 only allows storing the contents of any part of the microprocessor's address space.
+
+In the case of storing a BASIC program, the operating system stores data from address 0x2c36 to the end of the BASIC program on the tape recorder. When later loading the stored data, the system variables BASIC START and BASIC END at addresses 0x2c36 and 0x2c38 are overwritten, which allows the operating system to locate the loaded program.
+
+## Notes:
+
+### Working with a tape recorder
+
+Galaksija is connected to the tape recorder with a transmission speed of 280 baud (280 bits are written to the tape every second). This speed guarantees reliability even though it is lower than that offered by some commercial models.
+
+As an illustration of the reliability/speed problem, let a quote from the instruction manual of the BBC computer, which is advertised as one of the most complete and powerful desktop computers on the market: "the recording speed is 1300 baud, but we suggest that, when recording an important program, you enter the next command and thus reduce the speed to 300 baud...".
+
+The basic memory of the Galaksija computer is not large, so recording on a cassette does not take too long, and the verification of the recording eliminates all other potential problems.
+
+--- 
+
+
 
 The **Galaksija OS** uses a **custom data encoding method** for storing programs on **cassette tapes**.
 
