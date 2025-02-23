@@ -1246,11 +1246,10 @@ Due to the exponential **IB (UBE)** characteristic of the transistor, the capaci
 
 Assume that the base current becomes negligible when it drops to approximately one-tenth of the current through the resistor. At this point, the base voltage is:  
 
-EQ 3 is missing
+![imagen](https://github.com/user-attachments/assets/b1ec3c73-bdb0-4217-bc5c-734c79bf951c)
 
-$$
-U_{BE_{\text{start}}} = U_T \ln\left(\frac{U_{BE} \beta}{I_S R33 \cdot 10} + 1\right)  
-$$ 
+
+$$U_{BE_{\text{start}}} = U_T \ln\left(\frac{U_{BE} \beta}{I_S R33 \cdot 10} + 1\right)  $$ 
 *(Equation 4)*  
 
 Where:  
