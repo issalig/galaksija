@@ -64,7 +64,7 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
  - 2.4.3 Video Driver
  - 2.4.4 Shift Register
 
-[3 The New Galaksija](#3-the-new-galaksija)
+[3 New Galaksija](#3-new-galaksija)
  - 3.1 Digital Section
  - 3.1.1 Microprocessor and Memory
  - 3.1.2 Address Decoder
@@ -99,7 +99,7 @@ Finally, I would like to thank the other members of the Kiberpipa Computer Museu
 
 [7 Bibliography](#7-bibliography)
 
-[8 Appendices](#8-appendices)
+[8 Appendix](#8-appendix)
  - A Voltage Inverter
  - B Calculation of the Pulse Amplifier
  - C Floating-Point Numbers
@@ -754,9 +754,6 @@ The first such example can be found at address 0x0098 (Table 7), where the code 
 
 **Table 7:** Example of using machine code as the ASCII string "BREAK".
 
---- 
-
-Let me know if you need further adjustments!
 
 | **Adr.** | **Hex** | **Data**                  | **Processor Interpretation of Instructions** |
 |----------|---------|------------------------------|----------------------------------------|
@@ -768,8 +765,6 @@ Let me know if you need further adjustments!
 **Table 8:** Example of using machine code as a 4-byte floating-point constant (Appendix, page 67).
 
 The second example is located at address **0x00A0** (Table 8). Here, the machine code is also interpreted as a floating-point number: **+1 · 0x800000 · 2^(0x01−24) = 1.0**.  
-
----
 
 ### 5.2  
 **Multifunctionality of Data Structures**  
@@ -833,8 +828,6 @@ Here is the information rearranged into a table with four columns: **Adr.**, **H
 
 **Table 9:** Example of multifunctionality of data structures. A portion of memory is interpreted as the content of two different tables.
 
---- 
-
 ## 5.3  **Organization of Program Code**  
 
 The operating system, due to optimization, is not strictly divided into closed units—program functions. Instead of standard function calls using **call** and **ret** instructions, a combination of **call** instructions and jumps (**jp** or **jr**) is used. This approach saved a large number of **ret** instructions that would otherwise be needed to end functions, and it also improved the operating system's speed (as fewer stack operations are required).  
@@ -850,11 +843,9 @@ Note: For example, the **SAVE WORD** function is called to store a checksum at t
 
 ---
 
-### 5.4  
-**Use of Processor Registers**  
+### 5.4  **Use of Processor Registers**  
 
 The relatively unstructured nature of the code results in consistent use of registers. The patterns in Table 10 are followed by the vast majority of the operating system's code.  
-
 
 ![imagen](https://github.com/user-attachments/assets/18b3b216-782c-4e6e-b50e-3d8880a3690d)
 
@@ -872,10 +863,6 @@ Figure 27
 
 **Table 10:** Typical use of processor registers in the operating system.
 
---- 
-
-Let me know if you need further adjustments!
-
 ![imagen](https://github.com/user-attachments/assets/8c9ac02f-67d6-495e-8015-40eab3a2d56d)
 
 Figure 28
@@ -888,7 +875,7 @@ To maximize **execution speed**, the OS minimizes **memory accesses** by:
 - Keeping **critical variables in registers** instead of RAM.
 - Using **alternate register sets** for multitasking-like behavior.
 
-📌 **Table 7**: *Typical register usage in the Galaksija OS.*
+**Table 7**: *Typical register usage in the Galaksija OS.*
 
 | **Register** | **Purpose** |
 |------------|----------|
@@ -939,7 +926,7 @@ The typical data transfer rate achieved is approximately **330 bits/s**. The cho
 
 ![imagen](https://github.com/user-attachments/assets/315be561-2034-4f66-b087-1c76c9ae1553)
 
-📌 **Figure 30:** *Timing diagram of the modulation used for storing data on magnetic tape.*
+**Figure 30:** *Timing diagram of the modulation used for storing data on magnetic tape.*
 
 
 ### Table 11: Values of symbols (for Figure 30)
@@ -991,10 +978,8 @@ As an illustration of the reliability/speed problem, let a quote from the instru
 
 The basic memory of the Galaksija computer is not large, so recording on a cassette does not take too long, and the verification of the recording eliminates all other potential problems.
 
---- 
 
-
-📌 **Table 9**: *Comparison of original and replica Galaksija hardware.*
+**Table 9**: *Comparison of original and replica Galaksija hardware.*
 
 | **Feature** | **Original Galaksija** | **New Galaksija Replica** |
 |------------|------------------|------------------|
@@ -1003,8 +988,6 @@ The basic memory of the Galaksija computer is not large, so recording on a casse
 | **RAM Size** | 2, 4, or 6 KB | 8 KB |
 | **Video Output** | Composite Video | Composite Video (Optimized for modern displays) |
 | **Cassette Interface** | Analog | Improved ADC/DAC circuit |
-
----
 
 ### **6 Conclusion**  
 
@@ -1024,9 +1007,7 @@ On the other hand, the results highlight the positive impact of exclusively usin
 
 The importance of publicly releasing documentation was also evident in this project. Many microcomputers from this era were lost primarily because their documentation disappeared along with the companies that carefully guarded it. Similarly, the absence of copy protection in software had a positive impact on its preservation, as such protections often led to the loss of a significant portion of software for similar microcomputers.  
 
----
-
-### **7 Bibliography**
+### **7. Bibliography**
 [^1] Hišni računalnik. Ljubljana, Mladinska knjiga, 1984, str. 42-46.
 
 [^2] Antonić, V.: Napravi i ti računar Galaksija. Računari u vašoj kuči,januar 1984, str. 50-56.
@@ -1059,8 +1040,8 @@ The importance of publicly releasing documentation was also evident in this proj
 
 [^16] Ristanović, D.: Galaksija bez tajni. Računari, July 1984, pages 53-63.
 
-### A  
-**Voltage Inverter**  
+## ** Appendix **
+### A **Voltage Inverter**  
 
 The voltage inverter must produce a stabilized supply voltage of **−5V** under all operating conditions of the video amplifier.  
 
