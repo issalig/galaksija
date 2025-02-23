@@ -1,16 +1,14 @@
 ### The translation of this document is WIP.
 
-**University of Ljubljana**  
-**Faculty of Electrical Engineering**  
-
-**Tomaž Šolc**  
-
 # Replica of the Galaksija Microcomputer
 
-**University Diploma Thesis**  
-
+**Tomaž Šolc**  
 **Mentor:**  
 Professor Dr. Tadej Tuma  
+
+**University Diploma Thesis**  
+**University of Ljubljana**  
+**Faculty of Electrical Engineering**  
 
 **Ljubljana, 2007**  
 
