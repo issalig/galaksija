@@ -984,26 +984,7 @@ The **Galaksija OS** uses a **custom data encoding method** for storing programs
 
 This method allows **reliable data storage on standard audio cassette recorders**, but it is **sensitive to tape speed variations**.
 
----
 
-# **6. Conclusion**
-
-The **Galaksija microcomputer** was an **innovative product** for its time, designed to be **affordable and accessible** to a wide audience in **former Yugoslavia**. Despite its **hardware limitations**, it demonstrated **clever design strategies** that allowed it to function **efficiently** with **minimal resources**.
-
-The **main findings of this research** are:
-
-### **6.1 Hardware Reconstruction**
-- A **fully functional replica** of **Galaksija** was designed using **modern electronic components**.
-- The **new Galaksija** maintains **full software compatibility** with the original, allowing it to run **historical programs**.
-
-📌 **Figure 33**: *Final assembled replica of Galaksija.*
-
----
-
-### **6.2 Challenges in Reverse Engineering**
-- **Lack of documentation** made it necessary to perform **reverse engineering** on both **hardware and software**.
-- **Undocumented behaviors of the Z80 processor** posed challenges in reproducing the original system.
-- **Address decoding limitations** in the original circuit had to be resolved for modern reliability.
 
 📌 **Table 9**: *Comparison of original and replica Galaksija hardware.*
 
@@ -1017,19 +998,57 @@ The **main findings of this research** are:
 
 ---
 
-### **6.3 Future Applications**
-- The **replica can be used for educational purposes**, helping students understand **early microcomputer design**.
-- The **reverse engineering methodology** developed in this project can be applied to **other historical microcomputers**.
-- The **reconstructed documentation** can aid enthusiasts in preserving **Galaksija’s legacy**.
+### **6 Conclusion**  
 
-📌 **Figure 34**: *Diagram showing potential improvements in a future Galaksija redesign.*
+The creation of the Galaksija replica demonstrated that replicating even a small electronic system like the Galaksija is not a simple task. It requires knowledge of both analog and digital electronics, as well as assembly programming. On the other hand, this work proves that creating a functional replica is possible based solely on preserved documentation and software, even when a working original is unavailable for analysis.  
+
+Before designing and building the replica, several side issues had to be addressed: reverse-engineering the original electronic circuit was, of course, planned, but the inadequacy of current tools for analyzing Z80 machine code was not anticipated. This required a detour from the main path and the creation of a usable Z80 disassembler. Due to difficulties in understanding the operating system's behavior, it was necessary to study the system while running test programs, rather than relying solely on static analysis of the ROM contents. Developing these test programs, in turn, required the creation of development tools first.  
+
+The construction of the replica's keyboard also posed challenges. Due to the overwhelming prevalence of standard PC keyboards within the available resources, it was not possible to create a suitable replacement for the original Galaksija keyboard. As a result, the modern replica has a lower-quality, foil-covered keyboard (whereas the professional keyboard was one of the few technical advantages the Galaksija had over its competitors).  
+
+These detours contributed to the results covering a slightly broader area than originally planned in the project's objectives. This also led to a somewhat more extensive list of appendices.  
+
+Today, the importance of writing clear and simple programs is emphasized over highly optimized but difficult-to-understand code. The results of this work confirm this, as the excessively optimized machine code proved very difficult to understand. At the same time, the associated preserved documentation turned out to be practically useless. An unexpected consequence of this optimization was the reduced usability of modern disassembler tools, requiring manual translation of machine code into assembly based on instruction tables.  
+
+Despite better documentation, the findings regarding hardware were similar to those for software: it became clear that designing simple and understandable circuits is just as important as documentation. Excessive optimization in terms of the number of electronic components, such as the Galaksija's use of sequential circuits instead of combinational ones, significantly increased the complexity of the work. On several occasions, preserved documentation, due to printing errors, made the work more difficult rather than easier, often requiring cross-referencing data from different sources (e.g., wiring diagrams and PCB layouts).  
+
+On the other hand, the results highlight the positive impact of exclusively using standard electronic components (especially integrated circuits). Creating a similar replica of a microcomputer that relies on an application-specific integrated circuit (ASIC) would be a significantly more challenging task.  
+
+The importance of publicly releasing documentation was also evident in this project. Many microcomputers from this era were lost primarily because their documentation disappeared along with the companies that carefully guarded it. Similarly, the absence of copy protection in software had a positive impact on its preservation, as such protections often led to the loss of a significant portion of software for similar microcomputers.  
 
 ---
 
-### **6.4 Final Thoughts**
-The **Galaksija microcomputer** represents a **unique moment in history**, where **technological ingenuity** overcame **economic and political limitations**. 
+### **7 Bibliography**
+[1] Hišni računalnik. Ljubljana, Mladinska knjiga, 1984, str. 42-46.
 
-Through **reverse engineering**, **hardware replication**, and **software analysis**, this project successfully **revived an important piece of computing history**.
+[2] Antonić, V.: Napravi i ti računar Galaksija. Računari u vašoj kuči,januar 1984, str. 50-56.
 
----
+[3] ZX81 Assembly Instructions. Sinclair Research Ltd, 1981.
+
+[4] Servicing Manual for ZX Spectrum. Thorn Datatech Ltd, Sinclair Research Ltd, 1984.
+
+[5] Commodore 64 Service Manual. Commodore Business Machines Inc,1985.
+
+[6] Z80 Family CPU User Manual. San Jose, ZiLOG Inc., 2005.
+
+[7] Benson, K. B.: Television Engineering Handbook. McGraw-Hill Inc.,1985.
+
+[8] Wedam, A.: Radiotehnika: ojačevalniki in sprejemniki. Ljubljana,Državna založba Slovenije, 1955.
+
+[9] Bandwidth Versus Video Resolution. Maxim Integrated Products, Dallas Semiconductor,2005. http://www.maxim-ic.com/appnotes.cfm/appnote number/750
+
+[10] Z8400/Z84C00 NMOS/CMOS Z80 CPU Central Processing Unit: Product specification. ZiLOG Inc.
+
+[11] Rigter, W.: ZX81 Video Display System. 1996. http://home.germany.net/nils.eilers/zx81/wilfvid.htm
+
+[12] Ristanović, D.: Računar Galaksija. http://user.sezampro.yu/ dejanr/galaks.htm
+
+[13] Harris, R.: Altair BASIC 3.2 (4K) - Annotated Disassembly. http://www.interact-sw.co.uk/altair/index2.html
+
+[14] Dinu, C.: Decoding Z80 opcodes. http://z80.info/decoding.htm
+
+[15] Ristanović, D.: Računar Galaksija Uputstvo za upotrebu.
+
+[16] Ristanović, D.: Galaksija bez tajni. Računari, julij 1984, str. 53-63.
+
 
