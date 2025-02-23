@@ -802,7 +802,118 @@ These optimizations allow **Galaksija’s OS** to fit into just **4 KB of ROM**,
 
 ---
 
-### 5.3  **Organization of Program Code**  
+| Address | Hex    | Processor Interpretation |||
+|---------|--------|------------------------|||
+| 0x0390  | 0x2e   | 1 →ld l,0eh           | ||
+| 0x0391  | 0x0e   |            |
+| 0x0392  | 0x01   | ld bc,9b2eh||        | 
+| 0x0393  | 0x2e   | | 2 →ld l,9bh |           |
+| 0x0394  | 0x9b   |          |
+| 0x0395  | 0x01   | | ld bc,ee2eh           |
+| 0x0396  | 0x2e   | | | 3 →ld l,eeh            |
+| 0x0397  | 0xee   |             |
+| 0x0398  | 0x26   | ld h,0fh              | ld h,0fh | ld h,0fh |
+| 0x0399  | 0x0f   |                       | ||
+
+
+**Table 6:** Example of machine code polymorphism in the Galaxy operating system. The HL register is set to different values depending on the entry point (→) of the microprocessor
+
+
+| **Adr.** | **Hex** | **ASCII** | **Processor Interpretation of Instructions** |
+|----------|---------|-----------|---------------------------------------------|
+| 0x0098   | 0x42    | B         | ld b,d                                      |
+| 0x0099   | 0x52    | R         | ld d,d                                      |
+| 0x009A   | 0x45    | E         | ld b,l                                      |
+| 0x009B   | 0x41    | A         | ld b,c                                      |
+| 0x009C   | 0x4B    | K         | ld c,e                                      |
+| 0x009D   | 0x00    | NUL       | nop                                         |
+
+**Table 7:** Example of using machine code as the ASCII string "BREAK".
+
+--- 
+
+Let me know if you need further adjustments!
+
+| **Adr.** | **Hex** | **Data**                  | **Processor Interpretation of Instructions** |
+|----------|---------|------------------------------|----------------------------------------|
+| 0x00A0   | 0x00    | M=0x800000, S=+1, E=0x01     | nop                                    |
+| 0x00A1   | 0x00    | M=0x800000, S=+1, E=0x01     | nop                                    |
+| 0x00A2   | 0x80    | M=0x800000, S=+1, E=0x01     | add a,b                                |
+| 0x00A3   | 0x00    | M=0x800000, S=+1, E=0x01     | nop                                    |
+
+**Table 8:** Example of using machine code as a 4-byte floating-point constant (Appendix, page 67).
+
+The second example is located at address **0x00A0** (Table 8). Here, the machine code is also interpreted as a floating-point number: **+1 · 0x800000 · 2^(0x01−24) = 1.0**.  
+
+---
+
+### 5.2  
+**Multifunctionality of Data Structures**  
+
+The EPROM memory contains a series of constant data structures, mostly interspersed with machine code. Some of these structures are interpreted by the operating system in multiple ways.  
+
+One such example is the table of ASCII codes for the keyboard, located at addresses **0x0D70** to **0x0D99** (Table 9).  
+
+- **KEY SHIFT SYM TABLE** at address **0x0D70** is used to convert key codes into ASCII character codes. It stores ASCII codes in an order corresponding to the addresses of keys in the microprocessor's address space (Figure 7). For example, the first row in the table corresponds to the key at address **0x1F**. The first column contains ASCII codes for characters when the key is pressed with the **SHIFT** key, while the second column contains ASCII codes for characters when the key is pressed without **SHIFT**.  
+- **KEY SHIFT YU TABLE** at address **0x0D94** is used for entering Yugoslav characters. It contains ASCII characters corresponding to keys that, when pressed with **SHIFT**, input diacritical marks.  
+
+The **KEY SHIFT YU TABLE** occupies positions in the larger **KEY SHIFT SYM TABLE** that correspond to the keys at addresses **0x31** and **0x32**. These addresses belong to the **BREAK** and **REPEAT** keys, which the operating system handles separately. As a result, the ASCII codes assigned to these keys in the **KEY SHIFT YU TABLE** are irrelevant.  
+
+Here is the information rearranged into a table with four columns: **Adr.**, **Hex**, **SYM TABLE**, and **YU TABLE**:
+
+
+| Address | Hex  | Symbol | SYM_TABLE  | YU TABLE |
+|---------|------|--------|-----|-------|
+| 0x0d70  | 0x20 | 0x1f   | ␣ ␣ |       |
+| 0x0d71  | 0x20 |        |     |       |
+| 0x0d72  | 0x5f | 0x20   | _ 0 |       |
+| 0x0d73  | 0x30 |        |     |       |
+| 0x0d74  | 0x21 | 0x21   | ! 1 |       |
+| 0x0d75  | 0x31 |        |     |       |
+| 0x0d76  | 0x22 | 0x22   | " 2 |       |
+| 0x0d77  | 0x32 |        |     |       |
+| 0x0d78  | 0x23 | 0x23   | # 3 |       |
+| 0x0d79  | 0x33 |        |     |       |
+| 0x0d7a  | 0x24 | 0x24   | $ 4 |       |
+| 0x0d7b  | 0x34 |        |     |       |
+| 0x0d7c  | 0x25 | 0x25   | % 5 |       |
+| 0x0d7d  | 0x35 |        |     |       |
+| 0x0d7e  | 0x26 | 0x26   | & 6 |       |
+| 0x0d7f  | 0x36 |        |     |       |
+| 0x0d80  | 0xbf | 0x27   | □ 7 |       |
+| 0x0d81  | 0x37 |        |     |       |
+| 0x0d82  | 0x28 | 0x28   | ( 8 |       |
+| 0x0d83  | 0x38 |        |     |       |
+| 0x0d84  | 0x29 | 0x29   | ) 9 |       |
+| 0x0d85  | 0x39 |        |     |       |
+| 0x0d86  | 0x2b | 0x2a   | + ; |       |
+| 0x0d87  | 0x3b |        |     |       |
+| 0x0d88  | 0x2a | 0x2b   | * : |       |
+| 0x0d89  | 0x3a |        |     |       |
+| 0x0d8a  | 0x3c | 0x2c   | < , |       |
+| 0x0d8b  | 0x2c |        |     |       |
+| 0x0d8c  | 0x2d | 0x2d   | - = |       |
+| 0x0d8d  | 0x3d |        |     |       |
+| 0x0d8e  | 0x3e | 0x2e   | > . |       |
+| 0x0d8f  | 0x2e |        |     |       |
+| 0x0d90  | 0x3f | 0x2f   | ? / |       |
+| 0x0d91  | 0x2f |        |     |       |
+| 0x0d92  | 0x0d | 0x30   | CR CR |     |
+| 0x0d93  | 0x0d |        |     |       |
+| 0x0d94  | 0x58 | 0x31   | X C | Ĉ shift X |
+| 0x0d95  | 0x43 |        |     | Ċ shift C |
+| 0x0d96  | 0x5a | 0x32   | Z S | Ź shift Z |
+| 0x0d97  | 0x53 |        |     | Ṡ shift S |
+| 0x0d98  | 0x0c | 0x33   | FF NUL |    |
+| 0x0d99  | 0x00 |        |     |       |
+
+
+**Table 9:** Example of multifunctionality of data structures. A portion of memory is interpreted as the content of two different tables.
+
+--- 
+
+
+## 5.3  **Organization of Program Code**  
 
 The operating system, due to optimization, is not strictly divided into closed units—program functions. Instead of standard function calls using **call** and **ret** instructions, a combination of **call** instructions and jumps (**jp** or **jr**) is used. This approach saved a large number of **ret** instructions that would otherwise be needed to end functions, and it also improved the operating system's speed (as fewer stack operations are required).  
 
