@@ -1,5 +1,9 @@
 This document is a transtlation from slovene to english from the thesis of Tomaž Šolc (https://web.archive.org/web/20240114192751/https://www.tablix.org/~avian/blog/papers/tomaz_solc_replika_mikroracunalnika_galaksija.pdf).
 
+A presentation covering the topics of this thesis can be found in https://fahrplan.events.ccc.de/congress/2012/Fahrplan/attachments/2250_prezentacija.pdf
+
+---
+
 # Replica of the Galaksija Microcomputer
 
 **Tomaž Šolc**  
