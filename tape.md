@@ -115,12 +115,16 @@ l0ee2h:
 	add a,b		;0ee2	4	Add B' to A
 	ld hl,02000h	;0ee3	10	Load cassette port address into HL'
  ```
+
 ## Tape Data Storage
 This text is a translation of Tomaž Šolc thesis (page 55) and explains how data is recorded on the cassete.
+
 
 Simple pulse modulation is used for storing data on the tape. The time diagram of the signal is shown in Figure 30, the information on the time intervals in Table 11, and the logical meaning of the individual stored bytes in Table 12.
 
 A data transfer rate of approximately 330 bit/s is typically achieved. The choice of a simple modulation and low transfer rate is most likely due to the limited space for modulation and demodulation routines in the EPROM memory, as microcomputers with the same hardware and larger ROM memory achieve significantly higher transfer rates (for example, Sinclair Spectrum typically 1500 bit/s).
+
+"0" is coded as a pulse and "1" is coded as two pulses.
 
 ![imagen](https://github.com/user-attachments/assets/c14e8397-1778-408f-98d6-d34391841abf)
 
