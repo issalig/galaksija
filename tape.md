@@ -122,7 +122,10 @@ This text is a translation of Tomaž Šolc thesis (page 55) and explains how dat
 
 Simple pulse modulation is used for storing data on the tape. The time diagram of the signal is shown in Figure 30, the information on the time intervals in Table 11, and the logical meaning of the individual stored bytes in Table 12.
 
-A data transfer rate of approximately 330 bit/s is typically achieved. The choice of a simple modulation and low transfer rate is most likely due to the limited space for modulation and demodulation routines in the EPROM memory, as microcomputers with the same hardware and larger ROM memory achieve significantly higher transfer rates (for example, Sinclair Spectrum typically 1500 bit/s).
+A data transfer rate of approximately 330 bit/s is typically achieved. The choice of a simple modulation and low transfer rate is most likely due to the limited space for modulation and demodulation routines in the EPROM memory, as microcomputers with the same hardware and larger ROM memory achieve significantly higher transfer rates (for example, Sinclair Spectrum typically 1500 bit/s). It is also worth to note that the decoding of data (SAVE and OLD) takes around 200 bytes!!!
+
+https://github.com/issalig/galaksija/blob/3d6b7d963c28612a3463466e2bb71c78f4847ecf/roms/rom_a.asm#L5312
+https://github.com/issalig/galaksija/blob/3d6b7d963c28612a3463466e2bb71c78f4847ecf/roms/rom_a.asm#L5479
 
 "0" is coded as a pulse and "1" is coded as two pulses.
 
