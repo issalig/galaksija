@@ -35,8 +35,9 @@ To check with version of ROMS you have you can try from BASIC
 ```basic
 DUMP &0037, 1
 ```
-1C means version 28
-1D means version 29
+```1C``` means version 28
+
+```1D``` means version 29
 
 ```basic
 DUMP &03F9, 1
