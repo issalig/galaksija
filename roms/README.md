@@ -17,7 +17,13 @@ Assembled ROM A is the same as  https://github.com/mejs/galaksija/blob/master/ro
 
 ROM A may be patched for ROM B autostart by doing two changes. One is cosmetic and increases version number to 29. The second change initializes ROM B at start-up to make its commands accessible. If there is no initialization patch, ROM B has to be initialized at startup by typing A=USR(&1000)  
 
-Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_init_ver_29.bin are just:
+Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_init_ver_29.bin are just (disa:
+
+```bash
+z80dasm original/ROM_A_without_ROM_B_init_ver_28.bin  -l -g 0x0000 -a -t > 28
+z80dasm original/ROM_A_with_ROM_B_init_ver_29.bin  -l -g 0x0000 -a -t > 29
+diff 28 29
+```
 
 ```
 46c46
@@ -31,19 +37,19 @@ Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_ini
 > 	call 01000h		;03f9	cd 00 10
 ```
 
-To check with version of ROMS you have you can try from BASIC
+To check which version of ROMS do you have you can try from BASIC in your own Galaksija
 ```basic
 DUMP &0037, 1
 ```
-```1C``` means version 28
+```1C``` corresponds to version 28
 
-```1D``` means version 29
+```1D``` corresponds to version 29
 
 ```basic
 DUMP &03F9, 1
 ```
 
-```CD D3 0C``` is for non ROM B init
+```3E 0C E7``` is for non ROM B init
 
 ```CD 00 10``` is for ROM B init (call 01000h)
 
