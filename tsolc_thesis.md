@@ -2,6 +2,8 @@ This document is a transtlation from slovene to english from the thesis of Toma≈
 
 A presentation covering the topics of this thesis can be found in https://fahrplan.events.ccc.de/congress/2012/Fahrplan/attachments/2250_prezentacija.pdf
 
+Another presentation in slovenian is found at https://web.archive.org/web/20230803180502/https://www.tablix.org/~avian/blog/articles/talks/mikroracunalnik_galaksija.pdf
+
 ---
 
 # Replica of the Galaksija Microcomputer
