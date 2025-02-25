@@ -21,14 +21,14 @@ Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_ini
 
 ```
 46c46
-< 	db 28			;0037
+< 	inc e			;0037	1c
 ---
-> 	db 29			;0037
+> 	dec e			;0037	1d
 734,735c734
-< 	ld a,00ch		;03f9
-< 	rst 20h			;03fb
+< 	ld a,00ch		;03f9	3e 0c
+< 	rst 20h			;03fb	e7
 ---
-> 	call 01000h		;03f9
+> 	call 01000h		;03f9	cd 00 10
 ```
 
 To check with version of ROMS you have you can try from BASIC
