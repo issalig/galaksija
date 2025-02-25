@@ -17,7 +17,7 @@ Assembled ROM A is the same as  https://github.com/mejs/galaksija/blob/master/ro
 
 ROM A may be patched for ROM B autostart by doing two changes. One is cosmetic and increases version number to 29. The second change initializes ROM B at start-up to make its commands accessible. If there is no initialization patch, ROM B has to be initialized at startup by typing A=USR(&1000)  
 
-Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_init_ver_29.bin are just (disa:
+Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_init_ver_29.bin are:
 
 ```bash
 z80dasm original/ROM_A_without_ROM_B_init_ver_28.bin  -l -g 0x0000 -a -t > 28
