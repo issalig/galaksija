@@ -5,9 +5,10 @@ Here I provide asm files for roms A, B, and C. For D only some info from a magaz
 
 I have used the rom files available at https://github.com/mejs/galaksija/blob/master/roms/ and they are located in the folder original.
 
-local folder is used to assemble the .asm files
+Using make_roms.sh (https://github.com/issalig/galaksija/tree/main/roms/make_roms.sh) will assemble roms A, B and C.
 
-Using make_roms.sh will assemble roms A, B and C.
+**local** directory (https://github.com/issalig/galaksija/tree/main/roms/local) is used to assemble the .asm files
+
 
 ## ROM A
 ROM A listing has been downloaded from https://github.com/mejs/galaksija/tree/master/roms and comes from avian site https://web.archive.org/web/20221228104534/https://www.tablix.org/~avian/galaksija/rom/rom1.html 
