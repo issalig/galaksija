@@ -1,0 +1,340 @@
+# file opened: ROM_A_without_ROM_B_init_ver_28.bin
+ROM_A_without_ROM_B_init_ver_28.bin(1): error: Invalid labelname: ó—ÃÚ
+ROM_A_without_ROM_B_init_ver_28.bin(1): error: Unrecognized instruction: ß,,Í²
+ROM_A_without_ROM_B_init_ver_28.bin(1): error: Unexpected: ß,,Í²
+ 1    0000              ó—ÃÚß,,Í²
+ROM_A_without_ROM_B_init_ver_28.bin(2): error: Invalid labelname: Ãm
+ 2    0000              Ãm
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Invalid labelname: óÉ|ºÀ}»ÉûÉãÍ
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Unrecognized instruction: ¾Ã”Ùş Íµ	ÙÉ!
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Unexpected: ¾Ã”Ùş Íµ	ÙÉ!
+ 3    0000              óÉ|ºÀ}»ÉûÉãÍ¾Ã”Ùş Íµ	ÙÉ!
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Unrecognized instruction: ¨+8
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Unexpected: ¨+8
+ 3    0000               ¨+8
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Unrecognized instruction: ‚*ş
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Unexpected: ‚*ş
+ 3    0000               ‚*ş
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Unrecognized instruction: 4
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Unexpected: 4
+ 3    0000                4
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Unrecognized instruction: ¯+0.!Š*09z44¾4¾>50
+ROM_A_without_ROM_B_init_ver_28.bin(3): error: Unexpected: ¯+0.!Š*09z44¾4¾>50
+ 3    0000               ¯+0.!Š*09z44¾4¾>50
+ROM_A_without_ROM_B_init_ver_28.bin(4): error: Unrecognized instruction: +Ë@(+zğ
+ROM_A_without_ROM_B_init_ver_28.bin(4): error: Unexpected: +Ë@(+zğ
+ 4    0000              s+Ë@(+zğ
+ROM_A_without_ROM_B_init_ver_28.bin(5): error: Invalid labelname: ~ş48
+ROM_A_without_ROM_B_init_ver_28.bin(5): error: Unrecognized instruction: +ËN(s#sıéáÑÁñûíMş (úÉ#¯Íó
+ROM_A_without_ROM_B_init_ver_28.bin(5): error: Unexpected: +ËN(s#sıéáÑÁñûíMş (úÉ#¯Íó
+ 5    0000              ~ş48+ËN(s#sıéáÑÁñûíMş (úÉ#¯Íó
+ROM_A_without_ROM_B_init_ver_28.bin(6): error: Invalid labelname: "™*÷Ï#¯Íó
+ 6    0000              "™*÷Ï#¯Íó
+ROM_A_without_ROM_B_init_ver_28.bin(7): error: Invalid labelname: Õí[™*
+ROM_A_without_ROM_B_init_ver_28.bin(7): error: Unrecognized instruction: ×01!ÍÖAØş?Ø§ +ß('Ï#))Õ8í[™*ÑÕ8
+ROM_A_without_ROM_B_init_ver_28.bin(7): error: Unexpected: ×01!ÍÖAØş?Ø§ +ß('Ï#))Õ8í[™*ÑÕ8
+ 7    0000              Õí[™*×01!ÍÖAØş?Ø§ +ß('Ï#))Õ8í[™*ÑÕ8
+ROM_A_without_ROM_B_init_ver_28.bin(8): error: Invalid labelname: Ñß)
+ROM_A_without_ROM_B_init_ver_28.bin(8): error: Unrecognized instruction: ÕëÍƒ×06>ÕÍ™SORRY
+ROM_A_without_ROM_B_init_ver_28.bin(8): error: Unexpected: ÕëÍƒ×06>ÕÍ™SORRY
+ 8    0000              Ñß)	ÕëÍƒ×06>ÕÍ™SORRY
+ROM_A_without_ROM_B_init_ver_28.bin(9): error: Invalid labelname: ¯&*
+ROM_A_without_ROM_B_init_ver_28.bin(9): error: Unrecognized instruction: o¯ÉÍrĞşAØÆ	şPş0Øş
+ 9    0000              ¯&*o¯ÉÍrĞşAØÆ	şPş0Øş
+ROM_A_without_ROM_B_init_ver_28.bin(9): error: Unrecognized instruction: ?ØæÉw#}øÕí[8,*j*}æğoíRÑ¯É#(ÅN
+ROM_A_without_ROM_B_init_ver_28.bin(9): error: Unexpected: ?ØæÉw#}øÕí[8,*j*}æğoíRÑ¯É#(ÅN
+ 9    0000               ?ØæÉw#}øÕí[8,*j*}æğoíRÑ¯É#(ÅN
+ROM_A_without_ROM_B_init_ver_28.bin(10): error: Invalid labelname: ÉÍO
+ROM_A_without_ROM_B_init_ver_28.bin(10): error: Unrecognized instruction: ÈÙbkOÙËøñË@ÀÉß.Ë@ËÀÈñËpÈ!
+ROM_A_without_ROM_B_init_ver_28.bin(10): error: Unexpected: ÈÙbkOÙËøñË@ÀÉß.Ë@ËÀÈñËpÈ!
+10    0000              ÉÍOÈÙbkOÙËøñË@ÀÉß.Ë@ËÀÈñËpÈ!
+ROM_A_without_ROM_B_init_ver_28.bin(11): error: Invalid labelname: ËèÍO
+ROM_A_without_ROM_B_init_ver_28.bin(11): error: Unrecognized instruction: òÑ¯Ëh(øñÙy´}Ù ËÂZËH(íD§(Ë(<õÍô
+ROM_A_without_ROM_B_init_ver_28.bin(11): error: Unexpected: òÑ¯Ëh(øñÙy´}Ù ËÂZËH(íD§(Ë(<õÍô
+11    0000              ËèÍO òÑ¯Ëh(øñÙy´}Ù ËÂZËH(íD§(Ë(<õÍô
+ROM_A_without_ROM_B_init_ver_28.bin(12): error: Unrecognized instruction: =õÍã
+ROM_A_without_ROM_B_init_ver_28.bin(12): error: Unexpected: =õÍã
+12    0000              =õÍã
+ROM_A_without_ROM_B_init_ver_28.bin(13): error: Invalid labelname: ñ
+ROM_A_without_ROM_B_init_ver_28.bin(13): error: Unrecognized instruction: êËpÉË°ÙïMÙÉÙT]y
+ROM_A_without_ROM_B_init_ver_28.bin(13): error: Unexpected: êËpÉË°ÙïMÙÉÙT]y
+13    0000              ñêËpÉË°ÙïMÙÉÙT]y
+ROM_A_without_ROM_B_init_ver_28.bin(14): error: Unrecognized instruction: ÷%}ş¶( +~ş
+ROM_A_without_ROM_B_init_ver_28.bin(14): error: Unexpected: ÷%}ş¶( +~ş
+14    0000               ÷%}ş¶( +~ş
+ROM_A_without_ROM_B_init_ver_28.bin(15): error: Invalid labelname: (
+ROM_A_without_ROM_B_init_ver_28.bin(15): error: Unrecognized instruction: QÍÓÍòÚZ>ç!¶+"h*Í1	Ù
+15    0000              (QÍÓÍòÚZ>ç!¶+"h*Í1	Ù
+ROM_A_without_ROM_B_init_ver_28.bin(16): error: Invalid labelname: (q·(¯ş
+ROM_A_without_ROM_B_init_ver_28.bin(16): error: Unrecognized instruction: (¸ş(¼8×Gå!4,×á8Î× øp#Â
+ROM_A_without_ROM_B_init_ver_28.bin(16): error: Unexpected: (¸ş(¼8×Gå!4,×á8Î× øp#Â
+16    0000              (q·(¯ş(¸ş(¼8×Gå!4,×á8Î× øp#Â
+ROM_A_without_ROM_B_init_ver_28.bin(16): error: Unrecognized instruction: h*æ>
+16    0000               h*æ>
+ROM_A_without_ROM_B_init_ver_28.bin(17): error: Invalid temporary label (not a number): 2µ
+ROM_A_without_ROM_B_init_ver_28.bin(17): error: Unrecognized instruction: +ÈçÉ
+ROM_A_without_ROM_B_init_ver_28.bin(17): error: Unexpected: +ÈçÉ
+17    0000              2µ+ÈçÉ
+ROM_A_without_ROM_B_init_ver_28.bin(17): error: Unrecognized instruction: 3 Ø
+ROM_A_without_ROM_B_init_ver_28.bin(17): error: Unexpected: 3 Ø
+17    0000               3 Ø
+ROM_A_without_ROM_B_init_ver_28.bin(17): error: Unrecognized instruction: 1 8õÍí˜
+ROM_A_without_ROM_B_init_ver_28.bin(17): error: Unexpected: 1 8õÍí˜
+17    0000               1 8õÍí˜
+ROM_A_without_ROM_B_init_ver_28.bin(18): error: Invalid labelname: Ã©
+ROM_A_without_ROM_B_init_ver_28.bin(18): error: Unrecognized instruction: +íVı!ı
+ROM_A_without_ROM_B_init_ver_28.bin(18): error: Unexpected: +íVı!ı
+18    0000              Ã©+íVı!ı
+ROM_A_without_ROM_B_init_ver_28.bin(18): error: Unrecognized instruction: ñß
+ROM_A_without_ROM_B_init_ver_28.bin(18): error: Unexpected: ñß
+18    0000               ñß
+ROM_A_without_ROM_B_init_ver_28.bin(19): error: Unrecognized instruction: ñïÍö8áíSŸ*Íÿİ!¬*./Ã˜ÍÍïÉÏ|µ çÍ0Ü»ïÍöÏÕÍòÂ[ñÉÍÓÍíÍò8ŸÍ1	Íö8öÍÿ
+ROM_A_without_ROM_B_init_ver_28.bin(19): error: Unexpected: ñïÍö8áíSŸ*Íÿİ!¬*./Ã˜ÍÍïÉÏ|µ çÍ0Ü»ïÍöÏÕÍòÂ[ñÉÍÓÍíÍò8ŸÍ1	Íö8öÍÿ
+19    0000               ñïÍö8áíSŸ*Íÿİ!¬*./Ã˜ÍÍïÉÏ|µ çÍ0Ü»ïÍöÏÕÍòÂ[ñÉÍÓÍíÍò8ŸÍ1	Íö8öÍÿ
+ROM_A_without_ROM_B_init_ver_28.bin(19): error: Unrecognized instruction: 0 !4 ¦0ëñß
+ROM_A_without_ROM_B_init_ver_28.bin(19): error: Unexpected: 0 !4 ¦0ëñß
+19    0000               0 !4 ¦0ëñß
+ROM_A_without_ROM_B_init_ver_28.bin(19): error: Unrecognized instruction: >
+ROM_A_without_ROM_B_init_ver_28.bin(19): error: Unexpected: >
+19    0000               >
+ROM_A_without_ROM_B_init_ver_28.bin(20): error: Invalid labelname: ç
+ROM_A_without_ROM_B_init_ver_28.bin(20): error: Unrecognized instruction: ¥ß
+ROM_A_without_ROM_B_init_ver_28.bin(20): error: Unexpected: ¥ß
+20    0000              ç¥ß
+ROM_A_without_ROM_B_init_ver_28.bin(21): error: Invalid labelname: Fç
+ROM_A_without_ROM_B_init_ver_28.bin(21): error: Unrecognized instruction: “ß"TÍ8	 ö.\.`&*Í~#·(ç}æ õß,:h*æ(> çôÏ|ö(æ)g"h*ß,ß
+ROM_A_without_ROM_B_init_ver_28.bin(21): error: Unexpected: “ß"TÍ8	 ö.\.`&*Í~#·(ç}æ õß,:h*æ(> çôÏ|ö(æ)g"h*ß,ß
+21    0000              Fç“ß"TÍ8	 ö.\.`&*Í~#·(ç}æ õß,:h*æ(> çôÏ|ö(æ)g"h*ß,ß;Í.àÃ˜ÍÓ"l* >>
+ROM_A_without_ROM_B_init_ver_28.bin(22): error: Invalid labelname: ç÷Í–
+ROM_A_without_ROM_B_init_ver_28.bin(22): error: Unrecognized instruction: Í²
+ROM_A_without_ROM_B_init_ver_28.bin(22): error: Unexpected: Í²
+22    0000              ç÷Í– Í²
+ROM_A_without_ROM_B_init_ver_28.bin(23): error: Invalid labelname: Íö
+ROM_A_without_ROM_B_init_ver_28.bin(23): error: Unrecognized instruction: >ç¹Ít	ÏÕÍòÂ[*Ÿ*å*£*åï"¡*9"£*Ã'*£*|µÊZùá"£*á"Ÿ*ÑÍY	÷Ïï#"‘**Ÿ*"“*ë"•*
+ROM_A_without_ROM_B_init_ver_28.bin(23): error: Unexpected: >ç¹Ít	ÏÕÍòÂ[*Ÿ*å*£*åï"¡*9"£*Ã'*£*|µÊZùá"£*á"Ÿ*ÑÍY	÷Ïï#"‘**Ÿ*"“*ë"•*
+23    0000              Íö>ç¹Ít	ÏÕÍòÂ[*Ÿ*å*£*åï"¡*9"£*Ã'*£*|µÊZùá"£*á"Ÿ*ÑÍY	÷Ïï#"‘**Ÿ*"“*ë"•*
+24    0000
+25    0000
+ROM_A_without_ROM_B_init_ver_28.bin(26): error: Invalid labelname: Ím
+26    0000              Ím
+ROM_A_without_ROM_B_init_ver_28.bin(27): error: Invalid labelname: ë*‘*å
+ROM_A_without_ROM_B_init_ver_28.bin(27): error: Unrecognized instruction: åÍ¼
+ROM_A_without_ROM_B_init_ver_28.bin(27): error: Unexpected: åÍ¼
+27    0000              ë*‘*ååÍ¼
+ROM_A_without_ROM_B_init_ver_28.bin(28): error: Invalid labelname: *¡*Í
+28    0000              *¡*Í;Ñ*n*ñ0ë|ªò¥ë×ÑÚ$*“*"Ÿ*­Ê6åÍü8(%ãÁ
+ROM_A_without_ROM_B_init_ver_28.bin(29): error: Invalid labelname: ·(*
+ROM_A_without_ROM_B_init_ver_28.bin(29): error: Unrecognized instruction: Í~ öÉáß"
+ROM_A_without_ROM_B_init_ver_28.bin(29): error: Unexpected: Í~ öÉáß"
+29    0000              ·(*Í~ öÉáß"
+ROM_A_without_ROM_B_init_ver_28.bin(30): error: Invalid labelname: Èş"À
+ROM_A_without_ROM_B_init_ver_28.bin(30): error: Unrecognized instruction: ÉÍ–(âáÍ~Èß+Ã6
+ROM_A_without_ROM_B_init_ver_28.bin(30): error: Unexpected: ÉÍ–(âáÍ~Èß+Ã6
+30    0000              Èş"ÀÉÍ–(âáÍ~Èß+Ã6
+ROM_A_without_ROM_B_init_ver_28.bin(31): error: Invalid labelname: pß(
+ROM_A_without_ROM_B_init_ver_28.bin(31): error: Unrecognized instruction: Í´ÉşÒ.€´ÉÍü88Õõåí[**8,ß#ß,áñÍ²íS*Ñß,CÚş
+ROM_A_without_ROM_B_init_ver_28.bin(31): error: Unexpected: Í´ÉşÒ.€´ÉÍü88Õõåí[**8,ß#ß,áñÍ²íS*Ñß,CÚş
+31    0000              .pß(Í´ÉşÒ.€´ÉÍü88Õõåí[**8,ß#ß,áñÍ²íS*Ñß,CÚş
+ROM_A_without_ROM_B_init_ver_28.bin(32): error: Unrecognized instruction: ú×0ŞáñÕÍ™HOW?
+ROM_A_without_ROM_B_init_ver_28.bin(32): error: Unexpected: ú×0ŞáñÕÍ™HOW?
+32    0000               ú×0ŞáñÕÍ™HOW?
+ROM_A_without_ROM_B_init_ver_28.bin(33): error: Invalid labelname: ÏÕÍò
+ROM_A_without_ROM_B_init_ver_28.bin(33): error: Unrecognized instruction: ÖÕ>?Í½¶+ß
+ROM_A_without_ROM_B_init_ver_28.bin(33): error: Unexpected: ÖÕ>?Í½¶+ß
+33    0000              ÏÕÍòÖÕ>?Í½¶+ß
+ROM_A_without_ROM_B_init_ver_28.bin(34): error: Unrecognized instruction: ÑÍü÷ÑÕÍü8×Õ¶+Í²Ññ÷ß-ïÍ¼
+ROM_A_without_ROM_B_init_ver_28.bin(34): error: Unexpected: ÑÍü÷ÑÕÍü8×Õ¶+Í²Ññ÷ß-ïÍ¼
+34    0000              ÑÍü÷ÑÕÍü8×Õ¶+Í²Ññ÷ß-ïÍ¼
+ROM_A_without_ROM_B_init_ver_28.bin(35): error: Unrecognized instruction: ß+
+ROM_A_without_ROM_B_init_ver_28.bin(35): error: Unexpected: ß+
+35    0000              ß+
+ROM_A_without_ROM_B_init_ver_28.bin(36): error: Unrecognized instruction: õß/ÆÍ“Í÷
+ROM_A_without_ROM_B_init_ver_28.bin(36): error: Unexpected: õß/ÆÍ“Í÷
+36    0000              õß/ÆÍ“Í÷
+ROM_A_without_ROM_B_init_ver_28.bin(37): error: Unrecognized instruction: ê>>€õß*ñ2¯+÷ñ¯§õÏåÍ
+ROM_A_without_ROM_B_init_ver_28.bin(37): error: Unexpected: ê>>€õß*ñ2¯+÷ñ¯§õÏåÍ
+37    0000              ê>>€õß*ñ2¯+÷ñ¯§õÏåÍ
+ROM_A_without_ROM_B_init_ver_28.bin(38): error: Unrecognized instruction: ø	ËŒïGÑãË½ËµË=0&
+ROM_A_without_ROM_B_init_ver_28.bin(38): error: Unexpected: ø	ËŒïGÑãË½ËµË=0&
+38    0000               ø	ËŒïGÑãË½ËµË=0&
+ROM_A_without_ROM_B_init_ver_28.bin(39): error: Invalid labelname: õË~
+ROM_A_without_ROM_B_init_ver_28.bin(39): error: Unrecognized instruction: 6€ñú-/¦¶w÷Í‹ß=YåÍ²
+ROM_A_without_ROM_B_init_ver_28.bin(39): error: Unexpected: 6€ñú-/¦¶w÷Í‹ß=YåÍ²
+39    0000              õË~ 6€ñú-/¦¶w÷Í‹ß=YåÍ²
+ROM_A_without_ROM_B_init_ver_28.bin(40): error: Invalid labelname: áÍ
+40    0000              áÍ
+ROM_A_without_ROM_B_init_ver_28.bin(41): error: Invalid labelname: ÑÉÍ%
+ROM_A_without_ROM_B_init_ver_28.bin(41): error: Unrecognized instruction: ÒE
+ROM_A_without_ROM_B_init_ver_28.bin(41): error: Unexpected: ÒE
+41    0000              ÑÉÍ%ÒE
+ROM_A_without_ROM_B_init_ver_28.bin(42): error: Invalid labelname: Í¢
+ROM_A_without_ROM_B_init_ver_28.bin(42): error: Unrecognized instruction: Àß(Í²
+ROM_A_without_ROM_B_init_ver_28.bin(42): error: Unexpected: Àß(Í²
+42    0000              Í¢Àß(Í²
+ROM_A_without_ROM_B_init_ver_28.bin(43): error: Invalid labelname: ß)
+ROM_A_without_ROM_B_init_ver_28.bin(43): error: Unrecognized instruction: ÉÍ%ĞÕÍ™WHAT?
+ROM_A_without_ROM_B_init_ver_28.bin(43): error: Unexpected: ÉÍ%ĞÕÍ™WHAT?
+43    0000              ß)ÉÍ%ĞÕÍ™WHAT?
+ROM_A_without_ROM_B_init_ver_28.bin(44): error: Invalid labelname: ÑÍ7
+ROM_A_without_ROM_B_init_ver_28.bin(44): error: Unrecognized instruction: í[Ÿ*{²!ãÈ×ØNÅ6
+ROM_A_without_ROM_B_init_ver_28.bin(44): error: Unexpected: í[Ÿ*{²!ãÈ×ØNÅ6
+44    0000              ÑÍ7	í[Ÿ*{²!ãÈ×ØNÅ6
+ROM_A_without_ROM_B_init_ver_28.bin(45): error: Invalid labelname: (
+ROM_A_without_ROM_B_init_ver_28.bin(45): error: Unrecognized instruction: ş(ş(âş 8èş
+ROM_A_without_ROM_B_init_ver_28.bin(45): error: Unexpected: ş(ş(âş 8èş
+45    0000              (ş(ş(âş 8èş
+ROM_A_without_ROM_B_init_ver_28.bin(46): error: Invalid labelname: È{ş4
+ROM_A_without_ROM_B_init_ver_28.bin(46): error: Unrecognized instruction: Ş>ç{ş¶(ÌÏí[6,å*6,+×Ò*8,+×áØ•Gœ8°Éş
+ROM_A_without_ROM_B_init_ver_28.bin(46): error: Unexpected: Ş>ç{ş¶(ÌÏí[6,å*6,+×Ò*8,+×áØ•Gœ8°Éş
+46    0000              È{ş4 Ş>ç{ş¶(ÌÏí[6,å*6,+×Ò*8,+×áØ•Gœ8°Éş
+ROM_A_without_ROM_B_init_ver_28.bin(47): error: Unrecognized instruction: úÛïş
+ROM_A_without_ROM_B_init_ver_28.bin(47): error: Unexpected: úÛïş
+47    0000               úÛïş
+ROM_A_without_ROM_B_init_ver_28.bin(48): error: Invalid labelname: (öş!(ìş"
+48    0000              (öş!(ìş"
+ROM_A_without_ROM_B_init_ver_28.bin(49): error: Unrecognized instruction: ş
+ROM_A_without_ROM_B_init_ver_28.bin(49): error: Unexpected: ş
+49    0000              ş
+ROM_A_without_ROM_B_init_ver_28.bin(50): error: Invalid labelname: (èş"
+ROM_A_without_ROM_B_init_ver_28.bin(50): error: Unrecognized instruction: öşE ã.öÃ˜İ~ÿ§> (>-ç¯İwÿ=õ!,
+ROM_A_without_ROM_B_init_ver_28.bin(50): error: Unexpected: öşE ã.öÃ˜İ~ÿ§> (>-ç¯İwÿ=õ!,
+50    0000              (èş" öşE ã.öÃ˜İ~ÿ§> (>-ç¯İwÿ=õ!,
+ROM_A_without_ROM_B_init_ver_28.bin(51): error: Invalid labelname: Íã
+51    0000              Íã
+ROM_A_without_ROM_B_init_ver_28.bin(52): error: Expression error: ğÍô
+ROM_A_without_ROM_B_init_ver_28.bin(52): error: Unexpected: ğÍô
+ROM_A_without_ROM_B_init_ver_28.bin(52): error: Invalid labelname: ñ
+52    0000              ñ=ğÍô
+ROM_A_without_ROM_B_init_ver_28.bin(53): error: Invalid labelname: ñ<õ! 
+53    0000              ñ<õ! 
+ROM_A_without_ROM_B_init_ver_28.bin(54): error: Unrecognized instruction: >
+ROM_A_without_ROM_B_init_ver_28.bin(54): error: Unexpected: >
+54    0000              8>
+ROM_A_without_ROM_B_init_ver_28.bin(55): error: Unrecognized instruction: Æö÷ogÍ¼
+ROM_A_without_ROM_B_init_ver_28.bin(55): error: Unexpected: Æö÷ogÍ¼
+55    0000              8Æö÷ogÍ¼
+ROM_A_without_ROM_B_init_ver_28.bin(56): error: Expression error: ¯ ö0OxçyçáÁÑûÿİ	ÉÍL
+ROM_A_without_ROM_B_init_ver_28.bin(56): error: Unexpected: ¯ ö0OxçyçáÁÑûÿİ	ÉÍL
+ROM_A_without_ROM_B_init_ver_28.bin(56): error: Invalid labelname: ÕÅåİ~şş€Â
+56    0000              ÕÅåİ~şş€Â=¯ ö0OxçyçáÁÑûÿİ	ÉÍL
+57    0000
+ROM_A_without_ROM_B_init_ver_28.bin(58): error: Unrecognized instruction: ÷<É×Èøx’ y“È+wóÁá"¡*|µ(á"‘*á"n*á"“*á"•*ÅÉ!ÈÔÁ9ÒS*¡*|µ(*•*å*“*å*n*å*‘*å*¡*åÅÉß>Í9ÈØ#Éß=Í9À#Éß<SÍ9Ğ#ÉõÍ¬+*h*8Fw#>*¼ :!°+Í=
+ROM_A_without_ROM_B_init_ver_28.bin(58): error: Unexpected: ÷<É×Èøx’ y“È+wóÁá"¡*|µ(á"‘*á"n*á"“*á"•*ÅÉ!ÈÔÁ9ÒS*¡*|µ(*•*å*“*å*n*å*‘*å*¡*åÅÉß>Í9ÈØ#Éß=Í9À#Éß<SÍ9Ğ#ÉõÍ¬+*h*8Fw#>*¼ :!°+Í=
+58    0000               ÷<É×Èøx’ y“È+wóÁá"¡*|µ(á"‘*á"n*á"“*á"•*ÅÉ!ÈÔÁ9ÒS*¡*|µ(*•*å*“*å*n*å*‘*å*¡*åÅÉß>Í9ÈØ#Éß=Í9À#Éß<SÍ9Ğ#ÉõÍ¬+*h*8Fw#>*¼ :!°+Í=
+ROM_A_without_ROM_B_init_ver_28.bin(59): error: Expression error:
+ROM_A_without_ROM_B_init_ver_28.bin(59): error: Invalid labelname: å#4Í
+59    0000              å#4Í=
+ROM_A_without_ROM_B_init_ver_28.bin(60): error: Invalid labelname: ·í[l*ËŠ!à
+ROM_A_without_ROM_B_init_ver_28.bin(60): error: Unrecognized instruction: íR(8DMËÚËê!
+ROM_A_without_ROM_B_init_ver_28.bin(60): error: Unexpected: íR(8DMËÚËê!
+60    0000              ·í[l*ËŠ!àíR(8DMËÚËê!
+ROM_A_without_ROM_B_init_ver_28.bin(61): error: Invalid labelname: á"h*ñÉş
+61    0000              á"h*ñÉş
+ROM_A_without_ROM_B_init_ver_28.bin(62): error: Unrecognized instruction: |ş+86
+ROM_A_without_ROM_B_init_ver_28.bin(62): error: Unexpected: |ş+86
+62    0000               |ş+86
+ROM_A_without_ROM_B_init_ver_28.bin(63): error: Unrecognized instruction: îÍ4
+ROM_A_without_ROM_B_init_ver_28.bin(63): error: Unexpected: îÍ4
+63    0000              îÍ4
+ROM_A_without_ROM_B_init_ver_28.bin(64): error: Unrecognized instruction: ªş
+ROM_A_without_ROM_B_init_ver_28.bin(64): error: Unexpected: ªş
+64    0000              ªş
+ROM_A_without_ROM_B_init_ver_28.bin(65): error: Invalid labelname: ÿ)6
+ROM_A_without_ROM_B_init_ver_28.bin(65): error: Unrecognized instruction: +ËL(ù#Øş Ô6 +ËL òË6 #}æ øÉíWà~· üÉÕåõ
+ROM_A_without_ROM_B_init_ver_28.bin(65): error: Unexpected: +ËL(ù#Øş Ô6 +ËL òË6 #}æ øÉíWà~· üÉÕåõ
+65    0000              !ÿ)6 +ËL(ù#Øş Ô6 +ËL òË6 #}æ øÉíWà~· üÉÕåõ
+ROM_A_without_ROM_B_init_ver_28.bin(66): error: Invalid labelname: ş
+ROM_A_without_ROM_B_init_ver_28.bin(66): error: Unrecognized instruction: ÙòZÙGİ~
+ROM_A_without_ROM_B_init_ver_28.bin(66): error: Unexpected: ÙòZÙGİ~
+66    0000              şÙòZÙGİ~
+ROM_A_without_ROM_B_init_ver_28.bin(67): error: Invalid labelname: ÕÙáÉ>ÿ
+ROM_A_without_ROM_B_init_ver_28.bin(67): error: Unrecognized instruction: ìÍÍ™	!
+ROM_A_without_ROM_B_init_ver_28.bin(67): error: Unexpected: ìÍÍ™	!
+67    0000              ÕÙáÉ>ÿìÍÍ™	!
+68    0000
+ROM_A_without_ROM_B_init_ver_28.bin(69): error: Invalid labelname: Õ!
+69    0000              Õ!
+ROM_A_without_ROM_B_init_ver_28.bin(70): error: Invalid labelname: Íh
+ROM_A_without_ROM_B_init_ver_28.bin(70): error: Unrecognized instruction: (>»ÊkÍÍ¹
+ROM_A_without_ROM_B_init_ver_28.bin(70): error: Unexpected: (>»ÊkÍÍ¹
+70    0000              Íh(>»ÊkÍÍ¹
+ROM_A_without_ROM_B_init_ver_28.bin(71): error: Invalid labelname: Íh
+ROM_A_without_ROM_B_init_ver_28.bin(71): error: Unrecognized instruction: (-»Ê[Í®hÍE
+ROM_A_without_ROM_B_init_ver_28.bin(71): error: Unexpected: (-»Ê[Í®hÍE
+71    0000              Íh(-»Ê[Í®hÍE
+ROM_A_without_ROM_B_init_ver_28.bin(72): error: Invalid labelname: Íh
+ROM_A_without_ROM_B_init_ver_28.bin(72): error: Unrecognized instruction: ûÿÍhöÿİ	½ÍæÑÉÍh Íb0»(SªWÍE
+ROM_A_without_ROM_B_init_ver_28.bin(72): error: Unexpected: ûÿÍhöÿİ	½ÍæÑÉÍh Íb0»(SªWÍE
+72    0000              ÍhûÿÍhöÿİ	½ÍæÑÉÍh Íb0»(SªWÍE
+ROM_A_without_ROM_B_init_ver_28.bin(73): error: Invalid labelname: Íh
+ROM_A_without_ROM_B_init_ver_28.bin(73): error: Unrecognized instruction: (,»(DÍ(0ëÙëyHGÙÍ |ª Í?İ~ÿî€İwÿÑÉÕbkÙkbHÙ.€İtúİuùÙİuöİt÷İqøÙÃ
+ROM_A_without_ROM_B_init_ver_28.bin(73): error: Unexpected: (,»(DÍ(0ëÙëyHGÙÍ |ª Í?İ~ÿî€İwÿÑÉÕbkÙkbHÙ.€İtúİuùÙİuöİt÷İqøÙÃ
+73    0000              Íh(,»(DÍ(0ëÙëyHGÙÍ |ª Í?İ~ÿî€İwÿÑÉÕbkÙkbHÙ.€İtúİuùÙİuöİt÷İqøÙÃ
+ROM_A_without_ROM_B_init_ver_28.bin(74): error: Unrecognized instruction: |ªgåÅÍ¯ïOÙË9ËËÙ0yˆOÙÁáÙ0ÙËËËá{íD_|ªgåÅÙíRy˜O0ˆOÙ?íjËåÅÙÁáÙÁáÙ^Ù)Ë0İ?íRy˜O·Ş(
+ROM_A_without_ROM_B_init_ver_28.bin(74): error: Unexpected: |ªgåÅÍ¯ïOÙË9ËËÙ0yˆOÙÁáÙ0ÙËËËá{íD_|ªgåÅÙíRy˜O0ˆOÙ?íjËåÅÙÁáÙÁáÙ^Ù)Ë0İ?íRy˜O·Ş(
+74    0000              	|ªgåÅÍ¯ïOÙË9ËËÙ0yˆOÙÁáÙ0ÙËËËá{íD_|ªgåÅÙíRy˜O0ˆOÙ?íjËåÅÙÁáÙÁáÙ^Ù)Ë0İ?íRy˜O·Ş(
+ROM_A_without_ROM_B_init_ver_28.bin(75): error: Invalid labelname: »(
+ROM_A_without_ROM_B_init_ver_28.bin(75): error: Unrecognized instruction: |ªÌ»È7ËzÈË|?À?7ËÉ}“(â
+ROM_A_without_ROM_B_init_ver_28.bin(75): error: Unexpected: |ªÌ»È7ËzÈË|?À?7ËÉ}“(â
+75    0000              »(|ªÌ»È7ËzÈË|?À?7ËÉ}“(â
+ROM_A_without_ROM_B_init_ver_28.bin(76): error: Unrecognized instruction: íDÉÙy¸ ×ÙÉ}“(şĞÙË8ËË= ÷Ù
+ROM_A_without_ROM_B_init_ver_28.bin(76): error: Unexpected: íDÉÙy¸ ×ÙÉ}“(şĞÙË8ËË= ÷Ù
+76    0000              íDÉÙy¸ ×ÙÉ}“(şĞÙË8ËË= ÷Ù
+ROM_A_without_ROM_B_init_ver_28.bin(77): error: Expression error: )Ë÷.€ÉÙ…à|·òXòáÕåİVÿİ^şİfúİnùÙİ^ûİVüİFıİnöİf÷İNøÙ>€½ÉÕÙ!§*å^#V#FÙÍHïVÙ)ËÙË0ÙyˆOÙï#
+ROM_A_without_ROM_B_init_ver_28.bin(77): error: Unexpected: )Ë÷.€ÉÙ…à|·òXòáÕåİVÿİ^şİfúİnùÙİ^ûİVüİFıİnöİf÷İNøÙ>€½ÉÕÙ!§*å^#V#FÙÍHïVÙ)ËÙË0ÙyˆOÙï#
+ROM_A_without_ROM_B_init_ver_28.bin(77): error: Invalid labelname: ú]
+77    0000              ú]=)Ë÷.€ÉÙ…à|·òXòáÕåİVÿİ^şİfúİnùÙİ^ûİVüİFıİnöİf÷İNøÙ>€½ÉÕÙ!§*å^#V#FÙÍHïVÙ)ËÙË0ÙyˆOÙï#
+ROM_A_without_ROM_B_init_ver_28.bin(78): error: Unrecognized instruction: èïÙÑ}Æeo|Î°gyÎOÍ	ÃmïÍÍr8Í¢Ím
+ROM_A_without_ROM_B_init_ver_28.bin(78): error: Unexpected: èïÙÑ}Æeo|Î°gyÎOÍ	ÃmïÍÍr8Í¢Ím
+78    0000               èïÙÑ}Æeo|Î°gyÎOÍ	ÃmïÍÍr8Í¢Ím
+ROM_A_without_ROM_B_init_ver_28.bin(79): error: Invalid labelname: |µÉ¼
+ROM_A_without_ROM_B_init_ver_28.bin(79): error: Unrecognized instruction: &
+ROM_A_without_ROM_B_init_ver_28.bin(79): error: Unexpected: &
+79    0000              |µÉ¼ &
+ROM_A_without_ROM_B_init_ver_28.bin(80): error: Unrecognized instruction: Ü
+ROM_A_without_ROM_B_init_ver_28.bin(80): error: Unexpected: Ü
+80    0000               Ü
+ROM_A_without_ROM_B_init_ver_28.bin(80): error: Unrecognized instruction: ´+E¼(Ş½(Û
+ROM_A_without_ROM_B_init_ver_28.bin(80): error: Unexpected: ´+E¼(Ş½(Û
+80    0000               ´+E¼(Ş½(Û
+ROM_A_without_ROM_B_init_ver_28.bin(81): error: Unrecognized instruction: í_2¨*~2´+ÙÉÆ@Ë8õ!”
+ROM_A_without_ROM_B_init_ver_28.bin(81): error: Unexpected: í_2¨*~2´+ÙÉÆ@Ë8õ!”
+81    0000              	í_2¨*~2´+ÙÉÆ@Ë8õ!”
+ROM_A_without_ROM_B_init_ver_28.bin(82): error: Unrecognized instruction: [¾(#ùyä  _0!1"2#3$4%5&6¿7(8)9+;*:<,-=>.?/
+ROM_A_without_ROM_B_init_ver_28.bin(82): error: Unexpected: [¾(#ùyä  _0!1"2#3$4%5&6¿7(8)9+;*:<,-=>.?/
+82    0000              [¾(#ùyä  _0!1"2#3$4%5&6¿7(8)9+;*:<,-=>.?/;*:<,-=>.?/
+83    0000
+84    0000              XCZS
+ROM_A_without_ROM_B_init_ver_28.bin(85): error: Invalid labelname: Íü
+ROM_A_without_ROM_B_init_ver_28.bin(85): error: Unrecognized instruction: åß,
+ROM_A_without_ROM_B_init_ver_28.bin(85): error: Unexpected: åß,
+85    0000              Íüåß,
+ROM_A_without_ROM_B_init_ver_28.bin(86): error: Invalid labelname: ¾
+ROM_A_without_ROM_B_init_ver_28.bin(86): error: Unrecognized instruction: ·(#}æ ò>¯ÙÍe8ïÍe8Ôæ
+ROM_A_without_ROM_B_init_ver_28.bin(86): error: Unexpected: ·(#}æ ò>¯ÙÍe8ïÍe8Ôæ
+86    0000              ¾ ·(#}æ ò>¯ÙÍe8ïÍe8Ôæ
+ROM_A_without_ROM_B_init_ver_28.bin(87): error: Invalid labelname: Å
+ROM_A_without_ROM_B_init_ver_28.bin(87): error: Unrecognized instruction: íjÚZøÉö¯õÏåÍ
+ROM_A_without_ROM_B_init_ver_28.bin(87): error: Unexpected: íjÚZøÉö¯õÏåÍ
+87    0000              ÅíjÚZøÉö¯õÏåÍ
+ROM_A_without_ROM_B_init_ver_28.bin(88): error: Invalid labelname: Õé²}ÉÍt
+ROM_A_without_ROM_B_init_ver_28.bin(88): error: Unrecognized instruction: Í0"¡*ßT²ßO¯Ï"n*.ØÃ˜!6,å*8,ß
+ROM_A_without_ROM_B_init_ver_28.bin(88): error: Unexpected: Í0"¡*ßT²ßO¯Ï"n*.ØÃ˜!6,å*8,ß
+88    0000              Õé²}ÉÍt	Í0"¡*ßT²ßO¯Ï"n*.ØÃ˜!6,å*8,ß
+ROM_A_without_ROM_B_init_ver_28.bin(89): error: Unrecognized instruction: ÏãÍ
+ROM_A_without_ROM_B_init_ver_28.bin(89): error: Unexpected: ÏãÍ
+89    0000              ÏãÍ
+ROM_A_without_ROM_B_init_ver_28.bin(90): error: Unrecognized instruction: áËH(ûÙ€G×Éß?
+ROM_A_without_ROM_B_init_ver_28.bin(90): error: Unexpected: áËH(ûÙ€G×Éß?
+90    0000               áËH(ûÙ€G×Éß?
+ROM_A_without_ROM_B_init_ver_28.bin(91): error: Unrecognized instruction: ï>ÏåóÍİyş¥ øGÍÙaÑÕëÍÙa+xÁ	GëÍİy¾(ñ(
+ROM_A_without_ROM_B_init_ver_28.bin(91): error: Unexpected: ï>ÏåóÍİyş¥ øGÍÙaÑÕëÍÙa+xÁ	GëÍİy¾(ñ(
+91    0000              ï>ÏåóÍİyş¥ øGÍÙaÑÕëÍÙa+xÁ	GëÍİy¾(ñ(
+ROM_A_without_ROM_B_init_ver_28.bin(92): error: Invalid labelname: õq#ë
+ROM_A_without_ROM_B_init_ver_28.bin(92): error: Unrecognized instruction: 8íÍİñÈÃÍİiÙ>§€!
+ROM_A_without_ROM_B_init_ver_28.bin(92): error: Unexpected: 8íÍİñÈÃÍİiÙ>§€!
+92    0000              õq#ë8íÍİñÈÃÍİiÙ>§€!
+ROM_A_without_ROM_B_init_ver_28.bin(93): error: Invalid labelname: LIST„^RUN„
+ROM_A_without_ROM_B_init_ver_28.bin(93): error: Unrecognized instruction: NEWƒüSAVE0OLD—EDIT‚™NEXT…dINPUT†lIF„AGOTO„SCALL„ôUNDOT†ÌRET…TAKE†&!„M#„MFORPRINT„€DOT†ÏELSE„MBYTEÿWORDşARR$ÁSTOPƒHOME„Ö‡[RNDŒMEMšKEYÍ«BYTEÍ¼WORDÍ¥PTR‡iVALÇpEQÂINTÊ¼&ßUSRÎDOT†Ü‡wSTEP…(…*AT„¼X$„˜Y$„›„CHR$Î†ELSE„ˆ
+93    0000              LIST„^RUN„NEWƒüSAVE0OLD—EDIT‚™NEXT…dINPUT†lIF„AGOTO„SCALL„ôUNDOT†ÌRET…TAKE†&!„M#„MFORPRINT„€DOT†ÏELSE„MBYTEÿWORDşARR$ÁSTOPƒHOME„Ö‡[RNDŒMEMšKEYÍ«BYTEÍ¼WORDÍ¥PTR‡iVALÇpEQÂINTÊ¼&ßUSRÎDOT†Ü‡wSTEP…(…*AT„¼X$„˜Y$„›„CHR$Î†ELSE„ˆ
+# file closed: ROM_A_without_ROM_B_init_ver_28.bin

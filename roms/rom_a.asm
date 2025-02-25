@@ -118,6 +118,17 @@
 ;  during each opcode).
 
 
+; issalig 25/02/2025
+; These definitions allow to select different versions of the ROM
+; can be overwritten externally with sjasmplus -DROM_A_VERSION=29 -DROM_B_AUTOSTART=1 rom_a.asm
+
+	IFNDEF ROM_A_VERSION
+	DEFINE ROM_A_VERSION 28		; 28 for no autostart, 29 for autostart
+	ENDIF
+
+	IFNDEF ROM_B_AUTOSTART
+	DEFINE ROM_B_AUTOSTART 0	; 0 = no autostart, 1 = autostart
+	ENDIF
 
 ; ROM A is mapped to memory addresses from 0000h to 0fffh
 
@@ -303,7 +314,7 @@ l0034h:
 ; ===============
 
 ;; ROM_VERSION
-	db	28	;0037
+	db	ROM_A_VERSION ;28	;0037
 
 ; 'VIDEO INTERRUPT DRIVER'
 ; ========================
@@ -1759,10 +1770,14 @@ l03edh:
 	push hl		;03f8	Store c9h (ret) into 2ba9h (BASIC_LINK)
 			;	Store 0bh into 2ba8h (HORIZ_POS)
 
-	ld a,00ch	;03f9	Load 0ch (ASCII FF) into A
+	if ROM_B_AUTOSTART
+	call 1000h  ;03f9   Call ROM B
+	else
+	ld a,00ch	;03f9	Load 0ch (ASCII FF) into A	
 	rst 20h		;03fb	Call PUTCH_RST
 			;	This clears the screen and places cursor in
 			;	the top left corner
+	endif	
 
 ; Execution now continues to the NEW command. DE is (probably) set to 0000h 
 ; after reset (points to the start of the ROM). Since there is no valid ASCII 

@@ -1,0 +1,1 @@
+ROM A may be patched by doing two changes. One is cosmetic and is increasing version number. The second change initializes ROM B at start-up to make its commands accessible. If there is no initialization patch, ROM B has to be inisialized at startup by typing A=USR(&1000)  
