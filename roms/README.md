@@ -43,6 +43,7 @@ DUMP &03F9, 1
 ```
 
 ```CD D3 0C``` is for non ROM B init
+
 ```CD 00 10``` is for ROM B init (call 01000h)
 
 The following table shows the BASIC commands and their descriptions for ROM A.
