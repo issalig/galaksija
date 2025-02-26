@@ -114,7 +114,7 @@ There are different vesions of ROM B and the difference resides in byte 0x1024
 |ROM_B.bin                  | 12 (0xC) |
 |ROM_B_monitor_fix.bin      | 11 (0xB) |
 
-It is possible to generate these different versions by changing MONITOR value in https://github.com/issalig/galaksija/blob/c4fe2ca97ec3fee1fa63ec4eee6fe38ad49fcf26/roms/rom_b.asm#L63
+It is possible to generate these different versions by changing MONITOR_FIX value in rom_b.asm. Also you can use sjasmplus -DMONITOR_FIX=13, etc, ...
 
 ROM B includes mathematical functions, machine code utils and some BASIC extensions. The table shows the list of available functions.
 
@@ -151,7 +151,7 @@ However the asm file includes an optional patch to match the original ROM_C.bin
 
 ```assembly
 ...
-ROM_C_PATCH EQU 1 
+DEFINE ROM_C_PATCH 1 
 ...
         ; BEGIN this part is from the ROM dump but was not in the listing
             IF ROM_C_PATCH        
