@@ -150,9 +150,6 @@ It is worth to mention that it differs from https://github.com/mejs/galaksija/bl
 However the asm file includes an optional patch to match the original ROM_C.bin
 
 ```assembly
-...
-DEFINE ROM_C_PATCH 1 
-...
         ; BEGIN this part is from the ROM dump but was not in the listing
             IF ROM_C_PATCH        
         CP $FD
