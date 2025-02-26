@@ -19,7 +19,7 @@
 ;
 ;  Some labels are renamed not to be in confllict with instrucions or directives: ABS_, CPI_, SUB_
 ;  <- has been converted to >> in order to work with pasmo and sjasmplus
-;  MONITOR has been included to provide different versions of the ROM
+;  MONITOR_FIX has been included to provide different versions of the ROM
 ; * Assembler
 ;  To assemble it you can use
 ;  - sjasmplus --raw=file.bin file.asm
@@ -60,9 +60,12 @@ PUTA     EQU     0AE6H
 KROZ     EQU     0AF7H
 CPIXIX   EQU     0B10H
 
-MONITOR  EQU     0CH  ; ROM_B.bin is 0C
-                      ; ROM_B_monitor_value_13.bin 0D                        
-                      ; ROM_B_monitor_fix.bin 0B
+        IFNDEF MONITOR_FIX
+        DEFINE MONITOR_FIX  0CH     
+        ENDIF
+        ; ROM_B.bin                  0C (original)
+        ; ROM_B_monitor_value_13.bin 0D                        
+        ; ROM_B_monitor_fix.bin      0B
 
         ORG     1000H
         LD      HL,(2A6AH) ; IF (ENDMEM)=0 THEN (ENDMEM)=0FFFFH
@@ -88,7 +91,7 @@ GOINI:   RST     20H
 ; ROM_B_monitor_value_13.bin byte is 13(D)  
 ; ROM_B.bin is 12(C)
 ; ROM_B_monitor_fix.bin 11 (B)
-        LD      A, MONITOR ; NEW HORIZONTAL POSITION
+        LD      A, MONITOR_FIX ; NEW HORIZONTAL POSITION
         LD      (2BA8H),A
         LD      HL,LINKS ; INSERT JP INSTEAD OF RET IN LINKS
         LD      DE,2BA9H

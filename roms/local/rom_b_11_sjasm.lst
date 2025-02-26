@@ -62,7 +62,7 @@
   61  0000              CPIXIX   EQU     0B10H
   62  0000
   63  0000                      IFNDEF MONITOR_FIX
-  64  0000                      DEFINE MONITOR_FIX  0CH
+  64  0000 ~                    DEFINE MONITOR_FIX  0CH
   65  0000                      ENDIF
   66  0000                      ; ROM_B.bin                  0C (original)
   67  0000                      ; ROM_B_monitor_value_13.bin 0D
@@ -92,7 +92,7 @@
   91  1023              ; ROM_B_monitor_value_13.bin byte is 13(D)
   92  1023              ; ROM_B.bin is 12(C)
   93  1023              ; ROM_B_monitor_fix.bin 11 (B)
-  94  1023 3E 0C                LD      A,  0CH      ; NEW HORIZONTAL POSITION
+  94  1023 3E 0B                LD      A, 11 ; NEW HORIZONTAL POSITION
   95  1025 32 A8 2B             LD      (2BA8H),A
   96  1028 21 A1 10             LD      HL,LINKS ; INSERT JP INSTEAD OF RET IN LINKS
   97  102B 11 A9 2B             LD      DE,2BA9H

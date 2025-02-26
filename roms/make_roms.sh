@@ -33,6 +33,12 @@ diff ${ORIGINAL}/ROM_A_with_ROM_B_init_ver_29.bin ${LOCAL}/${outfile_a}_29_auto.
 sjasmplus --lst=${LOCAL}/${outfile_b}_sjasm.lst --raw=${LOCAL}/${outfile_b}.bin ${SRC}/${outfile_b}.asm 2> /dev/null
 diff ${LOCAL}/${outfile_b}.bin ${ORIGINAL}/ROM_B.bin && echo "ROM B binary files are the same :)"
 
+sjasmplus -DMONITOR_FIX=13 --lst=${LOCAL}/${outfile_b}_13_sjasm.lst --raw=${LOCAL}/${outfile_b}_13.bin ${SRC}/${outfile_b}.asm 2> /dev/null
+diff ${LOCAL}/${outfile_b}_13.bin ${ORIGINAL}/ROM_B_monitor_value_13.bin && echo "ROM B fix 13 binary files are the same :)"
+
+sjasmplus -DMONITOR_FIX=11 --lst=${LOCAL}/${outfile_b}_11_sjasm.lst --raw=${LOCAL}/${outfile_b}_11.bin ${SRC}/${outfile_b}.asm 2> /dev/null
+diff ${LOCAL}/${outfile_b}_11.bin ${ORIGINAL}/ROM_B_monitor_fix.bin && echo "ROM B fix 11 binary files are the same :)"
+
 # ROM C
 sjasmplus --lst=${LOCAL}/${outfile_c}_sjasm.lst --raw=${LOCAL}/${outfile_c}.bin ${SRC}/${outfile_c}.asm 2> /dev/null
 diff ${LOCAL}/${outfile_c}.bin ${ORIGINAL}/ROM_C.bin && echo "ROM C binary files are the same :)"
