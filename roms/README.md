@@ -5,9 +5,10 @@ Here I provide asm files for roms A, B, and C. For D only some info from a magaz
 
 I have used the rom files available at https://github.com/mejs/galaksija/blob/master/roms/ and they are located in the folder original.
 
-local folder is used to assemble the .asm files
+Using make_roms.sh (https://github.com/issalig/galaksija/tree/main/roms/make_roms.sh) will assemble roms A, B and C.
 
-Using make_roms.sh will assemble roms A, B and C.
+**local** directory (https://github.com/issalig/galaksija/tree/main/roms/local) is used to assemble the .asm files
+
 
 ## ROM A
 ROM A listing has been downloaded from https://github.com/mejs/galaksija/tree/master/roms and comes from avian site https://web.archive.org/web/20221228104534/https://www.tablix.org/~avian/galaksija/rom/rom1.html 
@@ -16,32 +17,40 @@ Assembled ROM A is the same as  https://github.com/mejs/galaksija/blob/master/ro
 
 ROM A may be patched for ROM B autostart by doing two changes. One is cosmetic and increases version number to 29. The second change initializes ROM B at start-up to make its commands accessible. If there is no initialization patch, ROM B has to be initialized at startup by typing A=USR(&1000)  
 
-Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_init_ver_29.bin are just:
+Differences between ROM_A_without_ROM_B_init_ver_28.bin and ROM_A_with_ROM_B_init_ver_29.bin are:
+
+```bash
+z80dasm original/ROM_A_without_ROM_B_init_ver_28.bin  -l -g 0x0000 -a -t > 28
+z80dasm original/ROM_A_with_ROM_B_init_ver_29.bin  -l -g 0x0000 -a -t > 29
+diff 28 29
+```
 
 ```
 46c46
-< 	db 28			;0037
+< 	inc e			;0037	1c
 ---
-> 	db 29			;0037
+> 	dec e			;0037	1d
 734,735c734
-< 	ld a,00ch		;03f9
-< 	rst 20h			;03fb
+< 	ld a,00ch		;03f9	3e 0c
+< 	rst 20h			;03fb	e7
 ---
-> 	call 01000h		;03f9
+> 	call 01000h		;03f9	cd 00 10
 ```
 
-To check with version of ROMS you have you can try from BASIC
+To check which version of ROMS do you have you can try from BASIC in your own Galaksija
 ```basic
 DUMP &0037, 1
 ```
-1C means version 28
-1D means version 29
+```1C``` corresponds to version 28
+
+```1D``` corresponds to version 29
 
 ```basic
 DUMP &03F9, 1
 ```
 
-```CD D3 0C``` is for non ROM B init
+```3E 0C E7``` is for non ROM B init
+
 ```CD 00 10``` is for ROM B init (call 01000h)
 
 The following table shows the BASIC commands and their descriptions for ROM A.
