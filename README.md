@@ -45,3 +45,10 @@ My building of Galaksija computer (thanks a lot Vlado Vince!)
 - SW (TO-DO)
   - Document GTP format (WIP)
   - To load SW I got best results with a laptop. Mobile phone seem to have lower signal voltage and did not work.
+ 
+- Other links
+  - https://qsl.net/yt2fsg/galaksija/galaksija_clone.html
+  - https://www.специалист-пк.рф/Galaksija/index6.html
+  - https://8bitchip.info/galaksija/galaksija/schemes/GalaksijaPlus.pdf
+  - https://emulator.galaksija.org/MagScans/index.html
+  - https://github.com/YagoTudela/Galaksija_Plus/blob/main/SoundGenerator/SoundGeneratorPVV_01.png
